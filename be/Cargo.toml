@@ -1,0 +1,22 @@
+[package]
+name = "be"
+version = "0.1.0"
+edition = "2021"
+default-run = "server"
+
+[[bin]]
+name = "server"
+
+[profile.dev]
+opt-level = 3
+overflow-checks = false
+
+[profile.test]
+opt-level = 3
+overflow-checks = false
+
+[dependencies]
+actix-web = "4.2"
+actix-rt = "2.7"
+serde = { version = "1.0.147", features = ["derive"] }
+rand = "0.8.5"
