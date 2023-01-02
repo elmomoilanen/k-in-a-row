@@ -1,8 +1,8 @@
-## Backend ##
+# Backend
 
 Backend service for the game. Computes the bot player's next move in the game board. This is done by applying the minimax algorithm with alpha-beta pruning.
 
-### Build and run ###
+## Build and run ##
 
 Following instructions contain the recommended way to start the backend service locally. To change the listener to which the server is bound (default is 0.0.0.0:8080), please see file `src/bin/server.rs`.
 
@@ -20,11 +20,11 @@ docker run -p 127.0.0.1:8080:8080 --rm k-in-a-row/be
 
 With the previous command, port 8080 of the container is bound to the same port on 127.0.0.1 of the host machine and is not accessible from the outside.
 
-### Use ###
+## Use ##
 
 Server is listening to endpoint `/api/bot/next` and only accepts POST requests with a JSON type payload and a URL query string `level=VALUE` with allowed values of *Easy* and *Normal*.
 
-Following example shows a valid HTTP request used to compute the first move of a normal level 3x3 3-in-a-row game for the bot player
+Following example shows a valid HTTP request (using curl) used to compute the first move of a normal level 3x3 3-in-a-row game for the bot player
 
 ```bash
 curl -X POST "localhost:8080/api/bot/next?level=Normal" \
