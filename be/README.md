@@ -40,4 +40,4 @@ and the response for it could be e.g.
 
 where *next* indicates the board index for the bot's next move. Here indices must be interpreted such that 0-2 represent the first row of the 3x3 board, 3-5 the second row and etc.
 
-For more information on the payload requirements of requests and responses, please see file `src/models.rs`.
+For more information on the payload requirements, please see the model definitions in `src/models.rs`.
