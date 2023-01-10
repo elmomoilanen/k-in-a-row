@@ -1,0 +1,77 @@
+<script lang="ts">
+    import { GameType } from "$lib/games";
+    import { GameLevel } from "$lib/levels";
+    import { Player } from "$lib/players";
+    import Board from "./board.svelte";
+
+    let currentGameType = GameType.None;
+    let currentGameLevel = GameLevel.None;
+
+    function setGameType(newGameType: GameType) {
+        currentGameType = newGameType;
+    }
+    function setGameLevel(newGameLevel: GameLevel) {
+        currentGameLevel = newGameLevel;
+    }
+    function endGame() {
+        currentGameType = GameType.None;
+        currentGameLevel = GameLevel.None;
+    }
+    function getRandomPlayer() {
+        return (Math.random() > 0.5) ? Player.P1 : Player.Bot;
+    }
+
+</script>
+
+{#if currentGameType !== GameType.None && currentGameLevel !== GameLevel.None}
+    <Board size={currentGameType} gameLevel={currentGameLevel} currentPlayer={getRandomPlayer()} endGameFn={endGame} />
+{:else if currentGameType !== GameType.None}
+    <div class="open-page">
+        <h3>Select level</h3>
+        <button on:click={() => setGameLevel(GameLevel.Easy)}>Easy</button>
+        <button on:click={() => setGameLevel(GameLevel.Normal)}>Normal</button>
+        <button on:click={() => setGameLevel(GameLevel.Hard)}>Hard</button>
+    </div>
+{:else}
+    <div class="open-page">
+        <h1>Welcome to play k-in-a-row!</h1>
+        <h3>Start a new game</h3>
+        <button on:click={() => setGameType(GameType.X33)}>3x3 3-in-a-row</button>
+        <button on:click={() => setGameType(GameType.X44)}>4x4 4-in-a-row</button>
+        <button on:click={() => setGameType(GameType.X55)}>5x5 4-in-a-row</button>
+    </div>
+{/if}
+
+<style>
+    :global(:root){
+       --cell-size: 7em;
+       --mark-size: calc(var(--cell-size) * 0.9);
+       --cell-size-small: 5em;
+       --mark-size-small: calc(var(--cell-size-small) * 0.9);
+    }
+    .open-page {
+        position: fixed;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: white;
+    }
+    .open-page button {
+        padding: 0.2em 0.5em;
+        margin-bottom: 0.8em;
+        border-radius: 100px;
+        cursor: pointer;
+        font-size: 2rem;
+        background: linear-gradient(145deg, #f0f0f0, #9cd563);
+    }
+    .open-page button:hover {
+        color: white;
+        border-color: white;
+    }
+</style>
+    
