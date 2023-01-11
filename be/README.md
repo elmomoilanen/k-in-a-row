@@ -27,7 +27,7 @@ Server is listening to endpoint `/api/bot/next` and only accepts POST requests w
 Following example shows a valid HTTP request (using curl) used to compute the first move of a normal level 3x3 3-in-a-row game for the bot player
 
 ```bash
-curl -X POST "localhost:8080/api/bot/next?level=Normal" \
+curl "localhost:8080/api/bot/next?level=Normal" \
     -H "content-type: application/json" \
     -d '{"cells":[0, 0, 0, 0, 0, 0, 0, 0, 0],"p1_mark":1,"bot_mark":-1,"empty_mark":0}'
 ```

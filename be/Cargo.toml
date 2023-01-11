@@ -20,5 +20,6 @@ overflow-checks = false
 [dependencies]
 actix-web = "4.2"
 actix-rt = "2.7"
+actix-cors = "0.6.4"
 serde = { version = "1.0.147", features = ["derive"] }
 rand = "0.8.5"
