@@ -16,6 +16,7 @@ const EMPTY_MARK: i8 = 0;
 const WINNER_VALUE: i32 = 1000;
 const ONE_TO_WIN_VALUE: i32 = 150;
 const TWO_TO_WIN_VALUE: i32 = 50;
+const OPPONENT_PENALTY_MULTIPLIER: i32 = 3;
 
 #[derive(Clone, Copy)]
 pub enum GameInitError {
@@ -85,7 +86,7 @@ impl Game {
         let free_cells = free_indices.len();
 
         match self.board_size {
-            BoardSize::X55 if free_cells > BOARD_SIZE_4X4 => free_indices
+            BoardSize::X55 if free_cells > 20 => free_indices
                 .iter()
                 .filter(|&index| self.adjacent_cell_occupied(*index))
                 .copied()
@@ -461,12 +462,14 @@ impl Game {
         if window_sum_abs == window - 1 && window_sum > 0 {
             window_sum * ONE_TO_WIN_VALUE
         } else if window_sum_abs == window - 1 && window_sum < 0 {
-            window_sum * ONE_TO_WIN_VALUE * 2
+            // Opponent: make a larger penalty
+            window_sum * ONE_TO_WIN_VALUE * OPPONENT_PENALTY_MULTIPLIER
         } else if window_sum_abs >= window_thres && window_sum_abs + window_empty_cells == window {
             if window_sum > 0 {
                 window_sum * TWO_TO_WIN_VALUE
             } else {
-                window_sum * TWO_TO_WIN_VALUE * 2
+                // Opponent: make a larger penalty
+                window_sum * TWO_TO_WIN_VALUE * OPPONENT_PENALTY_MULTIPLIER
             }
         } else {
             0
@@ -816,7 +819,9 @@ mod tests {
             cells_offset: 5,
             cells_to_win: 4,
         };
-        // First and last row bring value
+        // First and last row bring value (cells' sum * value)
+        // First row contribute for both cases, hence the extra "2 *" after + sign
+        // Opponent's marks don't cause any penalty in this case
         let correct_value = 3 * ONE_TO_WIN_VALUE + 2 * 2 * TWO_TO_WIN_VALUE;
 
         assert_eq!(game.value_in_rows(), correct_value);
@@ -838,6 +843,7 @@ mod tests {
             cells_to_win: 4,
         };
         // 1st, 2nd, 3rd and 5th column bring value
+        // 3 ONE_TO_WIN and 5 TWO_TO_WIN cases in total
         let correct_value = 3 * 3 * ONE_TO_WIN_VALUE + 5 * 2 * TWO_TO_WIN_VALUE;
 
         assert_eq!(game.value_in_cols(), correct_value);
@@ -858,6 +864,7 @@ mod tests {
             cells_offset: 5,
             cells_to_win: 4,
         };
+        // 2 ONE_TO_WIN and 2 TWO_TO_WIN cases in total
         let correct_value = 2 * 3 * ONE_TO_WIN_VALUE + 2 * 2 * TWO_TO_WIN_VALUE;
 
         assert_eq!(game.value_in_diags(false), correct_value);
@@ -878,8 +885,32 @@ mod tests {
             cells_offset: 5,
             cells_to_win: 4,
         };
+        // 1 ONE_TO_WIN and 3 TWO_TO_WIN cases in total
         let correct_value = 3 * ONE_TO_WIN_VALUE + 3 * 2 * TWO_TO_WIN_VALUE;
 
         assert_eq!(game.value_in_diags(true), correct_value);
+    }
+
+    #[test]
+    fn value_penalty_opposite_player() {
+        let cells: [i8; 25] = [
+            0, -1, -1, -1, 0, 0, 0, 0, 0, 0, -1, 1, -1, -1, 0, 0, 0, 0, 0, 0, -1, 0, -1, 0, 1,
+        ];
+        let (p1_mark, bot_mark, empty_mark) = (1, -1, 0);
+        let game = Game {
+            cells: cells.to_vec(),
+            p1_mark,
+            bot_mark,
+            empty_mark,
+            board_size: BoardSize::X55,
+            cells_offset: 5,
+            cells_to_win: 4,
+        };
+
+        let correct_value_first_row = 2 * -3 * ONE_TO_WIN_VALUE * OPPONENT_PENALTY_MULTIPLIER;
+        let correct_value_last_row = 1 * -2 * TWO_TO_WIN_VALUE * OPPONENT_PENALTY_MULTIPLIER;
+        let correct_value = correct_value_first_row + correct_value_last_row;
+
+        assert_eq!(game.value_in_rows(), correct_value);
     }
 }

@@ -6,9 +6,9 @@ use crate::models::{BotMove, Level};
 
 const DEPTH_UPPER_BOUND_3X3: i8 = 9;
 const DEPTH_UPPER_BOUND_4X4: i8 = 16;
-const DEPTH_UPPER_BOUND_5X5: i8 = 8;
-const EASY_DEPTH_UPPER_BOUND_3X3: i8 = 5;
-const EASY_DEPTH_UPPER_BOUND_4X4: i8 = 10;
+const DEPTH_UPPER_BOUND_5X5: i8 = 7;
+const EASY_DEPTH_UPPER_BOUND_3X3: i8 = 6;
+const EASY_DEPTH_UPPER_BOUND_4X4: i8 = 11;
 const EASY_DEPTH_UPPER_BOUND_5X5: i8 = 5;
 
 pub struct Bot;
@@ -188,8 +188,8 @@ impl Bot {
             }
             7 | 11 | 13 | 17 => center_idx as u8,
             _ => {
-                let indices = [6, 7, 8, 11, 13, 16, 17, 18];
-                Self::get_random_or_fallback_idx(&indices, 11)
+                let indices = [6, 8, 16, 18];
+                Self::get_random_or_fallback_idx(&indices, 6)
             }
         }
     }
@@ -598,12 +598,17 @@ mod tests {
         }
     }
 
-    fn play_complete_game(game_size: usize) {
+    fn play_complete_game(game_size: usize, play_p1_first_move: bool, p1_first_move_idx: usize) {
         let empty_mark = 0;
         let (mut p1_mark, mut bot_mark) = (-1, 1);
         let mut cells = vec![0; game_size];
 
         let mut move_i = 0;
+
+        if play_p1_first_move {
+            cells[p1_first_move_idx] = p1_mark;
+            move_i += 1;
+        }
 
         loop {
             let board = Board {
@@ -656,16 +661,26 @@ mod tests {
 
     #[test]
     fn complete_game_play_3x3() {
-        play_complete_game(BOARD_SIZE_3X3);
+        play_complete_game(BOARD_SIZE_3X3, false, 0);
     }
 
     #[test]
     fn complete_game_play_4x4() {
-        play_complete_game(BOARD_SIZE_4X4);
+        play_complete_game(BOARD_SIZE_4X4, false, 0);
     }
 
     #[test]
     fn complete_game_play_5x5() {
-        play_complete_game(BOARD_SIZE_5X5);
+        play_complete_game(BOARD_SIZE_5X5, false, 0);
+    }
+
+    #[test]
+    fn complete_game_play_3x3_after_p1_center_move() {
+        play_complete_game(BOARD_SIZE_3X3, true, 4);
+    }
+
+    #[test]
+    fn complete_game_play_5x5_after_p1_center_move() {
+        play_complete_game(BOARD_SIZE_5X5, true, 12);
     }
 }
