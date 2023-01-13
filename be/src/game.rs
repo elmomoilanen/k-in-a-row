@@ -37,6 +37,9 @@ pub struct Game {
     pub p1_mark: i8,
     pub bot_mark: i8,
     pub empty_mark: i8,
+    pub orig_p1_mark: i8,
+    pub orig_bot_mark: i8,
+    pub orig_empty_mark: i8,
     board_size: BoardSize,
     cells_offset: u8,
     cells_to_win: u8,
@@ -63,6 +66,9 @@ impl Game {
             p1_mark: P1_MARK,
             bot_mark: BOT_MARK,
             empty_mark: EMPTY_MARK,
+            orig_p1_mark: board.p1_mark,
+            orig_bot_mark: board.bot_mark,
+            orig_empty_mark: board.empty_mark,
             board_size,
             cells_offset,
             cells_to_win,
@@ -522,6 +528,21 @@ mod tests {
         }
     }
 
+    fn init_5x5_game_literal(cells: &[i8], p1_mark: i8, bot_mark: i8, empty_mark: i8) -> Game {
+        Game {
+            cells: cells.to_vec(),
+            p1_mark,
+            bot_mark,
+            empty_mark,
+            orig_p1_mark: p1_mark,
+            orig_bot_mark: bot_mark,
+            orig_empty_mark: empty_mark,
+            board_size: BoardSize::X55,
+            cells_offset: 5,
+            cells_to_win: 4,
+        }
+    }
+
     #[test]
     fn board_size_error() {
         let board = Board {
@@ -574,11 +595,12 @@ mod tests {
 
     #[test]
     fn init_new_game() {
+        let (p1_mark, bot_mark, empty_mark) = (2, 11, 8);
         let board = Board {
             cells: vec![8, 8, 11, 11, 8, 8, 2, 8, 2],
-            p1_mark: 2,
-            bot_mark: 11,
-            empty_mark: 8,
+            p1_mark,
+            bot_mark,
+            empty_mark,
         };
         let game = match Game::new(board) {
             Ok(game) => game,
@@ -587,9 +609,15 @@ mod tests {
 
         let correct_cells = vec![0, 0, 1, 1, 0, 0, -1, 0, -1];
 
+        // Test normalized marker values
         assert_eq!(game.p1_mark, P1_MARK);
         assert_eq!(game.bot_mark, BOT_MARK);
         assert_eq!(game.empty_mark, EMPTY_MARK);
+        // Test original marker values
+        assert_eq!(game.orig_p1_mark, p1_mark);
+        assert_eq!(game.orig_bot_mark, bot_mark);
+        assert_eq!(game.orig_empty_mark, empty_mark);
+
         assert_eq!(game.cells, correct_cells);
     }
 
@@ -625,6 +653,9 @@ mod tests {
             p1_mark,
             bot_mark,
             empty_mark,
+            orig_p1_mark: p1_mark,
+            orig_bot_mark: bot_mark,
+            orig_empty_mark: empty_mark,
             board_size: BoardSize::X55,
             cells_offset: 5,
             cells_to_win: 4,
@@ -810,15 +841,7 @@ mod tests {
         ];
         let (p1_mark, bot_mark, empty_mark) = (1, -1, 0);
         // Board (cells) is now inconsistent and cannot thus call Game::new
-        let game = Game {
-            cells: cells.to_vec(),
-            p1_mark,
-            bot_mark,
-            empty_mark,
-            board_size: BoardSize::X55,
-            cells_offset: 5,
-            cells_to_win: 4,
-        };
+        let game = init_5x5_game_literal(&cells, p1_mark, bot_mark, empty_mark);
         // First and last row bring value (cells' sum * value)
         // First row contribute for both cases, hence the extra "2 *" after + sign
         // Opponent's marks don't cause any penalty in this case
@@ -833,15 +856,7 @@ mod tests {
             0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0,
         ];
         let (p1_mark, bot_mark, empty_mark) = (1, -1, 0);
-        let game = Game {
-            cells: cells.to_vec(),
-            p1_mark,
-            bot_mark,
-            empty_mark,
-            board_size: BoardSize::X55,
-            cells_offset: 5,
-            cells_to_win: 4,
-        };
+        let game = init_5x5_game_literal(&cells, p1_mark, bot_mark, empty_mark);
         // 1st, 2nd, 3rd and 5th column bring value
         // 3 ONE_TO_WIN and 5 TWO_TO_WIN cases in total
         let correct_value = 3 * 3 * ONE_TO_WIN_VALUE + 5 * 2 * TWO_TO_WIN_VALUE;
@@ -855,15 +870,7 @@ mod tests {
             0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1,
         ];
         let (p1_mark, bot_mark, empty_mark) = (1, -1, 0);
-        let game = Game {
-            cells: cells.to_vec(),
-            p1_mark,
-            bot_mark,
-            empty_mark,
-            board_size: BoardSize::X55,
-            cells_offset: 5,
-            cells_to_win: 4,
-        };
+        let game = init_5x5_game_literal(&cells, p1_mark, bot_mark, empty_mark);
         // 2 ONE_TO_WIN and 2 TWO_TO_WIN cases in total
         let correct_value = 2 * 3 * ONE_TO_WIN_VALUE + 2 * 2 * TWO_TO_WIN_VALUE;
 
@@ -876,15 +883,7 @@ mod tests {
             0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
         ];
         let (p1_mark, bot_mark, empty_mark) = (1, -1, 0);
-        let game = Game {
-            cells: cells.to_vec(),
-            p1_mark,
-            bot_mark,
-            empty_mark,
-            board_size: BoardSize::X55,
-            cells_offset: 5,
-            cells_to_win: 4,
-        };
+        let game = init_5x5_game_literal(&cells, p1_mark, bot_mark, empty_mark);
         // 1 ONE_TO_WIN and 3 TWO_TO_WIN cases in total
         let correct_value = 3 * ONE_TO_WIN_VALUE + 3 * 2 * TWO_TO_WIN_VALUE;
 
@@ -897,15 +896,7 @@ mod tests {
             0, -1, -1, -1, 0, 0, 0, 0, 0, 0, -1, 1, -1, -1, 0, 0, 0, 0, 0, 0, -1, 0, -1, 0, 1,
         ];
         let (p1_mark, bot_mark, empty_mark) = (1, -1, 0);
-        let game = Game {
-            cells: cells.to_vec(),
-            p1_mark,
-            bot_mark,
-            empty_mark,
-            board_size: BoardSize::X55,
-            cells_offset: 5,
-            cells_to_win: 4,
-        };
+        let game = init_5x5_game_literal(&cells, p1_mark, bot_mark, empty_mark);
 
         let correct_value_first_row = 2 * -3 * ONE_TO_WIN_VALUE * OPPONENT_PENALTY_MULTIPLIER;
         let correct_value_last_row = 1 * -2 * TWO_TO_WIN_VALUE * OPPONENT_PENALTY_MULTIPLIER;

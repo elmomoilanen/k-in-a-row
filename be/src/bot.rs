@@ -59,7 +59,7 @@ impl Bot {
             next: rand::thread_rng().gen_range(0..cells_count as u8),
             next_is_valid: true,
             game_over: false,
-            winner: game.empty_mark,
+            winner: game.orig_empty_mark,
         })
     }
 
@@ -77,7 +77,7 @@ impl Bot {
             next: bot_next_pos,
             next_is_valid: true,
             game_over: false,
-            winner: game.empty_mark,
+            winner: game.orig_empty_mark,
         })
     }
 
@@ -202,6 +202,16 @@ impl Bot {
         }
     }
 
+    fn renormalize_winner_marker(game: &Game, winner: i8) -> i8 {
+        if winner == game.empty_mark {
+            game.orig_empty_mark
+        } else if winner == game.p1_mark {
+            game.orig_p1_mark
+        } else {
+            game.orig_bot_mark
+        }
+    }
+
     fn complete_bot_move(mut game: Game, best_next_move: Option<usize>) -> Option<BotMove> {
         match best_next_move {
             Some(best_move) => {
@@ -209,19 +219,20 @@ impl Bot {
 
                 let winner = game.winner();
                 let game_over = winner != game.empty_mark || game.empty_cell_count() == 0;
+                let winner_orig = Self::renormalize_winner_marker(&game, winner);
 
                 Some(BotMove {
                     next: best_move as u8,
                     next_is_valid: true,
                     game_over,
-                    winner,
+                    winner: winner_orig,
                 })
             }
             None => Some(BotMove {
                 next: u8::MAX,
                 next_is_valid: false,
                 game_over: true,
-                winner: game.winner(),
+                winner: Self::renormalize_winner_marker(&game, game.winner()),
             }),
         }
     }
@@ -525,6 +536,36 @@ mod tests {
             let game = init_game(cells, p1_mark, bot_mark, empty_mark);
 
             match Bot::next_move(game, Level::Normal) {
+                Some(bot_move) => {
+                    assert_eq!(bot_move.next, correct_next_move[i]);
+                    assert_eq!(bot_move.winner, correct_winner[i]);
+                    assert_eq!(bot_move.next_is_valid, true);
+                    assert_eq!(bot_move.game_over, true);
+                }
+                None => panic!("Bot::next_move returned None"),
+            }
+        }
+    }
+
+    #[test]
+    fn bot_game_final_move_markers_correct() {
+        let (p1_mark, bot_mark, empty_mark) = (5, -3, 2);
+
+        let cells_collections: [[i8; 9]; 2] = [
+            [5, 5, -3, 2, -3, 2, 2, 2, 2],
+            [5, -3, -3, -3, -3, 5, 5, 5, 2],
+        ];
+
+        let correct_next_move: [u8; 2] = [6, 8];
+        let correct_winner: [i8; 2] = [bot_mark, empty_mark];
+
+        let it = cells_collections.iter().zip(0..correct_next_move.len());
+
+        for (cells, i) in it {
+            let game = init_game(cells, p1_mark, bot_mark, empty_mark);
+
+            match Bot::next_move(game, Level::Normal) {
+                // Check that player markers are the original (not the normalized)
                 Some(bot_move) => {
                     assert_eq!(bot_move.next, correct_next_move[i]);
                     assert_eq!(bot_move.winner, correct_winner[i]);
