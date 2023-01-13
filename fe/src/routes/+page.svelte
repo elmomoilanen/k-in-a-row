@@ -6,34 +6,69 @@
 
     let currentGameType = GameType.None;
     let currentGameLevel = GameLevel.None;
+    let previousGameType = GameType.None;
+    let previousGameLevel = GameLevel.None;
+    let showGameEndOptions = false;
 
     function setGameType(newGameType: GameType) {
         currentGameType = newGameType;
     }
+
     function setGameLevel(newGameLevel: GameLevel) {
         currentGameLevel = newGameLevel;
     }
+
     function endGame() {
+        previousGameType = currentGameType;
+        previousGameLevel = currentGameLevel;
         currentGameType = GameType.None;
         currentGameLevel = GameLevel.None;
-    }
-    function getRandomPlayer() {
-        return (Math.random() > 0.5) ? Player.P1 : Player.Bot;
+        showGameEndOptions = true;
     }
 
+    function resetGame() {
+        currentGameType = previousGameType;
+        currentGameLevel = previousGameLevel;
+        previousGameType = GameType.None;
+        previousGameLevel = GameLevel.None;
+        showGameEndOptions = false;
+    }
+
+    function backToStart() {
+        currentGameType = GameType.None;
+        currentGameLevel = GameLevel.None;
+        previousGameType = GameType.None;
+        previousGameLevel = GameLevel.None;
+        showGameEndOptions = false;
+    }
+
+    function getRandomPlayer() {
+        return Math.random() > 0.5 ? Player.P1 : Player.Bot;
+    }
 </script>
 
 {#if currentGameType !== GameType.None && currentGameLevel !== GameLevel.None}
-    <Board size={currentGameType} gameLevel={currentGameLevel} currentPlayer={getRandomPlayer()} endGameFn={endGame} />
+    <Board
+        size={currentGameType}
+        gameLevel={currentGameLevel}
+        currentPlayer={getRandomPlayer()}
+        endGameFn={endGame}
+    />
 {:else if currentGameType !== GameType.None}
-    <div class="open-page">
+    <div class="open-page" id="select-level">
         <h3>Select level</h3>
         <button on:click={() => setGameLevel(GameLevel.Easy)}>Easy</button>
         <button on:click={() => setGameLevel(GameLevel.Normal)}>Normal</button>
         <button on:click={() => setGameLevel(GameLevel.Hard)}>Hard</button>
     </div>
+{:else if showGameEndOptions}
+    <div class="open-page" id="reset-game">
+        <h3>Choose an action</h3>
+        <button on:click={resetGame}>Play again</button>
+        <button on:click={backToStart}>Back to start</button>
+    </div>
 {:else}
-    <div class="open-page">
+    <div class="open-page" id="select-game">
         <h1>Welcome to play k-in-a-row!</h1>
         <h3>Start a new game</h3>
         <button on:click={() => setGameType(GameType.X33)}>3x3 3-in-a-row</button>
@@ -43,11 +78,11 @@
 {/if}
 
 <style>
-    :global(:root){
-       --cell-size: 7em;
-       --mark-size: calc(var(--cell-size) * 0.9);
-       --cell-size-small: 5em;
-       --mark-size-small: calc(var(--cell-size-small) * 0.9);
+    :global(:root) {
+        --cell-size: 7em;
+        --mark-size: calc(var(--cell-size) * 0.9);
+        --cell-size-small: 5em;
+        --mark-size-small: calc(var(--cell-size-small) * 0.9);
     }
     .open-page {
         position: fixed;
@@ -73,5 +108,10 @@
         color: white;
         border-color: white;
     }
+    @media screen and (max-width: 450px) {
+        .open-page h1,
+        .open-page button {
+            font-size: 1.75em;
+        }
+    }
 </style>
-    

@@ -3,6 +3,7 @@
     import { GameType } from "$lib/games";
     import { GameLevel } from "$lib/levels";
     import { Player } from "$lib/players";
+    import Winner from "./winner.svelte";
 
     type VoidFn = () => void;
 
@@ -15,14 +16,14 @@
     const O_MARK = "o-symbol";
     const EMPTY_MARK = "";
 
-    let currentMarker = (Math.random() < 0.5) ? X_MARK : O_MARK;
+    let currentMarker = Math.random() < 0.5 ? X_MARK : O_MARK;
     let gameOver = false;
     let gameWinner = Player.Empty;
 
     function initCells(cellsCount: number) {
         let cells = [];
-        for (let j=0; j<cellsCount; ++j) {
-            cells.push({id: `${j}`, val: Player.Empty, mark: EMPTY_MARK});
+        for (let j = 0; j < cellsCount; ++j) {
+            cells.push({ id: `${j}`, val: Player.Empty, mark: EMPTY_MARK });
         }
         return cells;
     }
@@ -36,6 +37,7 @@
             currentMarker = X_MARK;
         }
     }
+
     function changePlayer() {
         if (currentPlayer === Player.P1) {
             currentPlayer = Player.Bot;
@@ -46,7 +48,7 @@
 
     function playP1Turn(cellId: string) {
         const cell = parseInt(cellId);
-        cells[cell] = {id: cellId, val: Player.P1, mark: currentMarker};
+        cells[cell] = { id: cellId, val: Player.P1, mark: currentMarker };
         changePlayer();
         changeMarker();
     }
@@ -55,22 +57,21 @@
         const API_URL = "http://localhost:8080/api/bot/next";
 
         // Map level "Hard" to "Normal" for the API call
-        const level = (gameLevel === GameLevel.Easy) ? "Easy" : "Normal";
+        const level = gameLevel === GameLevel.Easy ? "Easy" : "Normal";
         const url = API_URL + `?level=${level}`;
 
         const responseRaw = await fetch(url, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json",
-                "Access-Control-Allow-Origin": "*"
+                Accept: "application/json"
             },
             body: JSON.stringify({
-                "cells": cells.map(cell => cell.val),
-                "p1_mark": Player.P1,
-                "bot_mark": Player.Bot,
-                "empty_mark": Player.Empty
-            }),
+                cells: cells.map((cell) => cell.val),
+                p1_mark: Player.P1,
+                bot_mark: Player.Bot,
+                empty_mark: Player.Empty
+            })
         });
         if (!responseRaw.ok) {
             throw new Error(`API error: ${responseRaw.status}`);
@@ -79,7 +80,7 @@
 
         if (responseParsed.next_is_valid) {
             const cell = responseParsed.next;
-            cells[cell] = {id: `${cell}`, val: Player.Bot, mark: currentMarker};
+            cells[cell] = { id: `${cell}`, val: Player.Bot, mark: currentMarker };
         }
         gameWinner = responseParsed.winner;
         gameOver = responseParsed.game_over;
@@ -88,46 +89,57 @@
     }
 </script>
 
-{#if gameOver }
-    <p>Game winner {gameWinner}</p>
+{#if gameOver}
+    <Winner {gameWinner} {endGameFn} />
 {/if}
 
 {#if currentPlayer === Player.Bot}
     {#await playBotTurn()}
-        <p></p>
+        <div style="visibility:hidden;display:none" />
     {:catch error}
-        <p style="color: red">ERROR {error}</p>
+        <p style="color: red">{error}</p>
     {/await}
 {/if}
-
 
 {#if cells.length === GameType.X33}
     <div class="board x33 {currentMarker}" id="board-x33">
         {#each cells as { id, val, mark }}
-            {#if currentPlayer === Player.P1 && val === Player.Empty && mark === EMPTY_MARK}
-                <button class="cell" id={id} on:click={() => playP1Turn(id)} />
+            {#if gameOver && val === Player.Empty && mark === EMPTY_MARK}
+                <button class="cell bot" {id} />
+            {:else if currentPlayer === Player.P1 && val === Player.Empty && mark === EMPTY_MARK}
+                <button class="cell" {id} on:click={() => playP1Turn(id)} />
+            {:else if currentPlayer === Player.Bot && val === Player.Empty && mark === EMPTY_MARK}
+                <button class="cell bot" {id} />
             {:else}
-                <button class="cell {mark}" id={id} />
+                <button class="cell {mark}" {id} />
             {/if}
-        {/each}    
+        {/each}
     </div>
 {:else if cells.length === GameType.X44}
     <div class="board x44 {currentMarker}" id="board-x44">
         {#each cells as { id, val, mark }}
-            {#if currentPlayer === Player.P1 && val === Player.Empty && mark === EMPTY_MARK}
-                <button class="cell" id={id} on:click={() => playP1Turn(id)} />
+            {#if gameOver && val === Player.Empty && mark === EMPTY_MARK}
+                <button class="cell bot" {id} />
+            {:else if currentPlayer === Player.P1 && val === Player.Empty && mark === EMPTY_MARK}
+                <button class="cell" {id} on:click={() => playP1Turn(id)} />
+            {:else if currentPlayer === Player.Bot && val === Player.Empty && mark === EMPTY_MARK}
+                <button class="cell bot" {id} />
             {:else}
-                <button class="cell {mark}" id={id} />
-            {/if}    
-        {/each}            
+                <button class="cell {mark}" {id} />
+            {/if}
+        {/each}
     </div>
 {:else if cells.length === GameType.X55}
     <div class="board x55 {currentMarker}" id="board-x55">
         {#each cells as { id, val, mark }}
-            {#if currentPlayer === Player.P1 && val === Player.Empty && mark === EMPTY_MARK}
-                <button class="cell" id={id} on:click={() => playP1Turn(id)} />
+            {#if gameOver && val === Player.Empty && mark === EMPTY_MARK}
+                <button class="cell bot" {id} />
+            {:else if currentPlayer === Player.P1 && val === Player.Empty && mark === EMPTY_MARK}
+                <button class="cell" {id} on:click={() => playP1Turn(id)} />
+            {:else if currentPlayer === Player.Bot && val === Player.Empty && mark === EMPTY_MARK}
+                <button class="cell bot" {id} />
             {:else}
-                <button class="cell {mark}" id={id} />
+                <button class="cell {mark}" {id} />
             {/if}
         {/each}
     </div>
@@ -211,7 +223,8 @@
     }
 
     .cell.x-symbol,
-    .cell.o-symbol {
+    .cell.o-symbol,
+    .cell.bot {
         cursor: not-allowed;
     }
     .cell.x-symbol::before,
@@ -220,65 +233,66 @@
     .cell.o-symbol::after {
         background-color: black;
     }
-    .board.x-symbol .cell:not(.x-symbol):not(.o-symbol):hover::before,
-    .board.x-symbol .cell:not(.x-symbol):not(.o-symbol):hover::after {
+    .board.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+    .board.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after {
         background-color: grey;
     }
-    .board.o-symbol .cell:not(.x-symbol):not(.o-symbol):hover::before,
-    .board.o-symbol .cell:not(.x-symbol):not(.o-symbol):hover::after {
+    .board.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+    .board.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after {
         background-color: grey;
     }
     .cell.x-symbol::before,
     .cell.x-symbol::after,
-    .board.x-symbol .cell:not(.x-symbol):not(.o-symbol):hover::before,
-    .board.x-symbol .cell:not(.x-symbol):not(.o-symbol):hover::after {
+    .board.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+    .board.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after {
         content: "";
         position: absolute;
         width: calc(var(--mark-size) * 0.1);
         height: calc(var(--mark-size) * 1);
     }
     .cell.x-symbol::before,
-    .board.x-symbol .cell:not(.x-symbol):not(.o-symbol):hover::before {
+    .board.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before {
         transform: rotate(45deg);
     }
     .cell.x-symbol::after,
-    .board.x-symbol .cell:not(.x-symbol):not(.o-symbol):hover::after {
+    .board.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after {
         transform: rotate(-45deg);
     }
     .cell.o-symbol::before,
     .cell.o-symbol::after,
-    .board.o-symbol .cell:not(.x-symbol):not(.o-symbol):hover::before,
-    .board.o-symbol .cell:not(.x-symbol):not(.o-symbol):hover::after {
+    .board.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+    .board.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after {
         content: "";
         position: absolute;
         border-radius: 50%;
     }
     .cell.o-symbol::before,
-    .board.o-symbol .cell:not(.x-symbol):not(.o-symbol):hover::before {
+    .board.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before {
         width: var(--mark-size);
         height: var(--mark-size);
     }
     .cell.o-symbol::after,
-    .board.o-symbol .cell:not(.x-symbol):not(.o-symbol):hover::after {
+    .board.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after {
         width: calc(var(--mark-size) * 0.8);
         height: calc(var(--mark-size) * 0.8);
         background-color: white;
     }
+
     @media screen and (max-width: 800px) {
         .cell.x-symbol::before,
         .cell.x-symbol::after,
-        .board.x-symbol .cell:not(.x-symbol):not(.o-symbol):hover::before,
-        .board.x-symbol .cell:not(.x-symbol):not(.o-symbol):hover::after {
+        .board.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+        .board.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after {
             width: calc(var(--mark-size-small) * 0.1);
             height: calc(var(--mark-size-small) * 1);
         }
         .cell.o-symbol::before,
-        .board.o-symbol .cell:not(.x-symbol):not(.o-symbol):hover::before {
+        .board.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before {
             width: var(--mark-size-small);
             height: var(--mark-size-small);
         }
         .cell.o-symbol::after,
-        .board.o-symbol .cell:not(.x-symbol):not(.o-symbol):hover::after {
+        .board.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after {
             width: calc(var(--mark-size-small) * 0.8);
             height: calc(var(--mark-size-small) * 0.8);
         }
