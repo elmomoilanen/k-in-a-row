@@ -56,7 +56,6 @@
     async function playBotTurn() {
         const API_URL = "http://localhost:8080/api/bot/next";
 
-        // Map level "Hard" to "Normal" for the API call
         const level = gameLevel === GameLevel.Easy ? "Easy" : "Normal";
         const url = API_URL + `?level=${level}`;
 
@@ -131,6 +130,20 @@
     </div>
 {:else if cells.length === GameType.X55}
     <div class="board x55 {currentMarker}" id="board-x55">
+        {#each cells as { id, val, mark }}
+            {#if gameOver && val === Player.Empty && mark === EMPTY_MARK}
+                <button class="cell bot" {id} />
+            {:else if currentPlayer === Player.P1 && val === Player.Empty && mark === EMPTY_MARK}
+                <button class="cell" {id} on:click={() => playP1Turn(id)} />
+            {:else if currentPlayer === Player.Bot && val === Player.Empty && mark === EMPTY_MARK}
+                <button class="cell bot" {id} />
+            {:else}
+                <button class="cell {mark}" {id} />
+            {/if}
+        {/each}
+    </div>
+{:else if cells.length === GameType.X66}
+    <div class="board x66 {currentMarker}" id="board-x66">
         {#each cells as { id, val, mark }}
             {#if gameOver && val === Player.Empty && mark === EMPTY_MARK}
                 <button class="cell bot" {id} />
@@ -219,6 +232,22 @@
         border-top: none;
     }
     .board.x55 .cell:nth-child(n + 21) {
+        border-bottom: none;
+    }
+
+    .x66 {
+        grid-template-columns: repeat(6, auto);
+    }
+    .board.x66 .cell:nth-child(6n + 1) {
+        border-left: none;
+    }
+    .board.x66 .cell:nth-child(6n + 6) {
+        border-right: none;
+    }
+    .board.x66 .cell:nth-child(n) {
+        border-top: none;
+    }
+    .board.x66 .cell:nth-child(n + 31) {
         border-bottom: none;
     }
 

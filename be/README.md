@@ -4,7 +4,7 @@ Backend service for the game. Computes the bot player's next move in the game bo
 
 ## Build and run ##
 
-Following instructions contain the recommended way to start the backend service locally. To change the listener to which the server is bound (default is 0.0.0.0:8080), please see file `src/bin/server.rs`.
+Following instructions contain the recommended way to start the backend service locally. To change the listener to which the server is bound (default is 0.0.0.0:8080), please see the file `src/bin/server.rs` for settings of the server.
 
 First build an image from the Dockerfile
 

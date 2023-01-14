@@ -59,7 +59,6 @@
         <h3>Select level</h3>
         <button on:click={() => setGameLevel(GameLevel.Easy)}>Easy</button>
         <button on:click={() => setGameLevel(GameLevel.Normal)}>Normal</button>
-        <button on:click={() => setGameLevel(GameLevel.Hard)}>Hard</button>
     </div>
 {:else if showGameEndOptions}
     <div class="open-page" id="reset-game">
@@ -74,6 +73,7 @@
         <button on:click={() => setGameType(GameType.X33)}>3x3 3-in-a-row</button>
         <button on:click={() => setGameType(GameType.X44)}>4x4 4-in-a-row</button>
         <button on:click={() => setGameType(GameType.X55)}>5x5 4-in-a-row</button>
+        <button on:click={() => setGameType(GameType.X66)}>6x6 5-in-a-row</button>
     </div>
 {/if}
 
@@ -81,7 +81,7 @@
     :global(:root) {
         --cell-size: 7em;
         --mark-size: calc(var(--cell-size) * 0.9);
-        --cell-size-small: 5em;
+        --cell-size-small: 4.5em;
         --mark-size-small: calc(var(--cell-size-small) * 0.9);
     }
     .open-page {
