@@ -17,7 +17,7 @@ const EASY_DEPTH_UPPER_BOUND_6X6: i8 = 3;
 pub struct Bot;
 
 impl Bot {
-    pub fn next_move(mut game: Game, level: Level) -> Option<BotMove> {
+    pub fn next_move(mut game: Game, level: Level) -> BotMove {
         let cells_count = game.cells.len();
         let empty_cells = game.empty_cell_count();
 
@@ -58,13 +58,13 @@ impl Bot {
         Self::complete_bot_move(game, best_move)
     }
 
-    fn play_game_first_move(game: Game, cells_count: usize) -> Option<BotMove> {
-        Some(BotMove {
+    fn play_game_first_move(game: Game, cells_count: usize) -> BotMove {
+        BotMove {
             next: rand::thread_rng().gen_range(0..cells_count as u8),
             next_is_valid: true,
             game_over: false,
             winner: game.orig_empty_mark,
-        })
+        }
     }
 
     fn renormalize_winner_marker(game: &Game, winner: i8) -> i8 {
@@ -77,7 +77,7 @@ impl Bot {
         }
     }
 
-    fn complete_bot_move(mut game: Game, best_next_move: Option<usize>) -> Option<BotMove> {
+    fn complete_bot_move(mut game: Game, best_next_move: Option<usize>) -> BotMove {
         match best_next_move {
             Some(best_move) => {
                 game.cells[best_move] = game.bot_mark;
@@ -86,19 +86,19 @@ impl Bot {
                 let game_over = winner != game.empty_mark || game.empty_cell_count() == 0;
                 let winner_orig = Self::renormalize_winner_marker(&game, winner);
 
-                Some(BotMove {
+                BotMove {
                     next: best_move as u8,
                     next_is_valid: true,
                     game_over,
                     winner: winner_orig,
-                })
+                }
             }
-            None => Some(BotMove {
+            None => BotMove {
                 next: u8::MAX,
                 next_is_valid: false,
                 game_over: true,
                 winner: Self::renormalize_winner_marker(&game, game.winner()),
-            }),
+            },
         }
     }
 
@@ -401,15 +401,12 @@ mod tests {
         for (cells, i) in it {
             let game = init_game(cells, p1_mark, bot_mark, empty_mark);
 
-            match Bot::next_move(game, Level::Normal) {
-                Some(bot_move) => {
-                    assert_eq!(bot_move.next, correct_next_move[i]);
-                    assert_eq!(bot_move.winner, correct_winner[i]);
-                    assert_eq!(bot_move.next_is_valid, true);
-                    assert_eq!(bot_move.game_over, true);
-                }
-                None => panic!("Bot::next_move returned None"),
-            }
+            let bot_move = Bot::next_move(game, Level::Normal);
+
+            assert_eq!(bot_move.next, correct_next_move[i]);
+            assert_eq!(bot_move.winner, correct_winner[i]);
+            assert_eq!(bot_move.next_is_valid, true);
+            assert_eq!(bot_move.game_over, true);
         }
     }
 
@@ -430,16 +427,13 @@ mod tests {
         for (cells, i) in it {
             let game = init_game(cells, p1_mark, bot_mark, empty_mark);
 
-            match Bot::next_move(game, Level::Normal) {
-                // Check that player markers are the original (not the normalized)
-                Some(bot_move) => {
-                    assert_eq!(bot_move.next, correct_next_move[i]);
-                    assert_eq!(bot_move.winner, correct_winner[i]);
-                    assert_eq!(bot_move.next_is_valid, true);
-                    assert_eq!(bot_move.game_over, true);
-                }
-                None => panic!("Bot::next_move returned None"),
-            }
+            let bot_move = Bot::next_move(game, Level::Normal);
+
+            // Check that player markers are the original (not the normalized)
+            assert_eq!(bot_move.next, correct_next_move[i]);
+            assert_eq!(bot_move.winner, correct_winner[i]);
+            assert_eq!(bot_move.next_is_valid, true);
+            assert_eq!(bot_move.game_over, true);
         }
     }
 
@@ -459,15 +453,12 @@ mod tests {
         for (cells, i) in it {
             let game = init_game(cells, p1_mark, bot_mark, empty_mark);
 
-            match Bot::next_move(game, Level::Normal) {
-                Some(bot_move) => {
-                    assert_eq!(bot_move.next, correct_next_move[i]);
-                    assert_eq!(bot_move.winner, empty_mark);
-                    assert_eq!(bot_move.next_is_valid, true);
-                    assert_eq!(bot_move.game_over, false);
-                }
-                None => panic!("Bot::next_move returned None"),
-            }
+            let bot_move = Bot::next_move(game, Level::Normal);
+
+            assert_eq!(bot_move.next, correct_next_move[i]);
+            assert_eq!(bot_move.winner, empty_mark);
+            assert_eq!(bot_move.next_is_valid, true);
+            assert_eq!(bot_move.game_over, false);
         }
     }
 
@@ -494,14 +485,11 @@ mod tests {
         for (cells, i) in it {
             let game = init_game(cells, p1_mark, bot_mark, empty_mark);
 
-            match Bot::next_move(game, Level::Normal) {
-                Some(bot_move) => {
-                    assert_eq!(bot_move.winner, correct_winner[i]);
-                    assert_eq!(bot_move.game_over, true);
-                    assert_eq!(bot_move.next_is_valid, false);
-                }
-                None => panic!("Bot::next_move returned None"),
-            }
+            let bot_move = Bot::next_move(game, Level::Normal);
+
+            assert_eq!(bot_move.winner, correct_winner[i]);
+            assert_eq!(bot_move.game_over, true);
+            assert_eq!(bot_move.next_is_valid, false);
         }
     }
 
@@ -531,10 +519,8 @@ mod tests {
             // Use following for debugging, add --nocapture
             println!("{}", &game);
 
-            let res = match Bot::next_move(game, Level::Normal) {
-                Some(res) => res,
-                _ => panic!("Bot::next_move error in move {}", move_i),
-            };
+            let res = Bot::next_move(game, Level::Normal);
+
             move_i += 1;
 
             // Game status should be zero/tie after every move

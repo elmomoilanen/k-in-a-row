@@ -24,8 +24,7 @@ pub async fn next_move(
         }
     };
 
-    match Bot::next_move(game, level) {
-        Some(bot_next_move) => HttpResponse::Ok().json(bot_next_move),
-        None => HttpResponse::InternalServerError().body("Server error."),
-    }
+    let bot_next_move = Bot::next_move(game, level);
+
+    HttpResponse::Ok().json(bot_next_move)
 }
