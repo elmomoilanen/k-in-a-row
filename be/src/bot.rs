@@ -1,15 +1,18 @@
-use rand::{seq::SliceRandom, Rng};
+use rand::Rng;
 use std::cmp;
 
 use crate::game::{BoardSize, Game};
 use crate::models::{BotMove, Level};
 
 const DEPTH_UPPER_BOUND_3X3: i8 = 9;
-const DEPTH_UPPER_BOUND_4X4: i8 = 16;
+const DEPTH_UPPER_BOUND_4X4: i8 = 10;
 const DEPTH_UPPER_BOUND_5X5: i8 = 7;
-const EASY_DEPTH_UPPER_BOUND_3X3: i8 = 6;
-const EASY_DEPTH_UPPER_BOUND_4X4: i8 = 11;
-const EASY_DEPTH_UPPER_BOUND_5X5: i8 = 5;
+const DEPTH_UPPER_BOUND_6X6: i8 = 6;
+
+const EASY_DEPTH_UPPER_BOUND_3X3: i8 = 2;
+const EASY_DEPTH_UPPER_BOUND_4X4: i8 = 3;
+const EASY_DEPTH_UPPER_BOUND_5X5: i8 = 3;
+const EASY_DEPTH_UPPER_BOUND_6X6: i8 = 3;
 
 pub struct Bot;
 
@@ -20,9 +23,6 @@ impl Bot {
 
         if empty_cells == cells_count {
             return Self::play_game_first_move(game, cells_count);
-        }
-        if empty_cells == cells_count - 1 {
-            return Self::play_bot_first_move(game);
         }
 
         let init_depth = match (game.size(), level) {
@@ -38,6 +38,10 @@ impl Bot {
                 cmp::min(empty_cells as i8, EASY_DEPTH_UPPER_BOUND_5X5)
             }
             (BoardSize::X55, Level::Normal) => cmp::min(empty_cells as i8, DEPTH_UPPER_BOUND_5X5),
+            (BoardSize::X66, Level::Easy) => {
+                cmp::min(empty_cells as i8, EASY_DEPTH_UPPER_BOUND_6X6)
+            }
+            (BoardSize::X66, Level::Normal) => cmp::min(empty_cells as i8, DEPTH_UPPER_BOUND_6X6),
         };
 
         let first_player = game.bot_mark;
@@ -61,145 +65,6 @@ impl Bot {
             game_over: false,
             winner: game.orig_empty_mark,
         })
-    }
-
-    fn play_bot_first_move(game: Game) -> Option<BotMove> {
-        let p1_mark_pos = game.cells.iter().position(|&cell| cell == game.p1_mark);
-
-        let bot_next_pos = match (p1_mark_pos, game.size()) {
-            (Some(p1_idx), BoardSize::X33) => Self::find_bot_first_move_3x3(p1_idx),
-            (Some(p1_idx), BoardSize::X44) => Self::find_bot_first_move_4x4(p1_idx),
-            (Some(p1_idx), BoardSize::X55) => Self::find_bot_first_move_5x5(p1_idx),
-            _ => return None,
-        };
-
-        Some(BotMove {
-            next: bot_next_pos,
-            next_is_valid: true,
-            game_over: false,
-            winner: game.orig_empty_mark,
-        })
-    }
-
-    fn find_bot_first_move_3x3(p1_mark_idx: usize) -> u8 {
-        let center_idx = 4usize;
-
-        match p1_mark_idx {
-            0 | 2 | 6 | 8 => center_idx as u8,
-            1 | 7 => {
-                let indices = [p1_mark_idx - 1, p1_mark_idx + 1, center_idx];
-                Self::get_random_or_fallback_idx(&indices, center_idx)
-            }
-            3 | 5 => {
-                let indices = [p1_mark_idx - 3, p1_mark_idx + 3, center_idx];
-                Self::get_random_or_fallback_idx(&indices, center_idx)
-            }
-            _ => Self::get_random_or_fallback_idx(&[0, 2, 6, 8], 0),
-        }
-    }
-
-    fn find_bot_first_move_4x4(p1_mark_idx: usize) -> u8 {
-        match p1_mark_idx {
-            0 | 6 | 9 | 15 => Self::get_random_or_fallback_idx(&[5, 10], 5),
-            3 | 5 | 10 | 12 => Self::get_random_or_fallback_idx(&[6, 9], 6),
-            1 | 13 => Self::get_random_or_fallback_idx(&[5, 9], 5),
-            2 | 14 => Self::get_random_or_fallback_idx(&[6, 10], 6),
-            4 | 7 => Self::get_random_or_fallback_idx(&[5, 6], 5),
-            _ => Self::get_random_or_fallback_idx(&[9, 10], 9),
-        }
-    }
-
-    fn find_bot_first_move_5x5(p1_mark_idx: usize) -> u8 {
-        let center_idx = 12usize;
-
-        match p1_mark_idx {
-            0 | 4 | 6 | 8 | 16 | 18 | 20 | 24 => center_idx as u8,
-            1 | 5 => {
-                let indices = [
-                    p1_mark_idx + 1,
-                    p1_mark_idx + 2,
-                    p1_mark_idx + 5,
-                    p1_mark_idx + 10,
-                ];
-                Self::get_random_or_fallback_idx(&indices, p1_mark_idx + 1)
-            }
-            3 | 9 => {
-                let indices = [
-                    p1_mark_idx - 2,
-                    p1_mark_idx - 1,
-                    p1_mark_idx + 5,
-                    p1_mark_idx + 10,
-                ];
-                Self::get_random_or_fallback_idx(&indices, p1_mark_idx - 1)
-            }
-            15 | 21 => {
-                let indices = [
-                    p1_mark_idx - 10,
-                    p1_mark_idx - 5,
-                    p1_mark_idx + 1,
-                    p1_mark_idx + 2,
-                ];
-                Self::get_random_or_fallback_idx(&indices, p1_mark_idx + 1)
-            }
-            19 | 23 => {
-                let indices = [
-                    p1_mark_idx - 10,
-                    p1_mark_idx - 5,
-                    p1_mark_idx - 1,
-                    p1_mark_idx - 2,
-                ];
-                Self::get_random_or_fallback_idx(&indices, p1_mark_idx - 1)
-            }
-            2 => {
-                let indices = [
-                    p1_mark_idx - 1,
-                    p1_mark_idx + 1,
-                    p1_mark_idx + 5,
-                    center_idx,
-                ];
-                Self::get_random_or_fallback_idx(&indices, center_idx)
-            }
-            10 => {
-                let indices = [
-                    p1_mark_idx - 5,
-                    p1_mark_idx + 5,
-                    p1_mark_idx + 1,
-                    center_idx,
-                ];
-                Self::get_random_or_fallback_idx(&indices, center_idx)
-            }
-            14 => {
-                let indices = [
-                    p1_mark_idx - 5,
-                    p1_mark_idx + 5,
-                    p1_mark_idx - 1,
-                    center_idx,
-                ];
-                Self::get_random_or_fallback_idx(&indices, center_idx)
-            }
-            22 => {
-                let indices = [
-                    p1_mark_idx - 1,
-                    p1_mark_idx + 1,
-                    p1_mark_idx - 5,
-                    center_idx,
-                ];
-                Self::get_random_or_fallback_idx(&indices, center_idx)
-            }
-            7 | 11 | 13 | 17 => center_idx as u8,
-            _ => {
-                let indices = [6, 8, 16, 18];
-                Self::get_random_or_fallback_idx(&indices, 6)
-            }
-        }
-    }
-
-    fn get_random_or_fallback_idx(indices: &[usize], fallback: usize) -> u8 {
-        if let Some(&rand_idx) = indices.choose(&mut rand::thread_rng()) {
-            rand_idx as u8
-        } else {
-            fallback as u8
-        }
     }
 
     fn renormalize_winner_marker(game: &Game, winner: i8) -> i8 {
@@ -300,7 +165,7 @@ impl Bot {
 mod tests {
     use super::*;
     use crate::{
-        game::{BOARD_SIZE_3X3, BOARD_SIZE_4X4, BOARD_SIZE_5X5},
+        game::{BOARD_SIZE_3X3, BOARD_SIZE_4X4, BOARD_SIZE_5X5, BOARD_SIZE_6X6},
         models::Board,
     };
     use std::cmp::Ordering;
@@ -327,6 +192,7 @@ mod tests {
             BoardSize::X33 => cmp::min(empty_cells as i8, DEPTH_UPPER_BOUND_3X3),
             BoardSize::X44 => cmp::min(empty_cells as i8, DEPTH_UPPER_BOUND_4X4),
             BoardSize::X55 => cmp::min(empty_cells as i8, DEPTH_UPPER_BOUND_5X5),
+            BoardSize::X66 => cmp::min(empty_cells as i8, DEPTH_UPPER_BOUND_6X6),
         };
 
         let (_, best_move) = Bot::minimax(
@@ -701,17 +567,17 @@ mod tests {
     }
 
     #[test]
-    fn complete_game_play_3x3() {
+    fn complete_game_play_3x3_normal() {
         play_complete_game(BOARD_SIZE_3X3, false, 0);
     }
 
     #[test]
-    fn complete_game_play_4x4() {
+    fn complete_game_play_4x4_normal() {
         play_complete_game(BOARD_SIZE_4X4, false, 0);
     }
 
     #[test]
-    fn complete_game_play_5x5() {
+    fn complete_game_play_5x5_normal() {
         play_complete_game(BOARD_SIZE_5X5, false, 0);
     }
 
@@ -723,5 +589,10 @@ mod tests {
     #[test]
     fn complete_game_play_5x5_after_p1_center_move() {
         play_complete_game(BOARD_SIZE_5X5, true, 12);
+    }
+
+    #[test]
+    fn complete_game_play_6x6_normal() {
+        play_complete_game(BOARD_SIZE_6X6, false, 0);
     }
 }

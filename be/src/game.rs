@@ -8,6 +8,7 @@ use crate::models::Board;
 pub const BOARD_SIZE_3X3: usize = 9;
 pub const BOARD_SIZE_4X4: usize = 16;
 pub const BOARD_SIZE_5X5: usize = 25;
+pub const BOARD_SIZE_6X6: usize = 36;
 
 const P1_MARK: i8 = -1;
 const BOT_MARK: i8 = 1;
@@ -30,6 +31,7 @@ pub enum BoardSize {
     X33,
     X44,
     X55,
+    X66,
 }
 
 pub struct Game {
@@ -59,6 +61,7 @@ impl Game {
             BoardSize::X33 => (3, 3),
             BoardSize::X44 => (4, 4),
             BoardSize::X55 => (5, 4),
+            BoardSize::X66 => (6, 5),
         };
 
         Ok(Game {
@@ -91,8 +94,14 @@ impl Game {
         free_indices.shuffle(&mut rand::thread_rng());
         let free_cells = free_indices.len();
 
+        // Try to optimize decision making for larger games with plenty of empty cells left
         match self.board_size {
             BoardSize::X55 if free_cells > 20 => free_indices
+                .iter()
+                .filter(|&index| self.adjacent_cell_occupied(*index))
+                .copied()
+                .collect(),
+            BoardSize::X66 if free_cells > 30 => free_indices
                 .iter()
                 .filter(|&index| self.adjacent_cell_occupied(*index))
                 .copied()
@@ -264,6 +273,8 @@ impl Game {
             Ok(BoardSize::X44)
         } else if cells_count == BOARD_SIZE_5X5 {
             Ok(BoardSize::X55)
+        } else if cells_count == BOARD_SIZE_6X6 {
+            Ok(BoardSize::X66)
         } else {
             Err(GameInitError::Size)
         }
@@ -489,6 +500,7 @@ impl Display for Game {
             BoardSize::X33 => 3,
             BoardSize::X44 => 4,
             BoardSize::X55 => 5,
+            BoardSize::X66 => 6,
         };
         writeln!(f, "Bot: x, Other: o\n")?;
 
@@ -540,6 +552,21 @@ mod tests {
             board_size: BoardSize::X55,
             cells_offset: 5,
             cells_to_win: 4,
+        }
+    }
+
+    fn init_6x6_game_literal(cells: &[i8], p1_mark: i8, bot_mark: i8, empty_mark: i8) -> Game {
+        Game {
+            cells: cells.to_vec(),
+            p1_mark,
+            bot_mark,
+            empty_mark,
+            orig_p1_mark: p1_mark,
+            orig_bot_mark: bot_mark,
+            orig_empty_mark: empty_mark,
+            board_size: BoardSize::X66,
+            cells_offset: 6,
+            cells_to_win: 5,
         }
     }
 
@@ -642,27 +669,39 @@ mod tests {
     }
 
     #[test]
-    fn adjacent_cell_occupied() {
+    fn adjacent_cell_occupied_5x5() {
         let cells: [i8; 25] = [
             1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1,
         ];
         let (p1_mark, bot_mark, empty_mark) = (1, -1, 0);
         // Board (cells) is now inconsistent and cannot thus call Game::new
-        let game = Game {
-            cells: cells.to_vec(),
-            p1_mark,
-            bot_mark,
-            empty_mark,
-            orig_p1_mark: p1_mark,
-            orig_bot_mark: bot_mark,
-            orig_empty_mark: empty_mark,
-            board_size: BoardSize::X55,
-            cells_offset: 5,
-            cells_to_win: 4,
-        };
+        let game = init_5x5_game_literal(&cells, p1_mark, bot_mark, empty_mark);
 
         let test_indices = [4, 6, 19, 21];
         let correct_adjacent_cell_occupied = [false, true, true, true];
+
+        let it = test_indices
+            .iter()
+            .zip(correct_adjacent_cell_occupied.iter());
+
+        for (&test_idx, &corr_result) in it {
+            assert_eq!(game.adjacent_cell_occupied(test_idx), corr_result);
+        }
+    }
+
+    #[test]
+    fn adjacent_cell_occupied_6x6() {
+        let cells: [i8; 36] = [
+            1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 1, 0, 0, 0, 0, 0,
+        ];
+        let (p1_mark, bot_mark, empty_mark) = (1, -1, 0);
+        // Board (cells) is now inconsistent and cannot thus call Game::new
+        let game = init_6x6_game_literal(&cells, p1_mark, bot_mark, empty_mark);
+
+        let test_indices = [0, 5, 10, 18, 20, 30];
+        let correct_adjacent_cell_occupied = [false, true, true, true, true, false];
+
         let it = test_indices
             .iter()
             .zip(correct_adjacent_cell_occupied.iter());
@@ -685,6 +724,7 @@ mod tests {
 
         for cells in &cells_collections {
             let game = init_game(cells, p1_mark, bot_mark, empty_mark);
+            // Notice that `game.p1_mark` must be used on the right side
             assert_eq!(game.winner_in_row(), game.p1_mark);
         }
     }
@@ -702,6 +742,7 @@ mod tests {
 
         for cells in &cells_collections {
             let game = init_game(cells, p1_mark, bot_mark, empty_mark);
+            // Notice that `game.bot_mark` must be used on the right side
             assert_eq!(game.winner_in_col(), game.bot_mark);
         }
     }
@@ -752,6 +793,7 @@ mod tests {
 
         for cells in &cells_collections {
             let game = init_game(cells, p1_mark, bot_mark, empty_mark);
+            // Notice that `game.p1_mark` must be used on the right side
             assert_eq!(game.winner_in_row(), game.p1_mark);
         }
     }
@@ -832,6 +874,39 @@ mod tests {
             let game = init_game(cells, p1_mark, bot_mark, empty_mark);
             assert_eq!(game.winner_in_antidiag(), game.p1_mark);
         }
+    }
+
+    #[test]
+    fn winner_6x6() {
+        let (p1_mark, bot_mark, empty_mark) = (1, -1, 0);
+
+        let cells: [i8; 36] = [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, -1, -1, -1, -1, -1, 1, 1, 1, 1, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0,
+        ];
+        let game = init_game(&cells, p1_mark, bot_mark, empty_mark);
+        assert_eq!(game.winner_in_row(), game.bot_mark);
+
+        let cells: [i8; 36] = [
+            0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 1, -1, 0, 0, 0, 0,
+            0, -1, 0, 0, 0, 0, 0, 1,
+        ];
+        let game = init_game(&cells, p1_mark, bot_mark, empty_mark);
+        assert_eq!(game.winner_in_col(), game.bot_mark);
+
+        let cells: [i8; 36] = [
+            -1, -1, -1, -1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+            1, 0, 0, 0, 0, 0, 0, 1, 0,
+        ];
+        let game = init_game(&cells, p1_mark, bot_mark, empty_mark);
+        assert_eq!(game.winner_in_diag(), game.p1_mark);
+
+        let cells: [i8; 36] = [
+            0, 0, 1, 0, 0, 1, 0, 0, 0, 0, -1, 1, 0, 0, 0, -1, 0, 1, 0, 0, -1, 0, 0, 1, 0, -1, 0, 0,
+            0, 0, -1, 0, 0, 0, 0, 0,
+        ];
+        let game = init_game(&cells, p1_mark, bot_mark, empty_mark);
+        assert_eq!(game.winner_in_antidiag(), game.bot_mark);
     }
 
     #[test]

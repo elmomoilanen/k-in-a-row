@@ -63,8 +63,9 @@ pub struct LevelQuery {
 /// board. If not true, the index is just a garbage value (u8::MAX)
 /// and cannot be played. Also, in this case, `game_over` is always true.
 /// If `game_over` is true, `winner` is one of the player marks representing
-/// the winner. If both `next_is_valid` and `game_over` are true, this
-/// bot player's move `next` is the last one and ends the game.
+/// the winner (or empty marker if the game ended to a draw). If both
+/// `next_is_valid` and `game_over` are true, this bot player's move
+/// `next` is the last one and ends the game.
 
 #[derive(Serialize, Clone, Debug)]
 pub struct BotMove {
