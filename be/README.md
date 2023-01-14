@@ -41,3 +41,9 @@ and the response for it could be e.g.
 where *next* indicates the board index for the bot's next move. Here indices must be interpreted such that 0-2 represent the first row of the 3x3 board, 3-5 the second row and etc.
 
 For more information on the payload requirements, please see the model definitions in `src/models.rs`.
+
+## Development ##
+
+Run `cargo run` to start the server.
+
+In principle, it is easy to add new game boards. A board must have a same number of rows and columns (i.e., a k x k board) and that's about the only strict requirement. Place proper board size values in `src/game.rs` and `src/bot.rs` by following the example of earlier game boards. Of course, the drawback for larger boards is that the search space for bot player's moves increases exponentially.

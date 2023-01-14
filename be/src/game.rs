@@ -57,6 +57,7 @@ impl Game {
         Self::board_inconsistent(&board)?;
         Self::normalize_cell_values(&mut board);
 
+        // Offset must be the row/column count
         let (cells_offset, cells_to_win) = match board_size {
             BoardSize::X33 => (3, 3),
             BoardSize::X44 => (4, 4),
