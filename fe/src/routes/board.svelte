@@ -5,6 +5,8 @@
     import { Player } from "$lib/players";
     import Winner from "./winner.svelte";
 
+    const API_URL = "http://localhost:8080/api/bot/next";
+
     type VoidFn = () => void;
 
     export let size: number;
@@ -54,8 +56,6 @@
     }
 
     async function playBotTurn() {
-        const API_URL = "http://localhost:8080/api/bot/next";
-
         const level = gameLevel === GameLevel.Easy ? "Easy" : "Normal";
         const url = API_URL + `?level=${level}`;
 
