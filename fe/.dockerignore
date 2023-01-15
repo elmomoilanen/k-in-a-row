@@ -1,0 +1,9 @@
+node_modules
+/build
+/.svelte-kit
+.eslint*
+.prettier*
+.git*
+README.md
+Dockerfile
+tsconfig.json
