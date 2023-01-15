@@ -1,0 +1,11 @@
+services:
+  be:
+    build:
+      context: ./be
+    ports:
+      - 127.0.0.1:8080:8080
+  fe:
+    build:
+      context: ./fe
+    ports:
+      - 5173:80
