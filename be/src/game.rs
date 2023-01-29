@@ -529,7 +529,7 @@ impl Display for Game {
                     }
                 })
                 .fold(String::new(), |acc, next| acc + &next.to_string() + " ");
-            writeln!(f, "{}", row_repr)?;
+            writeln!(f, "{row_repr}")?;
         }
         writeln!(f)
     }
