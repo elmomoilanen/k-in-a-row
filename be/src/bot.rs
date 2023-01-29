@@ -8,11 +8,13 @@ const DEPTH_UPPER_BOUND_3X3: i8 = 9;
 const DEPTH_UPPER_BOUND_4X4: i8 = 10;
 const DEPTH_UPPER_BOUND_5X5: i8 = 7;
 const DEPTH_UPPER_BOUND_6X6: i8 = 6;
+const DEPTH_UPPER_BOUND_7X7: i8 = 5;
 
-const EASY_DEPTH_UPPER_BOUND_3X3: i8 = 2;
-const EASY_DEPTH_UPPER_BOUND_4X4: i8 = 3;
-const EASY_DEPTH_UPPER_BOUND_5X5: i8 = 3;
-const EASY_DEPTH_UPPER_BOUND_6X6: i8 = 3;
+const EASY_DEPTH_UPPER_BOUND_3X3: i8 = 1;
+const EASY_DEPTH_UPPER_BOUND_4X4: i8 = 1;
+const EASY_DEPTH_UPPER_BOUND_5X5: i8 = 2;
+const EASY_DEPTH_UPPER_BOUND_6X6: i8 = 2;
+const EASY_DEPTH_UPPER_BOUND_7X7: i8 = 3;
 
 pub struct Bot;
 
@@ -42,6 +44,10 @@ impl Bot {
                 cmp::min(empty_cells as i8, EASY_DEPTH_UPPER_BOUND_6X6)
             }
             (BoardSize::X66, Level::Normal) => cmp::min(empty_cells as i8, DEPTH_UPPER_BOUND_6X6),
+            (BoardSize::X77, Level::Easy) => {
+                cmp::min(empty_cells as i8, EASY_DEPTH_UPPER_BOUND_7X7)
+            }
+            (BoardSize::X77, Level::Normal) => cmp::min(empty_cells as i8, DEPTH_UPPER_BOUND_7X7),
         };
 
         let first_player = game.bot_mark;
@@ -193,6 +199,7 @@ mod tests {
             BoardSize::X44 => cmp::min(empty_cells as i8, DEPTH_UPPER_BOUND_4X4),
             BoardSize::X55 => cmp::min(empty_cells as i8, DEPTH_UPPER_BOUND_5X5),
             BoardSize::X66 => cmp::min(empty_cells as i8, DEPTH_UPPER_BOUND_6X6),
+            BoardSize::X77 => cmp::min(empty_cells as i8, DEPTH_UPPER_BOUND_7X7),
         };
 
         let (_, best_move) = Bot::minimax(

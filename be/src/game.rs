@@ -9,6 +9,7 @@ pub const BOARD_SIZE_3X3: usize = 9;
 pub const BOARD_SIZE_4X4: usize = 16;
 pub const BOARD_SIZE_5X5: usize = 25;
 pub const BOARD_SIZE_6X6: usize = 36;
+pub const BOARD_SIZE_7X7: usize = 49;
 
 const P1_MARK: i8 = -1;
 const BOT_MARK: i8 = 1;
@@ -32,6 +33,7 @@ pub enum BoardSize {
     X44,
     X55,
     X66,
+    X77,
 }
 
 pub struct Game {
@@ -63,6 +65,7 @@ impl Game {
             BoardSize::X44 => (4, 4),
             BoardSize::X55 => (5, 4),
             BoardSize::X66 => (6, 5),
+            BoardSize::X77 => (7, 5),
         };
 
         Ok(Game {
@@ -103,6 +106,11 @@ impl Game {
                 .copied()
                 .collect(),
             BoardSize::X66 if free_cells > 30 => free_indices
+                .iter()
+                .filter(|&index| self.adjacent_cell_occupied(*index))
+                .copied()
+                .collect(),
+            BoardSize::X77 if free_cells > 40 => free_indices
                 .iter()
                 .filter(|&index| self.adjacent_cell_occupied(*index))
                 .copied()
@@ -276,6 +284,8 @@ impl Game {
             Ok(BoardSize::X55)
         } else if cells_count == BOARD_SIZE_6X6 {
             Ok(BoardSize::X66)
+        } else if cells_count == BOARD_SIZE_7X7 {
+            Ok(BoardSize::X77)
         } else {
             Err(GameInitError::Size)
         }
@@ -502,6 +512,7 @@ impl Display for Game {
             BoardSize::X44 => 4,
             BoardSize::X55 => 5,
             BoardSize::X66 => 6,
+            BoardSize::X77 => 7,
         };
         writeln!(f, "Bot: x, Other: o\n")?;
 
