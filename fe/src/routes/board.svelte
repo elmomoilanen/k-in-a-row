@@ -156,6 +156,20 @@
             {/if}
         {/each}
     </div>
+{:else if cells.length === GameType.X77}
+    <div class="board x77 {currentMarker}" id="board-x77">
+        {#each cells as { id, val, mark }}
+            {#if gameOver && val === Player.Empty && mark === EMPTY_MARK}
+                <button class="cell bot" {id} />
+            {:else if currentPlayer === Player.P1 && val === Player.Empty && mark === EMPTY_MARK}
+                <button class="cell" {id} on:click={() => playP1Turn(id)} />
+            {:else if currentPlayer === Player.Bot && val === Player.Empty && mark === EMPTY_MARK}
+                <button class="cell bot" {id} />
+            {:else}
+                <button class="cell {mark}" {id} />
+            {/if}
+        {/each}
+    </div>
 {/if}
 
 <style>
@@ -248,6 +262,22 @@
         border-top: none;
     }
     .board.x66 .cell:nth-child(n + 31) {
+        border-bottom: none;
+    }
+
+    .x77 {
+        grid-template-columns: repeat(7, auto);
+    }
+    .board.x77 .cell:nth-child(7n + 1) {
+        border-left: none;
+    }
+    .board.x77 .cell:nth-child(7n + 7) {
+        border-right: none;
+    }
+    .board.x77 .cell:nth-child(n) {
+        border-top: none;
+    }
+    .board.x77 .cell:nth-child(n + 43) {
         border-bottom: none;
     }
 

@@ -74,6 +74,7 @@
         <button on:click={() => setGameType(GameType.X44)}>4x4 4-in-a-row</button>
         <button on:click={() => setGameType(GameType.X55)}>5x5 4-in-a-row</button>
         <button on:click={() => setGameType(GameType.X66)}>6x6 5-in-a-row</button>
+        <button on:click={() => setGameType(GameType.X77)}>7x7 5-in-a-row</button>
     </div>
 {/if}
 

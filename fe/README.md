@@ -2,7 +2,7 @@
 
 Frontend service for the game. Communicates with the backend service to determine bot player's moves in the game board.
 
-Notice that the backend endpoint URL `API_URL` has been placed directly into the code. It must be updated if changes happen in the backend.
+Notice that the backend endpoint URL `API_URL` has been placed directly into the code. It must be updated if changes for it happen in the backend.
 
 ## Build and run
 
@@ -20,7 +20,7 @@ and after that run the image
 docker run -p 5173:80 --rm k-in-a-row/fe
 ```
 
-Notice that the above port mapping should not be modified unless corresponding changes has been made in the backend (CORS settings).
+Notice that the above port mapping should not be modified unless corresponding changes have been made in the backend (e.g. CORS settings).
 
 Finally, open localhost:5173 via a web browser and start playing the game.
 
