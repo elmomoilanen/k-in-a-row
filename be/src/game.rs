@@ -490,13 +490,11 @@ impl Game {
         if window_sum_abs == window - 1 && window_sum > 0 {
             window_sum * ONE_TO_WIN_VALUE
         } else if window_sum_abs == window - 1 && window_sum < 0 {
-            // Opponent: make a larger penalty
             window_sum * ONE_TO_WIN_VALUE * OPPONENT_PENALTY_MULTIPLIER
         } else if window_sum_abs >= window_thres && window_sum_abs + window_empty_cells == window {
             if window_sum > 0 {
                 window_sum * TWO_TO_WIN_VALUE
             } else {
-                // Opponent: make a larger penalty
                 window_sum * TWO_TO_WIN_VALUE * OPPONENT_PENALTY_MULTIPLIER
             }
         } else {

@@ -38,7 +38,7 @@ impl From<web::Json<Board>> for Board {
 
 /// URL query string parameter indicating difficulty of a game.
 ///
-/// With a value `Normal` a game should always end to a draw if played
+/// With value `Normal` a game should always end to a draw if played
 /// optimally by the player 1 (mark `p1_mark`). For value `Easy`, the
 /// bot player (mark `bot_mark`) might make unoptimal decisions here
 /// and there making it possible for player 1 to win.

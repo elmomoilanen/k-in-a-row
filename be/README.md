@@ -4,7 +4,7 @@ Backend service for the game. Computes the bot player's next move in the game bo
 
 ## Build and run ##
 
-Following instructions contain the recommended way to start the backend service locally. To change the listener to which the server is bound (default is 0.0.0.0:8080), please see the file `src/bin/server.rs` for settings of the server.
+Following instructions contain the recommended way to start the backend service locally. To change the listener to which the server is bound (default is 0.0.0.0:8080), please see the settings of the server from `src/bin/server.rs`.
 
 First build an image from the Dockerfile
 
@@ -22,7 +22,7 @@ With the previous command, port 8080 of the container is bound to the same port 
 
 ## Use ##
 
-Server is listening to endpoint `/api/bot/next` and only accepts POST requests with a JSON type payload and a URL query string `level=VALUE` with allowed values of *Easy* and *Normal*.
+Server implements one endpoint `/api/bot/next` and only accepts POST requests with a JSON type payload and a URL query string `level=VALUE` with allowed values of *Easy* and *Normal*.
 
 Following example shows a valid HTTP request (using curl) used to compute the first move of a normal level 3x3 3-in-a-row game for the bot player
 
@@ -47,3 +47,7 @@ For more information on the payload requirements, please see the model definitio
 Run `cargo run` to start the server.
 
 In principle, it is easy to add new game boards. A board must have a same number of rows and columns (i.e., a k x k board) and that's about the only strict requirement. Place proper board size values in `src/game.rs` and `src/bot.rs` by following the example of earlier game boards. Of course, the drawback for larger boards is that the search space for bot player's moves increases exponentially.
+
+## Production ##
+
+To be added

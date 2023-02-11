@@ -5,16 +5,16 @@ use crate::game::{BoardSize, Game};
 use crate::models::{BotMove, Level};
 
 const DEPTH_UPPER_BOUND_3X3: i8 = 9;
-const DEPTH_UPPER_BOUND_4X4: i8 = 10;
+const DEPTH_UPPER_BOUND_4X4: i8 = 7;
 const DEPTH_UPPER_BOUND_5X5: i8 = 7;
-const DEPTH_UPPER_BOUND_6X6: i8 = 6;
+const DEPTH_UPPER_BOUND_6X6: i8 = 5;
 const DEPTH_UPPER_BOUND_7X7: i8 = 5;
 
 const EASY_DEPTH_UPPER_BOUND_3X3: i8 = 1;
 const EASY_DEPTH_UPPER_BOUND_4X4: i8 = 1;
 const EASY_DEPTH_UPPER_BOUND_5X5: i8 = 2;
-const EASY_DEPTH_UPPER_BOUND_6X6: i8 = 2;
-const EASY_DEPTH_UPPER_BOUND_7X7: i8 = 3;
+const EASY_DEPTH_UPPER_BOUND_6X6: i8 = 1;
+const EASY_DEPTH_UPPER_BOUND_7X7: i8 = 2;
 
 pub struct Bot;
 
@@ -144,10 +144,10 @@ impl Bot {
                 }
                 game.cells[empty_cell] = game.empty_mark;
 
+                alpha = cmp::max(alpha, best_value);
                 if beta <= alpha {
                     break;
                 }
-                alpha = cmp::max(alpha, best_value);
             } else {
                 let (value, _) = Self::minimax(game, next_player, depth - 1, alpha, beta, true);
                 if value < best_value {
@@ -156,10 +156,10 @@ impl Bot {
                 }
                 game.cells[empty_cell] = game.empty_mark;
 
+                beta = cmp::min(beta, best_value);
                 if beta <= alpha {
                     break;
                 }
-                beta = cmp::min(beta, best_value);
             }
         }
 
@@ -523,7 +523,7 @@ mod tests {
                 Ok(game) => game,
                 _ => panic!("Game::new error in move {}", move_i),
             };
-            // Use following for debugging, add --nocapture
+            // Use following for debugging, add --nocapture after --
             println!("{}", &game);
 
             let res = Bot::next_move(game, Level::Normal);
