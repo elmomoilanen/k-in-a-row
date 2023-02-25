@@ -20,6 +20,10 @@ const ONE_TO_WIN_VALUE: i32 = 150;
 const TWO_TO_WIN_VALUE: i32 = 50;
 const OPPONENT_PENALTY_MULTIPLIER: i32 = 3;
 
+const X55_EMPTY_CELLS_THRESHOLD: usize = 20;
+const X66_EMPTY_CELLS_THRESHOLD: usize = 30;
+const X77_EMPTY_CELLS_THRESHOLD: usize = 40;
+
 #[derive(Clone, Copy)]
 pub enum GameInitError {
     Size,
@@ -86,7 +90,7 @@ impl Game {
         Self::empty_cells(&self.cells, self.empty_mark)
     }
 
-    pub fn empty_cell_indices(&self) -> Vec<usize> {
+    pub fn empty_cell_indices(&mut self) -> Vec<usize> {
         let mut free_indices: Vec<usize> = self
             .cells
             .iter()
@@ -96,44 +100,21 @@ impl Game {
             .collect();
 
         free_indices.shuffle(&mut rand::thread_rng());
-        let free_cells = free_indices.len();
 
-        // Try to optimize decision making for larger games with plenty of empty cells left
         match self.board_size {
-            BoardSize::X55 if free_cells > 20 => free_indices
-                .iter()
-                .filter(|&index| self.adjacent_cell_occupied(*index))
-                .copied()
-                .collect(),
-            BoardSize::X66 if free_cells > 30 => free_indices
-                .iter()
-                .filter(|&index| self.adjacent_cell_occupied(*index))
-                .copied()
-                .collect(),
-            BoardSize::X77 if free_cells > 40 => free_indices
-                .iter()
-                .filter(|&index| self.adjacent_cell_occupied(*index))
-                .copied()
-                .collect(),
-            _ => free_indices,
+            BoardSize::X33 | BoardSize::X44 => free_indices,
+            _ => self.reorder_empty_cell_indices_by_value(free_indices),
         }
     }
 
-    pub fn heuristic_game_value(&mut self, winner: i8, depth: i8) -> i32 {
+    pub fn heuristic_game_value(&self, winner: i8, depth: i8) -> i32 {
         let depth_unzero = depth as i32 + 1;
 
         if winner != self.empty_mark {
             return winner as i32 * WINNER_VALUE * depth_unzero;
         }
 
-        let mut value = 0;
-        value += self.value_in_rows();
-        value += self.value_in_cols();
-        // Diagonal and antidiagonal evaluation
-        value += self.value_in_diags(false);
-        value += self.value_in_diags(true);
-
-        value * depth_unzero
+        self.value_in_total() * depth_unzero
     }
 
     pub fn size(&self) -> BoardSize {
@@ -261,6 +242,40 @@ impl Game {
 
     fn empty_cells(slice: &[i8], empty_mark: i8) -> usize {
         slice.iter().filter(|&cell| *cell == empty_mark).count()
+    }
+
+    fn reorder_empty_cell_indices_by_value(&mut self, free_indices: Vec<usize>) -> Vec<usize> {
+        let free_cells = free_indices.len();
+
+        let drop_non_adjacent_cells = match self.board_size {
+            BoardSize::X55 if free_cells >= X55_EMPTY_CELLS_THRESHOLD => true,
+            BoardSize::X66 if free_cells >= X66_EMPTY_CELLS_THRESHOLD => true,
+            BoardSize::X77 if free_cells >= X77_EMPTY_CELLS_THRESHOLD => true,
+            _ => false,
+        };
+
+        let (free_indices_w_adj, free_indices_w_non_adj): (Vec<_>, Vec<_>) = free_indices
+            .iter()
+            .partition(|&index| self.adjacent_cell_occupied(*index));
+
+        let mut value_map: Vec<(u32, i32)> = Vec::with_capacity(free_indices_w_adj.len());
+
+        for &idx in free_indices_w_adj.iter() {
+            self.cells[idx] = self.bot_mark;
+            value_map.push((idx as u32, self.value_in_total()));
+            self.cells[idx] = self.empty_mark;
+        }
+        value_map.sort_unstable_by_key(|&pair| -pair.1);
+
+        if drop_non_adjacent_cells {
+            return value_map.iter().map(|&pair| pair.0 as usize).collect();
+        }
+
+        value_map
+            .iter()
+            .map(|&pair| pair.0 as usize)
+            .chain(free_indices_w_non_adj)
+            .collect()
     }
 
     fn normalize_cell_values(board: &mut Board) {
@@ -407,6 +422,18 @@ impl Game {
             }
         }
         self.empty_mark
+    }
+
+    fn value_in_total(&self) -> i32 {
+        let mut value = 0;
+
+        value += self.value_in_rows();
+        value += self.value_in_cols();
+        // Diagonal and antidiagonal evaluation
+        value += self.value_in_diags(false);
+        value += self.value_in_diags(true);
+
+        value
     }
 
     fn value_in_rows(&self) -> i32 {
@@ -659,7 +686,7 @@ mod tests {
     }
 
     #[test]
-    fn empty_cell_indices() {
+    fn empty_cell_indices_3x3() {
         let cells_collections: [[i8; 9]; 3] = [
             [0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, -1, 0, 1, 0, 0, 0],
@@ -669,13 +696,49 @@ mod tests {
 
         for cells in &cells_collections {
             let true_empty_count = cells.iter().filter(|&cell| *cell == 0).count();
-            let game = init_game(cells, p1_mark, bot_mark, empty_mark);
+            let mut game = init_game(cells, p1_mark, bot_mark, empty_mark);
 
             let indices = game.empty_cell_indices();
 
             assert_eq!(indices.len(), true_empty_count);
             assert!(indices.iter().all(|&idx| idx < 9));
         }
+    }
+
+    #[test]
+    fn empty_cell_indices_5x5() {
+        // 1st collection has more or equal empty cells than X55_EMPTY_CELLS_THRESHOLD
+        let cells_collections: [[i8; 25]; 2] = [
+            [
+                1, 0, 0, 0, 0, 0, 0, 0, 0, -1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1,
+            ],
+            [
+                -1, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, -1, 0, -1, -1,
+            ],
+        ];
+        let (p1_mark, bot_mark, empty_mark) = (-1, 1, 0);
+        let mut game = init_game(&cells_collections[0], p1_mark, bot_mark, empty_mark);
+
+        let indices = game.empty_cell_indices();
+        // Too many empty cells in total, so there should be only adjacent empty cells returned
+        assert!(
+            indices.len()
+                < cells_collections[0]
+                    .iter()
+                    .filter(|&cell| *cell == 0)
+                    .count()
+        );
+        assert_eq!(indices.len(), 15);
+
+        game = init_game(&cells_collections[1], p1_mark, bot_mark, empty_mark);
+        let indices = game.empty_cell_indices();
+        assert_eq!(
+            indices.len(),
+            cells_collections[1]
+                .iter()
+                .filter(|&cell| *cell == 0)
+                .count()
+        );
     }
 
     #[test]

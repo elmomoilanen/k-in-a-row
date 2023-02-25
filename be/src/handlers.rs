@@ -4,6 +4,10 @@ use crate::bot::Bot;
 use crate::game::{Game, GameInitError};
 use crate::models::{Board, LevelQuery};
 
+pub async fn hello() -> impl Responder {
+    HttpResponse::Ok()
+}
+
 pub async fn next_move(
     game_board: web::Json<Board>,
     game_level: web::Query<LevelQuery>,

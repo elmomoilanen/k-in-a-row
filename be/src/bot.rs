@@ -1,6 +1,7 @@
 use rand::Rng;
 use std::cmp;
 
+use crate::first_move::FirstMove;
 use crate::game::{BoardSize, Game};
 use crate::models::{BotMove, Level};
 
@@ -25,6 +26,11 @@ impl Bot {
 
         if empty_cells == cells_count {
             return Self::play_game_first_move(game, cells_count);
+        }
+        if empty_cells == cells_count - 1 {
+            if let Some(bot_move) = Self::play_bot_first_move_if_defined(&game) {
+                return bot_move;
+            }
         }
 
         let init_depth = match (game.size(), level) {
@@ -61,6 +67,22 @@ impl Bot {
             game_over: false,
             winner: game.orig_empty_mark,
         }
+    }
+
+    fn play_bot_first_move_if_defined(game: &Game) -> Option<BotMove> {
+        let p1_mark_pos = game.cells.iter().position(|&cell| cell == game.p1_mark);
+
+        let bot_next_pos = match (p1_mark_pos, game.size()) {
+            (Some(p1_idx), BoardSize::X55) => FirstMove::find_bot_first_move_5x5(p1_idx),
+            _ => return None,
+        };
+
+        Some(BotMove {
+            next: bot_next_pos,
+            next_is_valid: true,
+            game_over: false,
+            winner: game.orig_empty_mark,
+        })
     }
 
     fn renormalize_winner_marker(game: &Game, winner: i8) -> i8 {
@@ -108,7 +130,7 @@ impl Bot {
     ) -> (i32, Option<usize>) {
         let winner = game.winner();
 
-        if winner != game.empty_mark || depth == 0 || game.empty_cell_count() == 0 {
+        if winner != game.empty_mark || depth <= 0 || game.empty_cell_count() == 0 {
             return (game.heuristic_game_value(winner, depth), None);
         }
 

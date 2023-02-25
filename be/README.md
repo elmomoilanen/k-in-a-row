@@ -4,7 +4,7 @@ Backend service for the game. Computes the bot player's next move in the game bo
 
 ## Build and run ##
 
-Following instructions contain the recommended way to start the backend service locally. To change the listener to which the server is bound (default is 0.0.0.0:8080), please see the settings of the server from `src/bin/server.rs`.
+Following instructions contain the recommended way to start the backend service locally.
 
 First build an image from the Dockerfile
 
@@ -18,7 +18,7 @@ and after that run the image so that the server becomes available inside a new r
 docker run -p 127.0.0.1:8080:8080 --rm k-in-a-row/be
 ```
 
-With the previous command, port 8080 of the container is bound to the same port on 127.0.0.1 of the host machine and is not accessible from the outside.
+With the previous command, port 8080 of the container (server's default port) is bound to the same port on 127.0.0.1 of the host machine and is not accessible from the outside.
 
 ## Use ##
 
@@ -45,5 +45,11 @@ For more information on the payload requirements, please see the model definitio
 ## Development ##
 
 Run `cargo run` to start the server.
+
+By default the server is bound to 0.0.0.0:8080 but during development one may want to modify these values. Following command shows how to start the server bound to different address
+
+```bash
+ADDR=127.0.0.1 PORT=8000 cargo run
+```
 
 In principle, it is easy to add new game boards. A board must have a same number of rows and columns (i.e., a k x k board) and that's about the only strict requirement. Place proper board size values in `src/game.rs` and `src/bot.rs` by following the example of earlier game boards. Of course, the drawback for larger boards is that the search space for bot player's moves increases exponentially.
