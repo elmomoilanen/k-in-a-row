@@ -3,42 +3,17 @@ use std::fmt::{self, Display, Formatter};
 
 use rand::seq::SliceRandom;
 
-use crate::models::Board;
-
-pub const BOARD_SIZE_3X3: usize = 9;
-pub const BOARD_SIZE_4X4: usize = 16;
-pub const BOARD_SIZE_5X5: usize = 25;
-pub const BOARD_SIZE_6X6: usize = 36;
-pub const BOARD_SIZE_7X7: usize = 49;
+use crate::conf::{BoardParams, BoardSize, GameInitError};
+use crate::models::{Board, Level};
 
 const P1_MARK: i8 = -1;
 const BOT_MARK: i8 = 1;
 const EMPTY_MARK: i8 = 0;
 
-const WINNER_VALUE: i32 = 1000;
-const ONE_TO_WIN_VALUE: i32 = 150;
-const TWO_TO_WIN_VALUE: i32 = 50;
+const WINNER_VALUE: i32 = 10000;
+const ONE_TO_WIN_VALUE: i32 = 500;
+const TWO_TO_WIN_VALUE: i32 = 100;
 const OPPONENT_PENALTY_MULTIPLIER: i32 = 3;
-
-const X55_EMPTY_CELLS_THRESHOLD: usize = 20;
-const X66_EMPTY_CELLS_THRESHOLD: usize = 30;
-const X77_EMPTY_CELLS_THRESHOLD: usize = 40;
-
-#[derive(Clone, Copy)]
-pub enum GameInitError {
-    Size,
-    Marks,
-    Inconsistent,
-}
-
-#[derive(Clone, Copy)]
-pub enum BoardSize {
-    X33,
-    X44,
-    X55,
-    X66,
-    X77,
-}
 
 pub struct Game {
     pub cells: Vec<i8>,
@@ -48,29 +23,17 @@ pub struct Game {
     pub orig_p1_mark: i8,
     pub orig_bot_mark: i8,
     pub orig_empty_mark: i8,
-    board_size: BoardSize,
-    cells_offset: u8,
-    cells_to_win: u8,
+    pub board_size: BoardSize,
+    pub max_depth: usize,
+    cells_to_win: usize,
+    cells_offset: usize,
 }
 
 impl Game {
-    pub fn new(mut board: Board) -> Result<Self, GameInitError> {
-        let board_size = match Self::set_board_size(board.cells.len()) {
-            Ok(board_size) => board_size,
-            Err(error_kind) => return Err(error_kind),
-        };
+    pub fn new(mut board: Board, level: Level) -> Result<Self, GameInitError> {
+        let board_params = BoardParams::new(&board, level)?;
 
-        Self::board_inconsistent(&board)?;
         Self::normalize_cell_values(&mut board);
-
-        // Offset must be the row/column count
-        let (cells_offset, cells_to_win) = match board_size {
-            BoardSize::X33 => (3, 3),
-            BoardSize::X44 => (4, 4),
-            BoardSize::X55 => (5, 4),
-            BoardSize::X66 => (6, 5),
-            BoardSize::X77 => (7, 5),
-        };
 
         Ok(Game {
             cells: board.cells,
@@ -80,9 +43,10 @@ impl Game {
             orig_p1_mark: board.p1_mark,
             orig_bot_mark: board.bot_mark,
             orig_empty_mark: board.empty_mark,
-            board_size,
-            cells_offset,
-            cells_to_win,
+            board_size: board_params.size,
+            max_depth: board_params.max_depth,
+            cells_to_win: board_params.to_win,
+            cells_offset: board_params.offset,
         })
     }
 
@@ -107,18 +71,14 @@ impl Game {
         }
     }
 
-    pub fn heuristic_game_value(&self, winner: i8, depth: i8) -> i32 {
-        let depth_unzero = depth as i32 + 1;
+    pub fn heuristic_game_value(&self, winner: i8, depth: i32) -> i32 {
+        let depth_unzero = depth + 1;
 
         if winner != self.empty_mark {
             return winner as i32 * WINNER_VALUE * depth_unzero;
         }
 
         self.value_in_total() * depth_unzero
-    }
-
-    pub fn size(&self) -> BoardSize {
-        self.board_size
     }
 
     pub fn winner(&self) -> i8 {
@@ -142,7 +102,7 @@ impl Game {
     }
 
     fn adjacent_cell_occupied(&self, index: usize) -> bool {
-        let offset = self.cells_offset as usize;
+        let offset = self.cells_offset;
         let cells_count = self.cells.len();
 
         let adjacent_indices = if index == 0 {
@@ -208,53 +168,12 @@ impl Game {
             .any(|&idx| self.cells[idx] != self.empty_mark)
     }
 
-    fn board_inconsistent(board: &Board) -> Result<(), GameInitError> {
-        if board.p1_mark == board.bot_mark
-            || board.p1_mark == board.empty_mark
-            || board.bot_mark == board.empty_mark
-        {
-            return Err(GameInitError::Marks);
-        }
-        if board.cells.iter().any(|&cell| {
-            cell != board.p1_mark && cell != board.bot_mark && cell != board.empty_mark
-        }) {
-            return Err(GameInitError::Marks);
-        }
-
-        let p1_marks = board
-            .cells
-            .iter()
-            .filter(|&cell| *cell == board.p1_mark)
-            .count();
-
-        let bot_marks = board
-            .cells
-            .iter()
-            .filter(|&cell| *cell == board.bot_mark)
-            .count();
-
-        if p1_marks > bot_marks + 1 || bot_marks > p1_marks {
-            return Err(GameInitError::Inconsistent);
-        }
-
-        Ok(())
-    }
-
     fn empty_cells(slice: &[i8], empty_mark: i8) -> usize {
         slice.iter().filter(|&cell| *cell == empty_mark).count()
     }
 
     fn reorder_empty_cell_indices_by_value(&mut self, free_indices: Vec<usize>) -> Vec<usize> {
-        let free_cells = free_indices.len();
-
-        let drop_non_adjacent_cells = match self.board_size {
-            BoardSize::X55 if free_cells >= X55_EMPTY_CELLS_THRESHOLD => true,
-            BoardSize::X66 if free_cells >= X66_EMPTY_CELLS_THRESHOLD => true,
-            BoardSize::X77 if free_cells >= X77_EMPTY_CELLS_THRESHOLD => true,
-            _ => false,
-        };
-
-        let (free_indices_w_adj, free_indices_w_non_adj): (Vec<_>, Vec<_>) = free_indices
+        let (free_indices_w_adj, _): (Vec<usize>, Vec<usize>) = free_indices
             .iter()
             .partition(|&index| self.adjacent_cell_occupied(*index));
 
@@ -267,15 +186,7 @@ impl Game {
         }
         value_map.sort_unstable_by_key(|&pair| -pair.1);
 
-        if drop_non_adjacent_cells {
-            return value_map.iter().map(|&pair| pair.0 as usize).collect();
-        }
-
-        value_map
-            .iter()
-            .map(|&pair| pair.0 as usize)
-            .chain(free_indices_w_non_adj)
-            .collect()
+        value_map.iter().map(|&pair| pair.0 as usize).collect()
     }
 
     fn normalize_cell_values(board: &mut Board) {
@@ -290,39 +201,23 @@ impl Game {
         }
     }
 
-    fn set_board_size(cells_count: usize) -> Result<BoardSize, GameInitError> {
-        if cells_count == BOARD_SIZE_3X3 {
-            Ok(BoardSize::X33)
-        } else if cells_count == BOARD_SIZE_4X4 {
-            Ok(BoardSize::X44)
-        } else if cells_count == BOARD_SIZE_5X5 {
-            Ok(BoardSize::X55)
-        } else if cells_count == BOARD_SIZE_6X6 {
-            Ok(BoardSize::X66)
-        } else if cells_count == BOARD_SIZE_7X7 {
-            Ok(BoardSize::X77)
-        } else {
-            Err(GameInitError::Size)
-        }
-    }
-
     fn winner_in_row(&self) -> i8 {
         let max_start_col = self.cells_offset - self.cells_to_win + 1;
 
-        for start_col in 0..max_start_col as usize {
+        for start_col in 0..max_start_col {
             for (i, &row_first) in self
                 .cells
                 .iter()
                 .enumerate()
                 .skip(start_col)
-                .step_by(self.cells_offset as usize)
+                .step_by(self.cells_offset)
             {
                 if row_first != self.empty_mark
                     && self
                         .cells
                         .iter()
                         .skip(i)
-                        .take(self.cells_to_win as usize)
+                        .take(self.cells_to_win)
                         .all(|&cell| cell == row_first)
                 {
                     return row_first;
@@ -335,21 +230,21 @@ impl Game {
     fn winner_in_col(&self) -> i8 {
         let max_start_row = self.cells_offset - self.cells_to_win + 1;
 
-        for start_row in 0..max_start_row as usize {
+        for start_row in 0..max_start_row {
             for (i, &col_first) in self
                 .cells
                 .iter()
                 .enumerate()
-                .skip(start_row * self.cells_offset as usize)
-                .take(self.cells_offset as usize)
+                .skip(start_row * self.cells_offset)
+                .take(self.cells_offset)
             {
                 if col_first != self.empty_mark
                     && self
                         .cells
                         .iter()
                         .skip(i)
-                        .step_by(self.cells_offset as usize)
-                        .take(self.cells_to_win as usize)
+                        .step_by(self.cells_offset)
+                        .take(self.cells_to_win)
                         .all(|&cell| cell == col_first)
                 {
                     return col_first;
@@ -360,12 +255,12 @@ impl Game {
     }
 
     fn diag_start_search_indices(&self, antidiag: bool) -> HashSet<usize> {
-        let offset = self.cells_offset as usize;
-        let max_row = offset - self.cells_to_win as usize + 1;
+        let offset = self.cells_offset;
+        let max_row = offset - self.cells_to_win + 1;
         let max_col = max_row;
 
         let start_search_indices: HashSet<usize> = if antidiag {
-            let anti_offset = self.cells_to_win as usize - 1;
+            let anti_offset = self.cells_to_win - 1;
             (0..max_row)
                 .flat_map(|row| (row * offset + anti_offset..row * offset + anti_offset + max_col))
                 .collect()
@@ -379,8 +274,8 @@ impl Game {
     }
 
     fn winner_in_diag(&self) -> i8 {
-        let offset = self.cells_offset as usize;
-        let max_row = offset - self.cells_to_win as usize + 1;
+        let offset = self.cells_offset;
+        let max_row = offset - self.cells_to_win + 1;
 
         let start_search_indices = self.diag_start_search_indices(false);
 
@@ -388,8 +283,8 @@ impl Game {
     }
 
     fn winner_in_antidiag(&self) -> i8 {
-        let offset = self.cells_offset as usize;
-        let max_row = offset - self.cells_to_win as usize + 1;
+        let offset = self.cells_offset;
+        let max_row = offset - self.cells_to_win + 1;
 
         let start_search_indices = self.diag_start_search_indices(true);
 
@@ -406,7 +301,7 @@ impl Game {
             .cells
             .iter()
             .enumerate()
-            .take(max_row * self.cells_offset as usize)
+            .take(max_row * self.cells_offset)
             .filter(|(i, _)| start_search_indices.contains(i))
         {
             if diag_first != self.empty_mark
@@ -415,7 +310,7 @@ impl Game {
                     .iter()
                     .skip(i)
                     .step_by(diag_offset)
-                    .take(self.cells_to_win as usize)
+                    .take(self.cells_to_win)
                     .all(|&cell| cell == diag_first)
             {
                 return diag_first;
@@ -437,43 +332,41 @@ impl Game {
     }
 
     fn value_in_rows(&self) -> i32 {
-        let (offset, window) = (self.cells_offset as usize, self.cells_to_win as usize);
-        let max_start_col = offset - window + 1;
-
+        let max_start_col = self.cells_offset - self.cells_to_win + 1;
         let mut value = 0;
 
         for start_col in 0..max_start_col {
-            for row in 0..offset {
-                let start_cell = row * offset + start_col;
-                let row_slice = &self.cells[start_cell..start_cell + window];
+            for row in 0..self.cells_offset {
+                let start_cell = row * self.cells_offset + start_col;
+                let row_slice = &self.cells[start_cell..start_cell + self.cells_to_win];
 
                 let row_sum = row_slice.iter().sum::<i8>();
                 let empty_cells = Self::empty_cells(row_slice, self.empty_mark);
-                value += Self::compute_value_from_window_sum(row_sum, empty_cells, window);
+                value +=
+                    Self::compute_value_from_window_sum(row_sum, empty_cells, self.cells_to_win);
             }
         }
         value
     }
 
     fn value_in_cols(&self) -> i32 {
-        let (offset, window) = (self.cells_offset as usize, self.cells_to_win as usize);
-        let max_start_row = offset - window + 1;
-
+        let max_start_row = self.cells_offset - self.cells_to_win + 1;
         let mut value = 0;
 
         for start_row in 0..max_start_row {
-            for col in 0..offset {
-                let start_cell = start_row * offset + col;
+            for col in 0..self.cells_offset {
+                let start_cell = start_row * self.cells_offset + col;
                 let col_slice: Vec<i8> = self.cells[start_cell..]
                     .iter()
-                    .step_by(offset)
-                    .take(window)
+                    .step_by(self.cells_offset)
+                    .take(self.cells_to_win)
                     .copied()
                     .collect();
 
                 let col_sum = col_slice.iter().sum::<i8>();
                 let empty_cells = Self::empty_cells(&col_slice, self.empty_mark);
-                value += Self::compute_value_from_window_sum(col_sum, empty_cells, window);
+                value +=
+                    Self::compute_value_from_window_sum(col_sum, empty_cells, self.cells_to_win);
             }
         }
         value
@@ -481,26 +374,25 @@ impl Game {
 
     fn value_in_diags(&self, antidiag: bool) -> i32 {
         let diag_offset = if antidiag {
-            self.cells_offset as usize - 1
+            self.cells_offset - 1
         } else {
-            self.cells_offset as usize + 1
+            self.cells_offset + 1
         };
-        let window = self.cells_to_win as usize;
-        let start_search_indices = self.diag_start_search_indices(antidiag);
 
+        let start_search_indices = self.diag_start_search_indices(antidiag);
         let mut value = 0;
 
         for &start_cell in start_search_indices.iter() {
             let diag_slice: Vec<i8> = self.cells[start_cell..]
                 .iter()
                 .step_by(diag_offset)
-                .take(window)
+                .take(self.cells_to_win)
                 .copied()
                 .collect();
 
             let diag_sum = diag_slice.iter().sum::<i8>();
             let empty_cells = Self::empty_cells(&diag_slice, self.empty_mark);
-            value += Self::compute_value_from_window_sum(diag_sum, empty_cells, window);
+            value += Self::compute_value_from_window_sum(diag_sum, empty_cells, self.cells_to_win);
         }
         value
     }
@@ -532,14 +424,7 @@ impl Game {
 
 impl Display for Game {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        let show_cells_in_row = match self.board_size {
-            BoardSize::X33 => 3,
-            BoardSize::X44 => 4,
-            BoardSize::X55 => 5,
-            BoardSize::X66 => 6,
-            BoardSize::X77 => 7,
-        };
-        writeln!(f, "Bot: x, Other: o\n")?;
+        let show_cells_in_row = self.board_size as usize;
 
         for row in self.cells.chunks(show_cells_in_row) {
             let row_repr = row
@@ -571,13 +456,14 @@ mod tests {
             bot_mark,
             empty_mark,
         };
-        match Game::new(board) {
+        match Game::new(board, Level::Normal) {
             Ok(game) => game,
-            _ => panic!("Game::new failed"),
+            Err(error_kind) => panic!("Game::new(): {:?}", error_kind),
         }
     }
 
     fn init_5x5_game_literal(cells: &[i8], p1_mark: i8, bot_mark: i8, empty_mark: i8) -> Game {
+        // Use this e.g. to init an inconsistent game board
         Game {
             cells: cells.to_vec(),
             p1_mark,
@@ -587,23 +473,9 @@ mod tests {
             orig_bot_mark: bot_mark,
             orig_empty_mark: empty_mark,
             board_size: BoardSize::X55,
-            cells_offset: 5,
+            max_depth: 7,
+            cells_offset: BoardSize::X55 as usize,
             cells_to_win: 4,
-        }
-    }
-
-    fn init_6x6_game_literal(cells: &[i8], p1_mark: i8, bot_mark: i8, empty_mark: i8) -> Game {
-        Game {
-            cells: cells.to_vec(),
-            p1_mark,
-            bot_mark,
-            empty_mark,
-            orig_p1_mark: p1_mark,
-            orig_bot_mark: bot_mark,
-            orig_empty_mark: empty_mark,
-            board_size: BoardSize::X66,
-            cells_offset: 6,
-            cells_to_win: 5,
         }
     }
 
@@ -615,10 +487,10 @@ mod tests {
             bot_mark: 1,
             empty_mark: 0,
         };
-        match Game::new(board) {
-            Ok(_) => panic!("Game::new returned Ok."),
+        match Game::new(board, Level::Normal) {
+            Ok(_) => panic!("Game::new() returned Ok."),
             Err(GameInitError::Size) => (),
-            Err(_) => panic!("Game::new returned wrong error type"),
+            Err(error_kind) => panic!("Game::new() returned wrong error type {:?}", error_kind),
         }
     }
 
@@ -630,10 +502,10 @@ mod tests {
             bot_mark: -1,
             empty_mark: 0,
         };
-        match Game::new(board) {
-            Ok(_) => panic!("Game::new returned Ok."),
+        match Game::new(board, Level::Normal) {
+            Ok(_) => panic!("Game::new() returned Ok."),
             Err(GameInitError::Marks) => (),
-            Err(_) => panic!("Game::new returned wrong error type"),
+            Err(error_kind) => panic!("Game::new() returned wrong error type {:?}", error_kind),
         }
     }
 
@@ -649,10 +521,10 @@ mod tests {
                 bot_mark: -1,
                 empty_mark: 0,
             };
-            match Game::new(board) {
-                Ok(_) => panic!("Game::new returned Ok."),
+            match Game::new(board, Level::Normal) {
+                Ok(_) => panic!("Game::new() returned Ok."),
                 Err(GameInitError::Inconsistent) => (),
-                Err(_) => panic!("Game::new returned wrong error type"),
+                Err(error_kind) => panic!("Game::new() returned wrong error type {:?}", error_kind),
             }
         }
     }
@@ -666,9 +538,9 @@ mod tests {
             bot_mark,
             empty_mark,
         };
-        let game = match Game::new(board) {
+        let game = match Game::new(board, Level::Normal) {
             Ok(game) => game,
-            _ => panic!("Game::new returned error"),
+            Err(error_kind) => panic!("Game::new() returned error {:?}", error_kind),
         };
 
         let correct_cells = vec![0, 0, 1, 1, 0, 0, -1, 0, -1];
@@ -682,11 +554,14 @@ mod tests {
         assert_eq!(game.orig_bot_mark, bot_mark);
         assert_eq!(game.orig_empty_mark, empty_mark);
 
+        assert_eq!(game.cells_offset, 3);
+        assert_eq!(game.cells_to_win, 3);
         assert_eq!(game.cells, correct_cells);
     }
 
     #[test]
     fn empty_cell_indices_3x3() {
+        // For board X33 all empty indices should always be returned
         let cells_collections: [[i8; 9]; 3] = [
             [0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, -1, 0, 1, 0, 0, 0],
@@ -707,7 +582,8 @@ mod tests {
 
     #[test]
     fn empty_cell_indices_5x5() {
-        // 1st collection has more or equal empty cells than X55_EMPTY_CELLS_THRESHOLD
+        // For larger boards (larger than X33) only empty cells
+        // adjacent to an occupied cell should be returned
         let cells_collections: [[i8; 25]; 2] = [
             [
                 1, 0, 0, 0, 0, 0, 0, 0, 0, -1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1,
@@ -720,7 +596,6 @@ mod tests {
         let mut game = init_game(&cells_collections[0], p1_mark, bot_mark, empty_mark);
 
         let indices = game.empty_cell_indices();
-        // Too many empty cells in total, so there should be only adjacent empty cells returned
         assert!(
             indices.len()
                 < cells_collections[0]
@@ -728,17 +603,21 @@ mod tests {
                     .filter(|&cell| *cell == 0)
                     .count()
         );
+        // There are 15 adjacent empty cells for this board situation
         assert_eq!(indices.len(), 15);
 
         game = init_game(&cells_collections[1], p1_mark, bot_mark, empty_mark);
+
         let indices = game.empty_cell_indices();
-        assert_eq!(
-            indices.len(),
-            cells_collections[1]
-                .iter()
-                .filter(|&cell| *cell == 0)
-                .count()
+        assert!(
+            indices.len()
+                < cells_collections[1]
+                    .iter()
+                    .filter(|&cell| *cell == 0)
+                    .count()
         );
+        // There are 14 adjacent empty cells this time
+        assert_eq!(indices.len(), 14);
     }
 
     #[test]
@@ -747,9 +626,10 @@ mod tests {
             1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1,
         ];
         let (p1_mark, bot_mark, empty_mark) = (1, -1, 0);
-        // Board (cells) is now inconsistent and cannot thus call Game::new
+        // Board (cells) is now inconsistent and cannot thus call Game::new directly
         let game = init_5x5_game_literal(&cells, p1_mark, bot_mark, empty_mark);
 
+        // For an index test whether any of its nearby cells is occupied (has mark 1)
         let test_indices = [4, 6, 19, 21];
         let correct_adjacent_cell_occupied = [false, true, true, true];
 
@@ -762,25 +642,74 @@ mod tests {
         }
     }
 
+    fn compute_adjacent_cell_occupied_count_for_empty_cells(game: &Game) -> u32 {
+        let mut count = 0;
+        let it = game
+            .cells
+            .iter()
+            .enumerate()
+            .filter(|&(_, cell)| *cell == game.empty_mark);
+
+        for (j, _) in it {
+            if game.adjacent_cell_occupied(j) {
+                count += 1;
+            }
+        }
+        count
+    }
+
     #[test]
-    fn adjacent_cell_occupied_6x6() {
-        let cells: [i8; 36] = [
-            1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1,
-            1, 1, 0, 0, 0, 0, 0,
+    fn adjacent_cell_occupied_count_3x3() {
+        let cells_collections: [[i8; 9]; 5] = [
+            [0, 0, 0, 0, 1, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 1, 0],
         ];
         let (p1_mark, bot_mark, empty_mark) = (1, -1, 0);
-        // Board (cells) is now inconsistent and cannot thus call Game::new
-        let game = init_6x6_game_literal(&cells, p1_mark, bot_mark, empty_mark);
+        let correct_adjacent_count = [8, 3, 5, 5, 5];
 
-        let test_indices = [0, 5, 10, 18, 20, 30];
-        let correct_adjacent_cell_occupied = [false, true, true, true, true, false];
-
-        let it = test_indices
+        let it = cells_collections
             .iter()
-            .zip(correct_adjacent_cell_occupied.iter());
+            .enumerate()
+            .zip(correct_adjacent_count);
 
-        for (&test_idx, &corr_result) in it {
-            assert_eq!(game.adjacent_cell_occupied(test_idx), corr_result);
+        for ((j, cells), corr_adj_count) in it {
+            let game = init_game(cells, p1_mark, bot_mark, empty_mark);
+            let adj_res = compute_adjacent_cell_occupied_count_for_empty_cells(&game);
+            assert_eq!(adj_res, corr_adj_count, "collection {j}");
+        }
+    }
+
+    #[test]
+    fn adjacent_cell_occupied_count_5x5() {
+        let cells_collections: [[i8; 25]; 4] = [
+            [
+                1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            ],
+            [
+                0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            ],
+            [
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            ],
+            [
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+            ],
+        ];
+        let (p1_mark, bot_mark, empty_mark) = (1, -1, 0);
+        let correct_adjacent_count = [3, 8, 8, 5];
+
+        let it = cells_collections
+            .iter()
+            .enumerate()
+            .zip(correct_adjacent_count);
+
+        for ((j, cells), corr_adj_count) in it {
+            let game = init_5x5_game_literal(cells, p1_mark, bot_mark, empty_mark);
+            let adj_res = compute_adjacent_cell_occupied_count_for_empty_cells(&game);
+            assert_eq!(adj_res, corr_adj_count, "collection {j}");
         }
     }
 
@@ -797,7 +726,7 @@ mod tests {
 
         for cells in &cells_collections {
             let game = init_game(cells, p1_mark, bot_mark, empty_mark);
-            // Notice that `game.p1_mark` must be used on the right side
+            // Notice that `game.p1_mark` must be used on the right side (due to marker normalization)
             assert_eq!(game.winner_in_row(), game.p1_mark);
         }
     }
@@ -815,7 +744,6 @@ mod tests {
 
         for cells in &cells_collections {
             let game = init_game(cells, p1_mark, bot_mark, empty_mark);
-            // Notice that `game.bot_mark` must be used on the right side
             assert_eq!(game.winner_in_col(), game.bot_mark);
         }
     }
@@ -827,7 +755,7 @@ mod tests {
         let cells_collections: [[i8; 9]; 4] = [
             [1, -1, -1, 0, 1, 0, 0, -1, 1],
             [1, 0, -1, 0, 1, -1, 0, -1, 1],
-            // Next two have antidiagonal winner
+            // Next two have an antidiagonal winner
             [-1, 0, 1, 0, 1, 0, 1, -1, -1],
             [-1, -1, 1, -1, 1, 0, 1, 0, 0],
         ];
@@ -866,7 +794,7 @@ mod tests {
 
         for cells in &cells_collections {
             let game = init_game(cells, p1_mark, bot_mark, empty_mark);
-            // Notice that `game.p1_mark` must be used on the right side
+            // Notice that `game.p1_mark` must be used on the right side (due to marker normalization)
             assert_eq!(game.winner_in_row(), game.p1_mark);
         }
     }
@@ -947,39 +875,6 @@ mod tests {
             let game = init_game(cells, p1_mark, bot_mark, empty_mark);
             assert_eq!(game.winner_in_antidiag(), game.p1_mark);
         }
-    }
-
-    #[test]
-    fn winner_6x6() {
-        let (p1_mark, bot_mark, empty_mark) = (1, -1, 0);
-
-        let cells: [i8; 36] = [
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, -1, -1, -1, -1, -1, 1, 1, 1, 1, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0,
-        ];
-        let game = init_game(&cells, p1_mark, bot_mark, empty_mark);
-        assert_eq!(game.winner_in_row(), game.bot_mark);
-
-        let cells: [i8; 36] = [
-            0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 1, -1, 0, 0, 0, 0,
-            0, -1, 0, 0, 0, 0, 0, 1,
-        ];
-        let game = init_game(&cells, p1_mark, bot_mark, empty_mark);
-        assert_eq!(game.winner_in_col(), game.bot_mark);
-
-        let cells: [i8; 36] = [
-            -1, -1, -1, -1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-            1, 0, 0, 0, 0, 0, 0, 1, 0,
-        ];
-        let game = init_game(&cells, p1_mark, bot_mark, empty_mark);
-        assert_eq!(game.winner_in_diag(), game.p1_mark);
-
-        let cells: [i8; 36] = [
-            0, 0, 1, 0, 0, 1, 0, 0, 0, 0, -1, 1, 0, 0, 0, -1, 0, 1, 0, 0, -1, 0, 0, 1, 0, -1, 0, 0,
-            0, 0, -1, 0, 0, 0, 0, 0,
-        ];
-        let game = init_game(&cells, p1_mark, bot_mark, empty_mark);
-        assert_eq!(game.winner_in_antidiag(), game.bot_mark);
     }
 
     #[test]

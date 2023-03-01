@@ -4,6 +4,8 @@ use std::{env, io};
 
 #[path = "../bot.rs"]
 mod bot;
+#[path = "../conf.rs"]
+mod conf;
 #[path = "../first_move.rs"]
 mod first_move;
 #[path = "../game.rs"]

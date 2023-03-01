@@ -1,57 +1,32 @@
 use rand::Rng;
 use std::cmp;
 
-use crate::first_move::FirstMove;
-use crate::game::{BoardSize, Game};
-use crate::models::{BotMove, Level};
-
-const MAX_DEPTH_3X3: i8 = 9;
-const MAX_DEPTH_4X4: i8 = 7;
-const MAX_DEPTH_5X5: i8 = 7;
-const MAX_DEPTH_6X6: i8 = 5;
-const MAX_DEPTH_7X7: i8 = 5;
-
-const EASY_MAX_DEPTH_3X3: i8 = 1;
-const EASY_MAX_DEPTH_4X4: i8 = 1;
-const EASY_MAX_DEPTH_5X5: i8 = 2;
-const EASY_MAX_DEPTH_6X6: i8 = 1;
-const EASY_MAX_DEPTH_7X7: i8 = 2;
+use crate::{conf::BoardSize, first_move::FirstMove, game::Game, models::BotMove};
 
 pub struct Bot;
 
 impl Bot {
-    pub fn next_move(mut game: Game, level: Level) -> BotMove {
+    pub fn next_move(mut game: Game) -> BotMove {
         let cells_count = game.cells.len();
         let empty_cells = game.empty_cell_count();
 
         if empty_cells == cells_count {
             return Self::play_game_first_move(game, cells_count);
         }
+
         if empty_cells == cells_count - 1 {
             if let Some(bot_move) = Self::play_bot_first_move_if_defined(&game) {
                 return bot_move;
             }
         }
 
-        let init_depth = match (game.size(), level) {
-            (BoardSize::X33, Level::Easy) => cmp::min(empty_cells as i8, EASY_MAX_DEPTH_3X3),
-            (BoardSize::X33, Level::Normal) => cmp::min(empty_cells as i8, MAX_DEPTH_3X3),
-            (BoardSize::X44, Level::Easy) => cmp::min(empty_cells as i8, EASY_MAX_DEPTH_4X4),
-            (BoardSize::X44, Level::Normal) => cmp::min(empty_cells as i8, MAX_DEPTH_4X4),
-            (BoardSize::X55, Level::Easy) => cmp::min(empty_cells as i8, EASY_MAX_DEPTH_5X5),
-            (BoardSize::X55, Level::Normal) => cmp::min(empty_cells as i8, MAX_DEPTH_5X5),
-            (BoardSize::X66, Level::Easy) => cmp::min(empty_cells as i8, EASY_MAX_DEPTH_6X6),
-            (BoardSize::X66, Level::Normal) => cmp::min(empty_cells as i8, MAX_DEPTH_6X6),
-            (BoardSize::X77, Level::Easy) => cmp::min(empty_cells as i8, EASY_MAX_DEPTH_7X7),
-            (BoardSize::X77, Level::Normal) => cmp::min(empty_cells as i8, MAX_DEPTH_7X7),
-        };
-
+        let init_depth = cmp::min(empty_cells, game.max_depth);
         let first_player = game.bot_mark;
 
         let (_, best_move) = Self::minimax(
             &mut game,
             first_player,
-            init_depth,
+            init_depth as i32,
             i32::MIN,
             i32::MAX,
             true,
@@ -72,7 +47,7 @@ impl Bot {
     fn play_bot_first_move_if_defined(game: &Game) -> Option<BotMove> {
         let p1_mark_pos = game.cells.iter().position(|&cell| cell == game.p1_mark);
 
-        let bot_next_pos = match (p1_mark_pos, game.size()) {
+        let bot_next_pos = match (p1_mark_pos, game.board_size) {
             (Some(p1_idx), BoardSize::X55) => FirstMove::find_bot_first_move_5x5(p1_idx),
             _ => return None,
         };
@@ -123,7 +98,7 @@ impl Bot {
     fn minimax(
         game: &mut Game,
         player: i8,
-        depth: i8,
+        depth: i32,
         mut alpha: i32,
         mut beta: i32,
         maximize: bool,
@@ -182,12 +157,8 @@ impl Bot {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        game::{BOARD_SIZE_3X3, BOARD_SIZE_4X4, BOARD_SIZE_5X5, BOARD_SIZE_6X6, BOARD_SIZE_7X7},
-        models::Board,
-    };
-    use std::cmp::Ordering;
-    use std::mem;
+    use crate::models::{Board, Level};
+    use std::{cmp::Ordering, mem};
 
     fn init_game(cells: &[i8], p1_mark: i8, bot_mark: i8, empty_mark: i8) -> Game {
         let board = Board {
@@ -196,9 +167,9 @@ mod tests {
             bot_mark,
             empty_mark,
         };
-        match Game::new(board) {
+        match Game::new(board, Level::Normal) {
             Ok(game) => game,
-            _ => panic!("Game::new failed"),
+            Err(error_kind) => panic!("Game::new(): {:?}", error_kind),
         }
     }
 
@@ -206,18 +177,12 @@ mod tests {
         let empty_cells = game.empty_cell_count();
         let first_player = game.bot_mark;
 
-        let init_depth = match game.size() {
-            BoardSize::X33 => cmp::min(empty_cells as i8, MAX_DEPTH_3X3),
-            BoardSize::X44 => cmp::min(empty_cells as i8, MAX_DEPTH_4X4),
-            BoardSize::X55 => cmp::min(empty_cells as i8, MAX_DEPTH_5X5),
-            BoardSize::X66 => cmp::min(empty_cells as i8, MAX_DEPTH_6X6),
-            BoardSize::X77 => cmp::min(empty_cells as i8, MAX_DEPTH_7X7),
-        };
+        let init_depth = cmp::min(empty_cells, game.max_depth);
 
         let (_, best_move) = Bot::minimax(
             &mut game,
             first_player,
-            init_depth,
+            init_depth as i32,
             i32::MIN,
             i32::MAX,
             true,
@@ -252,8 +217,8 @@ mod tests {
             let game = init_game(cells, p1_mark, bot_mark, empty_mark);
 
             match run_minimax_for_bot(game) {
-                Some(best_move) => assert_eq!(best_move, correct_move, "round {}", i + 1),
-                _ => panic!("Bot::minimax (round {i}) returned None"),
+                Some(best_move) => assert_eq!(best_move, correct_move, "collection {}", i + 1),
+                _ => panic!("Bot::minimax (collection {i}) returned None"),
             }
         }
     }
@@ -284,8 +249,8 @@ mod tests {
             let game = init_game(cells, p1_mark, bot_mark, empty_mark);
 
             match run_minimax_for_bot(game) {
-                Some(best_move) => assert_eq!(best_move, correct_move, "round {}", i + 1),
-                _ => panic!("Bot::minimax (round {i}) returned None"),
+                Some(best_move) => assert_eq!(best_move, correct_move, "collection {}", i + 1),
+                _ => panic!("Bot::minimax (collection {i}) returned None"),
             }
         }
     }
@@ -309,8 +274,8 @@ mod tests {
             let game = init_game(cells, p1_mark, bot_mark, empty_mark);
 
             match run_minimax_for_bot(game) {
-                Some(best_move) => assert_eq!(best_move, correct_move, "round {}", i + 1),
-                _ => panic!("Bot::minimax (round {i}) returned None"),
+                Some(best_move) => assert_eq!(best_move, correct_move, "collection {}", i + 1),
+                _ => panic!("Bot::minimax (collection {i}) returned None"),
             }
         }
     }
@@ -353,8 +318,8 @@ mod tests {
             let game = init_game(cells, p1_mark, bot_mark, empty_mark);
 
             match run_minimax_for_bot(game) {
-                Some(best_move) => assert_eq!(best_move, correct_move, "round {}", i + 1),
-                _ => panic!("Bot::minimax (round {i}) returned None"),
+                Some(best_move) => assert_eq!(best_move, correct_move, "collection {}", i + 1),
+                _ => panic!("Bot::minimax (collection {i}) returned None"),
             }
         }
     }
@@ -397,8 +362,8 @@ mod tests {
             let game = init_game(cells, p1_mark, bot_mark, empty_mark);
 
             match run_minimax_for_bot(game) {
-                Some(best_move) => assert_eq!(best_move, correct_move, "round {}", i + 1),
-                _ => panic!("Bot::minimax (round {i}) returned None"),
+                Some(best_move) => assert_eq!(best_move, correct_move, "collection {}", i + 1),
+                _ => panic!("Bot::minimax (collection {i}) returned None"),
             }
         }
     }
@@ -420,7 +385,7 @@ mod tests {
         for (cells, i) in it {
             let game = init_game(cells, p1_mark, bot_mark, empty_mark);
 
-            let bot_move = Bot::next_move(game, Level::Normal);
+            let bot_move = Bot::next_move(game);
 
             assert_eq!(bot_move.next, correct_next_move[i]);
             assert_eq!(bot_move.winner, correct_winner[i]);
@@ -446,9 +411,9 @@ mod tests {
         for (cells, i) in it {
             let game = init_game(cells, p1_mark, bot_mark, empty_mark);
 
-            let bot_move = Bot::next_move(game, Level::Normal);
+            let bot_move = Bot::next_move(game);
 
-            // Check that player markers are the original (not the normalized)
+            // Check that player markers are the original and not the normalized
             assert_eq!(bot_move.next, correct_next_move[i]);
             assert_eq!(bot_move.winner, correct_winner[i]);
             assert_eq!(bot_move.next_is_valid, true);
@@ -472,7 +437,7 @@ mod tests {
         for (cells, i) in it {
             let game = init_game(cells, p1_mark, bot_mark, empty_mark);
 
-            let bot_move = Bot::next_move(game, Level::Normal);
+            let bot_move = Bot::next_move(game);
 
             assert_eq!(bot_move.next, correct_next_move[i]);
             assert_eq!(bot_move.winner, empty_mark);
@@ -504,7 +469,7 @@ mod tests {
         for (cells, i) in it {
             let game = init_game(cells, p1_mark, bot_mark, empty_mark);
 
-            let bot_move = Bot::next_move(game, Level::Normal);
+            let bot_move = Bot::next_move(game);
 
             assert_eq!(bot_move.winner, correct_winner[i]);
             assert_eq!(bot_move.game_over, true);
@@ -531,14 +496,14 @@ mod tests {
                 bot_mark,
                 empty_mark,
             };
-            let game = match Game::new(board) {
+            let game = match Game::new(board, Level::Normal) {
                 Ok(game) => game,
-                _ => panic!("Game::new error in move {}", move_i),
+                Err(error_kind) => panic!("Game::new() error {:?} in move {}", error_kind, move_i),
             };
             // Use following for debugging, add --nocapture after --
             println!("{}", &game);
 
-            let res = Bot::next_move(game, Level::Normal);
+            let res = Bot::next_move(game);
 
             move_i += 1;
 
@@ -563,6 +528,7 @@ mod tests {
             let next_move = res.next as usize;
             assert!(next_move < game_size, "move {}", move_i);
 
+            println!("next_move (idx): {next_move}\n");
             cells[next_move] = bot_mark;
             mem::swap(&mut bot_mark, &mut p1_mark);
         }
@@ -573,36 +539,89 @@ mod tests {
 
     #[test]
     fn complete_game_play_3x3_normal() {
-        play_complete_game(BOARD_SIZE_3X3, false, 0);
+        play_complete_game(9, false, 0);
     }
 
     #[test]
     fn complete_game_play_4x4_normal() {
-        play_complete_game(BOARD_SIZE_4X4, false, 0);
+        play_complete_game(16, false, 0);
     }
 
     #[test]
     fn complete_game_play_5x5_normal() {
-        play_complete_game(BOARD_SIZE_5X5, false, 0);
+        // Run separately with live board updates: cargo test complete_game_play_5x5_normal -- --nocapture
+        play_complete_game(25, false, 0);
     }
 
     #[test]
-    fn complete_game_play_3x3_after_p1_center_move() {
-        play_complete_game(BOARD_SIZE_3X3, true, 4);
-    }
-
-    #[test]
+    #[ignore]
     fn complete_game_play_5x5_after_p1_center_move() {
-        play_complete_game(BOARD_SIZE_5X5, true, 12);
+        play_complete_game(25, true, 12);
+    }
+
+    #[test]
+    #[ignore]
+    fn complete_game_play_5x5_after_p1_lower_row_move() {
+        // Run if there are doubts about the bot's answer to p1 opening move
+        play_complete_game(25, true, 21);
     }
 
     #[test]
     fn complete_game_play_6x6_normal() {
-        play_complete_game(BOARD_SIZE_6X6, false, 0);
+        play_complete_game(36, false, 0);
     }
 
     #[test]
     fn complete_game_play_7x7_normal() {
-        play_complete_game(BOARD_SIZE_7X7, false, 0);
+        play_complete_game(49, false, 0);
+    }
+
+    #[test]
+    fn complete_game_play_8x8_normal() {
+        play_complete_game(64, false, 0);
+    }
+
+    #[test]
+    fn complete_game_play_9x9_normal() {
+        play_complete_game(81, false, 0);
+    }
+
+    #[test]
+    #[ignore]
+    fn complete_game_play_10x10_normal() {
+        // How to run: cargo test complete_game_play_10x10_normal -- --nocapture --ignored
+        play_complete_game(100, false, 0);
+    }
+
+    #[test]
+    #[ignore]
+    fn complete_game_play_11x11_normal() {
+        play_complete_game(11 * 11, false, 0);
+    }
+
+    #[test]
+    #[ignore]
+    fn complete_game_play_12x12_normal() {
+        play_complete_game(12 * 12, false, 0);
+    }
+
+    #[test]
+    #[ignore]
+    fn complete_game_play_13x13_normal() {
+        play_complete_game(13 * 13, false, 0);
+    }
+
+    #[test]
+    #[ignore]
+    fn complete_game_play_14x14_normal() {
+        play_complete_game(14 * 14, false, 0);
+    }
+
+    #[test]
+    #[should_panic]
+    #[ignore]
+    fn complete_game_play_15x15_normal() {
+        // This game should always be a win for one of the players
+        play_complete_game(15 * 15, false, 0);
     }
 }

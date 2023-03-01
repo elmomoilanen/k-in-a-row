@@ -1,8 +1,11 @@
 use actix_web::{self, web, HttpResponse, Responder};
 
-use crate::bot::Bot;
-use crate::game::{Game, GameInitError};
-use crate::models::{Board, LevelQuery};
+use crate::{
+    bot::Bot,
+    conf::GameInitError,
+    game::Game,
+    models::{Board, LevelQuery},
+};
 
 pub async fn hello() -> impl Responder {
     HttpResponse::Ok()
@@ -15,7 +18,7 @@ pub async fn next_move(
     let board = game_board.into_inner();
     let level = game_level.into_inner().level;
 
-    let game = match Game::new(board) {
+    let game = match Game::new(board, level) {
         Ok(game) => game,
         Err(GameInitError::Size) => {
             return HttpResponse::BadRequest().body("Board size is unaccepted.");
@@ -28,7 +31,7 @@ pub async fn next_move(
         }
     };
 
-    let bot_next_move = Bot::next_move(game, level);
+    let bot_next_move = Bot::next_move(game);
 
     HttpResponse::Ok().json(bot_next_move)
 }
