@@ -10,12 +10,15 @@ default-run = "server"
 name = "server"
 
 [profile.dev]
-opt-level = 3
+opt-level = 2
 overflow-checks = false
 
 [profile.test]
-opt-level = 3
+opt-level = 2
 overflow-checks = false
+
+[profile.release]
+opt-level = 2
 
 [dependencies]
 actix-web = "4.2"
