@@ -22,9 +22,9 @@ With the previous command, port 8080 of the container (server's default port) is
 
 ## Use ##
 
-Server implements one endpoint `/api/bot/next` and only accepts POST requests with a JSON type payload and a URL query string `level=VALUE` with allowed values of *Easy* and *Normal*.
+Server implements an endpoint `/api/bot/next` that accepts POST requests with a JSON type payload and a URL query string `level=VALUE` with allowed values of *Easy* and *Normal*.
 
-Following example shows a valid HTTP request (using curl) used to compute the first move of a normal level 3x3 3-in-a-row game for the bot player
+Following example shows a valid HTTP request with curl that is used to compute the first move of a normal level 3x3 3-in-a-row game for the bot player
 
 ```bash
 curl "localhost:8080/api/bot/next?level=Normal" \
@@ -38,7 +38,7 @@ and the response for it could be e.g.
 {"next":0,"next_is_valid":true,"game_over":false,"winner":0}
 ```
 
-where *next* indicates the board index for the bot's next move. Here indices must be interpreted such that 0-2 represent the first row of the 3x3 board, 3-5 the second row and etc.
+where *next* indicates the board index for the bot's next move. Here indices must be interpreted such that 0-2 represent the first row of the 3x3 board, 3-5 the second row and 6-8 the third and last row.
 
 For more information on the payload requirements, please see the model definitions in `src/models.rs`.
 
@@ -46,10 +46,10 @@ For more information on the payload requirements, please see the model definitio
 
 Run `cargo run` to start the server.
 
-By default the server is bound to 0.0.0.0:8080 but during development one may want to modify these values. Following command shows how to start the server bound to different address
+By default the server is bound to 0.0.0.0:8080 but during development one may want to modify these values. Following command shows how to start the server bound to a different address
 
 ```bash
 ADDR=127.0.0.1 PORT=8000 cargo run
 ```
 
-In principle, it is easy to add new game boards. A board must have a same number of rows and columns (i.e., a k x k board) and that's about the only strict requirement. Place proper board size values in `src/game.rs` and `src/bot.rs` by following the example of earlier game boards. Of course, the drawback for larger boards is that the search space for bot player's moves increases exponentially.
+In principle, it is easy to add new game boards. A board must have a same number of rows and columns (i.e., a k x k board) and that's about the only strict requirement. Place proper board size parameters in `src/conf.rs` and the new board is ready to be used. Of course, the drawback for larger boards is that the search space for bot player's moves increases exponentially.
