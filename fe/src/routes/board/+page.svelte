@@ -29,11 +29,11 @@
     let cells = initCells(gameType.cellsTotal);
 
     function changeMarker() {
-        currentMarker = (currentMarker === X_MARK ? O_MARK : X_MARK);
+        currentMarker = currentMarker === X_MARK ? O_MARK : X_MARK;
     }
 
     function changePlayer() {
-        currentPlayer = (currentPlayer === Player.P1 ? Player.Bot : Player.P1);
+        currentPlayer = currentPlayer === Player.P1 ? Player.Bot : Player.P1;
     }
 
     function playP1Turn(cellId: string) {
@@ -51,7 +51,7 @@
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json"
+                Accept: "application/json"
             },
             body: JSON.stringify({
                 cells: cells.map((cell) => cell.val),

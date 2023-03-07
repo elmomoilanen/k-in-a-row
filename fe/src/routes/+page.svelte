@@ -65,12 +65,12 @@
 </script>
 
 {#if currentGameType && currentGameLevel && startGame && backendConnected}
-<Board
-gameType={currentGameType}
-gameLevel={currentGameLevel}
-currentPlayer={getRandomPlayer()}
-endGameFn={endGame}
-/>
+    <Board
+        gameType={currentGameType}
+        gameLevel={currentGameLevel}
+        currentPlayer={getRandomPlayer()}
+        endGameFn={endGame}
+    />
 {:else if currentGameType && currentGameLevel && startGame}
     <Spinner />
 {:else if showGameEndOptions}

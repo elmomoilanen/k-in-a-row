@@ -35,12 +35,48 @@ export const Games: Record<GameType, Game> = {
     x77: { cellsTotal: 49, cellsToWin: 5, boardSize: "7x7", gameKey: "x77", timeLimitInSecs: 0 },
     x88: { cellsTotal: 64, cellsToWin: 5, boardSize: "8x8", gameKey: "x88", timeLimitInSecs: 0 },
     x99: { cellsTotal: 81, cellsToWin: 6, boardSize: "9x9", gameKey: "x99", timeLimitInSecs: 0 },
-    x1010: { cellsTotal: 100, cellsToWin: 5, boardSize: "10x10", gameKey: "x1010", timeLimitInSecs: 0 },
-    x1111: { cellsTotal: 121, cellsToWin: 5, boardSize: "11x11", gameKey: "x1111", timeLimitInSecs: 0 },
-    x1212: { cellsTotal: 144, cellsToWin: 5, boardSize: "12x12", gameKey: "x1212", timeLimitInSecs: 0 },
-    x1313: { cellsTotal: 169, cellsToWin: 6, boardSize: "13x13", gameKey: "x1313", timeLimitInSecs: 0 },
-    x1414: { cellsTotal: 196, cellsToWin: 6, boardSize: "14x14", gameKey: "x1414", timeLimitInSecs: 0 },
-    x1515: { cellsTotal: 225, cellsToWin: 5, boardSize: "15x15", gameKey: "x1515", timeLimitInSecs: 0 }
+    x1010: {
+        cellsTotal: 100,
+        cellsToWin: 5,
+        boardSize: "10x10",
+        gameKey: "x1010",
+        timeLimitInSecs: 0
+    },
+    x1111: {
+        cellsTotal: 121,
+        cellsToWin: 5,
+        boardSize: "11x11",
+        gameKey: "x1111",
+        timeLimitInSecs: 0
+    },
+    x1212: {
+        cellsTotal: 144,
+        cellsToWin: 5,
+        boardSize: "12x12",
+        gameKey: "x1212",
+        timeLimitInSecs: 0
+    },
+    x1313: {
+        cellsTotal: 169,
+        cellsToWin: 6,
+        boardSize: "13x13",
+        gameKey: "x1313",
+        timeLimitInSecs: 0
+    },
+    x1414: {
+        cellsTotal: 196,
+        cellsToWin: 6,
+        boardSize: "14x14",
+        gameKey: "x1414",
+        timeLimitInSecs: 0
+    },
+    x1515: {
+        cellsTotal: 225,
+        cellsToWin: 5,
+        boardSize: "15x15",
+        gameKey: "x1515",
+        timeLimitInSecs: 0
+    }
 };
 
 export const GameLevels: Record<LevelName, GameLevel> = {

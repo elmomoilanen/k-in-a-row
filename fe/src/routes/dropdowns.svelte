@@ -87,7 +87,7 @@
             readonly
         />
         <div class={`options ${showGameLevelOptions ? "show" : ""}`} id="game-levels">
-            {#each gameLevels as { id, level, description }, j}
+            {#each gameLevels as { id, level, description }}
                 <button {id} on:click={() => setGameLevelAndToggle(level)}>{description}</button>
             {/each}
         </div>
