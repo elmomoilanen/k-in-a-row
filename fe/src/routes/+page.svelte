@@ -1,80 +1,94 @@
 <script lang="ts">
-    import { GameType } from "$lib/games";
-    import { GameLevel } from "$lib/levels";
-    import { Player } from "$lib/players";
-    import Board from "./board.svelte";
+    import { onMount } from "svelte";
+    import { error } from "@sveltejs/kit";
+    import type { Game, MaybeGame, MaybeGameLevel } from "$lib/games";
+    import { getRandomPlayer } from "$lib/players";
+    import Board from "./board/+page.svelte";
+    import Spinner from "./spinner.svelte";
+    import Dropdowns from "./dropdowns.svelte";
+    import { PUBLIC_API_URL } from "$env/static/public";
 
-    let currentGameType = GameType.None;
-    let currentGameLevel = GameLevel.None;
-    let previousGameType = GameType.None;
-    let previousGameLevel = GameLevel.None;
+    let currentGameType: MaybeGame = undefined;
+    let previousGameType: MaybeGame = undefined;
+    let currentGameLevel: MaybeGameLevel = undefined;
+    let previousGameLevel: MaybeGameLevel = undefined;
+    let startGame = false;
+    let backendConnected = false;
     let showGameEndOptions = false;
 
-    function setGameType(newGameType: GameType) {
-        currentGameType = newGameType;
+    function setGameType(newGame: Game) {
+        currentGameType = newGame;
     }
 
-    function setGameLevel(newGameLevel: GameLevel) {
+    function setGameLevel(newGameLevel: MaybeGameLevel) {
         currentGameLevel = newGameLevel;
     }
 
     function endGame() {
         previousGameType = currentGameType;
         previousGameLevel = currentGameLevel;
-        currentGameType = GameType.None;
-        currentGameLevel = GameLevel.None;
+        currentGameType = undefined;
+        currentGameLevel = undefined;
         showGameEndOptions = true;
+        toggleStartGame();
     }
 
     function resetGame() {
         currentGameType = previousGameType;
         currentGameLevel = previousGameLevel;
-        previousGameType = GameType.None;
-        previousGameLevel = GameLevel.None;
+        previousGameType = undefined;
+        previousGameLevel = undefined;
         showGameEndOptions = false;
+        toggleStartGame();
     }
 
     function backToStart() {
-        currentGameType = GameType.None;
-        currentGameLevel = GameLevel.None;
-        previousGameType = GameType.None;
-        previousGameLevel = GameLevel.None;
+        currentGameType = undefined;
+        currentGameLevel = undefined;
+        previousGameType = undefined;
+        previousGameLevel = undefined;
         showGameEndOptions = false;
     }
 
-    function getRandomPlayer() {
-        return Math.random() > 0.5 ? Player.P1 : Player.Bot;
+    function toggleStartGame() {
+        startGame = startGame ? false : true;
     }
+
+    onMount(async () => {
+        const url = `${PUBLIC_API_URL}/api/hello`;
+        const resp = await fetch(url);
+        if (!resp.ok) {
+            throw error(500, { message: `Did not receive OK response from ${url}.` });
+        }
+        backendConnected = true;
+    });
 </script>
 
-{#if currentGameType !== GameType.None && currentGameLevel !== GameLevel.None}
-    <Board
-        size={currentGameType}
-        gameLevel={currentGameLevel}
-        currentPlayer={getRandomPlayer()}
-        endGameFn={endGame}
-    />
-{:else if currentGameType !== GameType.None}
-    <div class="open-page" id="select-level">
-        <h3>Select level</h3>
-        <button on:click={() => setGameLevel(GameLevel.Easy)}>Easy</button>
-        <button on:click={() => setGameLevel(GameLevel.Normal)}>Normal</button>
-    </div>
+{#if currentGameType && currentGameLevel && startGame && backendConnected}
+<Board
+gameType={currentGameType}
+gameLevel={currentGameLevel}
+currentPlayer={getRandomPlayer()}
+endGameFn={endGame}
+/>
+{:else if currentGameType && currentGameLevel && startGame}
+    <Spinner />
 {:else if showGameEndOptions}
-    <div class="open-page" id="reset-game">
-        <h3>Choose an action</h3>
+    <div class="open-page" id="game-end-view">
+        <h1>Game over!</h1>
         <button on:click={resetGame}>Play again</button>
         <button on:click={backToStart}>Back to start</button>
     </div>
 {:else}
-    <div class="open-page" id="select-game">
+    <div class="open-page" id="new-game-view">
         <h1>Welcome to play k-in-a-row!</h1>
-        <h3>Start a new game</h3>
-        <button on:click={() => setGameType(GameType.X33)}>3x3 3-in-a-row</button>
-        <button on:click={() => setGameType(GameType.X44)}>4x4 4-in-a-row</button>
-        <button on:click={() => setGameType(GameType.X55)}>5x5 4-in-a-row</button>
-        <button on:click={() => setGameType(GameType.X66)}>6x6 5-in-a-row</button>
-        <button on:click={() => setGameType(GameType.X77)}>7x7 5-in-a-row</button>
+        <Dropdowns
+            {setGameType}
+            {setGameLevel}
+            {toggleStartGame}
+            selectedGameType={currentGameType}
+            selectedGameLevel={currentGameLevel}
+        />
     </div>
 {/if}
 
@@ -84,34 +98,41 @@
         --mark-size: calc(var(--cell-size) * 0.9);
         --cell-size-small: 4.5em;
         --mark-size-small: calc(var(--cell-size-small) * 0.9);
+        --default-black: #202020;
+        --default-white: #fafafa;
+        --default-light-green: #95e395;
+        --default-light-green-hover: #79bb79;
+        --default-gray: grey;
+        --default-light-gray: #d7d7d7;
+        --default-light-gray-hover: #bcbcbc;
+        --default-mid-gray-hover: rgb(139, 138, 138);
+    }
+    :global(body) {
+        margin: 0;
+        background-color: var(--default-white);
+        transition: background-color 0.3s;
+    }
+    @media (prefers-color-scheme: dark) {
+        :global(body) {
+            background-color: var(--default-black);
+        }
     }
     .open-page {
         position: fixed;
         display: flex;
         flex-direction: column;
-        justify-content: center;
         align-items: center;
         top: 0;
         bottom: 0;
         left: 0;
         right: 0;
-        background-color: white;
     }
-    .open-page button {
-        padding: 0.2em 0.5em;
-        margin-bottom: 0.8em;
-        border-radius: 100px;
-        cursor: pointer;
-        font-size: 2rem;
-        background: linear-gradient(145deg, #f0f0f0, #9cd563);
+    .open-page h1 {
+        margin: 2em 0 1.5em;
     }
-    .open-page button:hover {
-        color: white;
-        border-color: white;
-    }
+
     @media screen and (max-width: 450px) {
-        .open-page h1,
-        .open-page button {
+        .open-page h1 {
             font-size: 1.75em;
         }
     }

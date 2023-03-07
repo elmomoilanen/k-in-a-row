@@ -1,18 +1,14 @@
 <script lang="ts">
     import type { BotMove } from "$lib/botmove";
-    import { GameType } from "$lib/games";
-    import { GameLevel } from "$lib/levels";
+    import type { Game, GameLevel } from "$lib/games";
     import { Player } from "$lib/players";
     import Winner from "./winner.svelte";
+    import { PUBLIC_API_URL } from "$env/static/public";
 
-    const API_URL = "http://localhost:8080/api/bot/next";
-
-    type VoidFn = () => void;
-
-    export let size: number;
+    export let gameType: Game;
     export let gameLevel: GameLevel;
     export let currentPlayer: Player;
-    export let endGameFn: VoidFn;
+    export let endGameFn: () => void;
 
     const X_MARK = "x-symbol";
     const O_MARK = "o-symbol";
@@ -30,22 +26,14 @@
         return cells;
     }
 
-    let cells = initCells(size);
+    let cells = initCells(gameType.cellsTotal);
 
     function changeMarker() {
-        if (currentMarker === X_MARK) {
-            currentMarker = O_MARK;
-        } else {
-            currentMarker = X_MARK;
-        }
+        currentMarker = (currentMarker === X_MARK ? O_MARK : X_MARK);
     }
 
     function changePlayer() {
-        if (currentPlayer === Player.P1) {
-            currentPlayer = Player.Bot;
-        } else {
-            currentPlayer = Player.P1;
-        }
+        currentPlayer = (currentPlayer === Player.P1 ? Player.Bot : Player.P1);
     }
 
     function playP1Turn(cellId: string) {
@@ -56,14 +44,14 @@
     }
 
     async function playBotTurn() {
-        const level = gameLevel === GameLevel.Easy ? "Easy" : "Normal";
-        const url = API_URL + `?level=${level}`;
+        const level = gameLevel.levelName === "Easy" ? "Easy" : "Normal";
+        const url = `${PUBLIC_API_URL}/api/bot/next?level=${level}`;
 
         const responseRaw = await fetch(url, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Accept: "application/json"
+                "Accept": "application/json"
             },
             body: JSON.stringify({
                 cells: cells.map((cell) => cell.val),
@@ -100,77 +88,19 @@
     {/await}
 {/if}
 
-{#if cells.length === GameType.X33}
-    <div class="board x33 {currentMarker}" id="board-x33">
-        {#each cells as { id, val, mark }}
-            {#if gameOver && val === Player.Empty && mark === EMPTY_MARK}
-                <button class="cell bot" {id} />
-            {:else if currentPlayer === Player.P1 && val === Player.Empty && mark === EMPTY_MARK}
-                <button class="cell" {id} on:click={() => playP1Turn(id)} />
-            {:else if currentPlayer === Player.Bot && val === Player.Empty && mark === EMPTY_MARK}
-                <button class="cell bot" {id} />
-            {:else}
-                <button class="cell {mark}" {id} />
-            {/if}
-        {/each}
-    </div>
-{:else if cells.length === GameType.X44}
-    <div class="board x44 {currentMarker}" id="board-x44">
-        {#each cells as { id, val, mark }}
-            {#if gameOver && val === Player.Empty && mark === EMPTY_MARK}
-                <button class="cell bot" {id} />
-            {:else if currentPlayer === Player.P1 && val === Player.Empty && mark === EMPTY_MARK}
-                <button class="cell" {id} on:click={() => playP1Turn(id)} />
-            {:else if currentPlayer === Player.Bot && val === Player.Empty && mark === EMPTY_MARK}
-                <button class="cell bot" {id} />
-            {:else}
-                <button class="cell {mark}" {id} />
-            {/if}
-        {/each}
-    </div>
-{:else if cells.length === GameType.X55}
-    <div class="board x55 {currentMarker}" id="board-x55">
-        {#each cells as { id, val, mark }}
-            {#if gameOver && val === Player.Empty && mark === EMPTY_MARK}
-                <button class="cell bot" {id} />
-            {:else if currentPlayer === Player.P1 && val === Player.Empty && mark === EMPTY_MARK}
-                <button class="cell" {id} on:click={() => playP1Turn(id)} />
-            {:else if currentPlayer === Player.Bot && val === Player.Empty && mark === EMPTY_MARK}
-                <button class="cell bot" {id} />
-            {:else}
-                <button class="cell {mark}" {id} />
-            {/if}
-        {/each}
-    </div>
-{:else if cells.length === GameType.X66}
-    <div class="board x66 {currentMarker}" id="board-x66">
-        {#each cells as { id, val, mark }}
-            {#if gameOver && val === Player.Empty && mark === EMPTY_MARK}
-                <button class="cell bot" {id} />
-            {:else if currentPlayer === Player.P1 && val === Player.Empty && mark === EMPTY_MARK}
-                <button class="cell" {id} on:click={() => playP1Turn(id)} />
-            {:else if currentPlayer === Player.Bot && val === Player.Empty && mark === EMPTY_MARK}
-                <button class="cell bot" {id} />
-            {:else}
-                <button class="cell {mark}" {id} />
-            {/if}
-        {/each}
-    </div>
-{:else if cells.length === GameType.X77}
-    <div class="board x77 {currentMarker}" id="board-x77">
-        {#each cells as { id, val, mark }}
-            {#if gameOver && val === Player.Empty && mark === EMPTY_MARK}
-                <button class="cell bot" {id} />
-            {:else if currentPlayer === Player.P1 && val === Player.Empty && mark === EMPTY_MARK}
-                <button class="cell" {id} on:click={() => playP1Turn(id)} />
-            {:else if currentPlayer === Player.Bot && val === Player.Empty && mark === EMPTY_MARK}
-                <button class="cell bot" {id} />
-            {:else}
-                <button class="cell {mark}" {id} />
-            {/if}
-        {/each}
-    </div>
-{/if}
+<div class="board {gameType.gameKey} {currentMarker}" id="board-{gameType.gameKey}">
+    {#each cells as { id, val, mark }}
+        {#if gameOver && val === Player.Empty && mark === EMPTY_MARK}
+            <button class="cell bot" {id} />
+        {:else if currentPlayer === Player.P1 && val === Player.Empty && mark === EMPTY_MARK}
+            <button class="cell" {id} on:click={() => playP1Turn(id)} />
+        {:else if currentPlayer === Player.Bot && val === Player.Empty && mark === EMPTY_MARK}
+            <button class="cell bot" {id} />
+        {:else}
+            <button class="cell {mark}" {id} />
+        {/if}
+    {/each}
+</div>
 
 <style>
     .board {
@@ -186,7 +116,7 @@
         width: var(--cell-size);
         height: var(--cell-size);
         border: 1px solid black;
-        background-color: white;
+        background-color: var(--default-white);
         padding: 0;
         display: flex;
         justify-content: center;
@@ -198,6 +128,12 @@
         .cell {
             width: var(--cell-size-small);
             height: var(--cell-size-small);
+        }
+    }
+    @media (prefers-color-scheme: dark) {
+        .cell {
+            border: 1px solid white;
+            background-color: var(--default-black);
         }
     }
 
@@ -281,6 +217,38 @@
         border-bottom: none;
     }
 
+    .x88 {
+        grid-template-columns: repeat(8, auto);
+    }
+    .board.x88 .cell:nth-child(8n + 1) {
+        border-left: none;
+    }
+    .board.x88 .cell:nth-child(8n + 8) {
+        border-right: none;
+    }
+    .board.x88 .cell:nth-child(n) {
+        border-top: none;
+    }
+    .board.x88 .cell:nth-child(n + 57) {
+        border-bottom: none;
+    }
+
+    .x99 {
+        grid-template-columns: repeat(9, auto);
+    }
+    .board.x99 .cell:nth-child(9n + 1) {
+        border-left: none;
+    }
+    .board.x99 .cell:nth-child(9n + 9) {
+        border-right: none;
+    }
+    .board.x99 .cell:nth-child(n) {
+        border-top: none;
+    }
+    .board.x99 .cell:nth-child(n + 73) {
+        border-bottom: none;
+    }
+
     .cell.x-symbol,
     .cell.o-symbol,
     .cell.bot {
@@ -294,11 +262,11 @@
     }
     .board.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
     .board.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after {
-        background-color: grey;
+        background-color: var(--default-gray);
     }
     .board.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
     .board.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after {
-        background-color: grey;
+        background-color: var(--default-gray);
     }
     .cell.x-symbol::before,
     .cell.x-symbol::after,
@@ -334,7 +302,7 @@
     .board.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after {
         width: calc(var(--mark-size) * 0.8);
         height: calc(var(--mark-size) * 0.8);
-        background-color: white;
+        background-color: var(--default-white);
     }
 
     @media screen and (max-width: 800px) {
@@ -354,6 +322,18 @@
         .board.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after {
             width: calc(var(--mark-size-small) * 0.8);
             height: calc(var(--mark-size-small) * 0.8);
+        }
+    }
+    @media (prefers-color-scheme: dark) {
+        .cell.x-symbol::before,
+        .cell.x-symbol::after,
+        .cell.o-symbol::before,
+        .cell.o-symbol::after {
+            background-color: white;
+        }
+        .cell.o-symbol::after,
+        .board.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after {
+            background-color: var(--default-black);
         }
     }
 </style>
