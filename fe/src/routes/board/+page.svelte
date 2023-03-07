@@ -3,6 +3,7 @@
     import type { Game, GameLevel } from "$lib/games";
     import { Player } from "$lib/players";
     import Winner from "./winner.svelte";
+    // @ts-ignore
     import { PUBLIC_API_URL } from "$env/static/public";
 
     export let gameType: Game;

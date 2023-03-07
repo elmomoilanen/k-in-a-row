@@ -6,6 +6,7 @@
     import Board from "./board/+page.svelte";
     import Spinner from "./spinner.svelte";
     import Dropdowns from "./dropdowns.svelte";
+    // @ts-ignore
     import { PUBLIC_API_URL } from "$env/static/public";
 
     let currentGameType: MaybeGame = undefined;
