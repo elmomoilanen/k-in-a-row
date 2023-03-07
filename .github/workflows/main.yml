@@ -51,5 +51,6 @@ jobs:
           npm ci
       - name: Lint
         run: |
+          cp .env.example .env
           npm run lint
           npm run check -- --fail-on-warnings --fail-on-hints
