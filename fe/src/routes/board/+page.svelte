@@ -124,10 +124,34 @@
         position: relative;
         cursor: pointer;
     }
+    .board.x1010 .cell,
+    .board.x1111 .cell,
+    .board.x1212 .cell,
+    .board.x1313 .cell,
+    .board.x1414 .cell,
+    .board.x1515 .cell {
+        width: var(--cell-size-large-board);
+        height: var(--cell-size-large-board);
+    }
     @media screen and (max-width: 800px) {
         .cell {
-            width: var(--cell-size-small);
-            height: var(--cell-size-small);
+            width: var(--cell-size-mobile-small-board);
+            height: var(--cell-size-mobile-small-board);
+        }
+        .board.x77 .cell,
+        .board.x88 .cell,
+        .board.x99 .cell {
+            width: var(--cell-size-mobile-mid-board);
+            height: var(--cell-size-mobile-mid-board);
+        }
+        .board.x1010 .cell,
+        .board.x1111 .cell,
+        .board.x1212 .cell,
+        .board.x1313 .cell,
+        .board.x1414 .cell,
+        .board.x1515 .cell {
+            width: var(--cell-size-mobile-large-board);
+            height: var(--cell-size-mobile-large-board);
         }
     }
     @media (prefers-color-scheme: dark) {
@@ -249,6 +273,102 @@
         border-bottom: none;
     }
 
+    .x1010 {
+        grid-template-columns: repeat(10, auto);
+    }
+    .board.x1010 .cell:nth-child(10n + 1) {
+        border-left: none;
+    }
+    .board.x1010 .cell:nth-child(10n + 10) {
+        border-right: none;
+    }
+    .board.x1010 .cell:nth-child(n) {
+        border-top: none;
+    }
+    .board.x1010 .cell:nth-child(n + 91) {
+        border-bottom: none;
+    }
+
+    .x1111 {
+        grid-template-columns: repeat(11, auto);
+    }
+    .board.x1111 .cell:nth-child(11n + 1) {
+        border-left: none;
+    }
+    .board.x1111 .cell:nth-child(11n + 11) {
+        border-right: none;
+    }
+    .board.x1111 .cell:nth-child(n) {
+        border-top: none;
+    }
+    .board.x1111 .cell:nth-child(n + 111) {
+        border-bottom: none;
+    }
+
+    .x1212 {
+        grid-template-columns: repeat(12, auto);
+    }
+    .board.x1212 .cell:nth-child(12n + 1) {
+        border-left: none;
+    }
+    .board.x1212 .cell:nth-child(12n + 12) {
+        border-right: none;
+    }
+    .board.x1212 .cell:nth-child(n) {
+        border-top: none;
+    }
+    .board.x1212 .cell:nth-child(n + 133) {
+        border-bottom: none;
+    }
+
+    .x1313 {
+        grid-template-columns: repeat(13, auto);
+    }
+    .board.x1313 .cell:nth-child(13n + 1) {
+        border-left: none;
+    }
+    .board.x1313 .cell:nth-child(13n + 13) {
+        border-right: none;
+    }
+    .board.x1313 .cell:nth-child(n) {
+        border-top: none;
+    }
+    .board.x1313 .cell:nth-child(n + 157) {
+        border-bottom: none;
+    }
+
+    .x1414 {
+        grid-template-columns: repeat(14, auto);
+    }
+    .board.x1414 .cell:nth-child(14n + 1) {
+        border-left: none;
+    }
+    .board.x1414 .cell:nth-child(14n + 14) {
+        border-right: none;
+    }
+    .board.x1414 .cell:nth-child(n) {
+        border-top: none;
+    }
+    .board.x1414 .cell:nth-child(n + 183) {
+        border-bottom: none;
+    }
+
+    .x1515 {
+        grid-template-columns: repeat(15, auto);
+    }
+    .board.x1515 .cell:nth-child(15n + 1) {
+        border-left: none;
+    }
+    .board.x1515 .cell:nth-child(15n + 15) {
+        border-right: none;
+    }
+    .board.x1515 .cell:nth-child(n) {
+        border-top: none;
+    }
+    .board.x1515 .cell:nth-child(n + 211) {
+        border-bottom: none;
+    }
+
     .cell.x-symbol,
     .cell.o-symbol,
     .cell.bot {
@@ -277,6 +397,33 @@
         width: calc(var(--mark-size) * 0.1);
         height: calc(var(--mark-size) * 1);
     }
+    .board.x1010 .cell.x-symbol::before,
+    .board.x1010 .cell.x-symbol::after,
+    .board.x1010.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+    .board.x1010.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after,
+    .board.x1111 .cell.x-symbol::before,
+    .board.x1111 .cell.x-symbol::after,
+    .board.x1111.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+    .board.x1111.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after,
+    .board.x1212 .cell.x-symbol::before,
+    .board.x1212 .cell.x-symbol::after,
+    .board.x1212.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+    .board.x1212.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after,
+    .board.x1313 .cell.x-symbol::before,
+    .board.x1313 .cell.x-symbol::after,
+    .board.x1313.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+    .board.x1313.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after,
+    .board.x1414 .cell.x-symbol::before,
+    .board.x1414 .cell.x-symbol::after,
+    .board.x1414.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+    .board.x1414.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after,
+    .board.x1515 .cell.x-symbol::before,
+    .board.x1515 .cell.x-symbol::after,
+    .board.x1515.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+    .board.x1515.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after {
+        width: calc(var(--mark-size-large-board) * 0.1);
+        height: calc(var(--mark-size-large-board) * 1);
+    }
     .cell.x-symbol::before,
     .board.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before {
         transform: rotate(45deg);
@@ -298,11 +445,41 @@
         width: var(--mark-size);
         height: var(--mark-size);
     }
+    .board.x1010 .cell.o-symbol::before,
+    .board.x1010.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+    .board.x1111 .cell.o-symbol::before,
+    .board.x1111.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+    .board.x1212 .cell.o-symbol::before,
+    .board.x1212.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+    .board.x1313 .cell.o-symbol::before,
+    .board.x1313.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+    .board.x1414 .cell.o-symbol::before,
+    .board.x1414.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+    .board.x1515 .cell.o-symbol::before,
+    .board.x1515.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before {
+        width: var(--mark-size-large-board);
+        height: var(--mark-size-large-board);
+    }
     .cell.o-symbol::after,
     .board.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after {
         width: calc(var(--mark-size) * 0.8);
         height: calc(var(--mark-size) * 0.8);
         background-color: var(--default-white);
+    }
+    .board.x1010 .cell.o-symbol::after,
+    .board.x1010.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after,
+    .board.x1111 .cell.o-symbol::after,
+    .board.x1111.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after,
+    .board.x1212 .cell.o-symbol::after,
+    .board.x1212.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after,
+    .board.x1313 .cell.o-symbol::after,
+    .board.x1313.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after,
+    .board.x1414 .cell.o-symbol::after,
+    .board.x1414.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after,
+    .board.x1515 .cell.o-symbol::after,
+    .board.x1515.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after {
+        width: calc(var(--mark-size-large-board) * 0.8);
+        height: calc(var(--mark-size-large-board) * 0.8);
     }
 
     @media screen and (max-width: 800px) {
@@ -310,18 +487,108 @@
         .cell.x-symbol::after,
         .board.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
         .board.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after {
-            width: calc(var(--mark-size-small) * 0.1);
-            height: calc(var(--mark-size-small) * 1);
+            width: calc(var(--mark-size-mobile-small-board) * 0.1);
+            height: calc(var(--mark-size-mobile-small-board) * 1);
         }
         .cell.o-symbol::before,
         .board.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before {
-            width: var(--mark-size-small);
-            height: var(--mark-size-small);
+            width: var(--mark-size-mobile-small-board);
+            height: var(--mark-size-mobile-small-board);
         }
         .cell.o-symbol::after,
         .board.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after {
-            width: calc(var(--mark-size-small) * 0.8);
-            height: calc(var(--mark-size-small) * 0.8);
+            width: calc(var(--mark-size-mobile-small-board) * 0.8);
+            height: calc(var(--mark-size-mobile-small-board) * 0.8);
+        }
+        .board.x77 .cell.x-symbol::before,
+        .board.x88 .cell.x-symbol::before,
+        .board.x99 .cell.x-symbol::before,
+        .board.x77 .cell.x-symbol::after,
+        .board.x88 .cell.x-symbol::after,
+        .board.x99 .cell.x-symbol::after,
+        .board.x77.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+        .board.x88.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+        .board.x99.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+        .board.x77.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after,
+        .board.x88.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after,
+        .board.x99.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after {
+            width: calc(var(--mark-size-mobile-mid-board) * 0.1);
+            height: calc(var(--mark-size-mobile-mid-board) * 1);
+        }
+        .board.x77 .cell.o-symbol::before,
+        .board.x88 .cell.o-symbol::before,
+        .board.x99 .cell.o-symbol::before,
+        .board.x77.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+        .board.x88.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+        .board.x99.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before {
+            width: var(--mark-size-mobile-mid-board);
+            height: var(--mark-size-mobile-mid-board);
+        }
+        .board.x77 .cell.o-symbol::after,
+        .board.x88 .cell.o-symbol::after,
+        .board.x99 .cell.o-symbol::after,
+        .board.x77.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after,
+        .board.x88.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after,
+        .board.x99.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after {
+            width: calc(var(--mark-size-mobile-mid-board) * 0.8);
+            height: calc(var(--mark-size-mobile-mid-board) * 0.8);
+        }
+        .board.x1010 .cell.x-symbol::before,
+        .board.x1111 .cell.x-symbol::before,
+        .board.x1212 .cell.x-symbol::before,
+        .board.x1313 .cell.x-symbol::before,
+        .board.x1414 .cell.x-symbol::before,
+        .board.x1515 .cell.x-symbol::before,
+        .board.x1010 .cell.x-symbol::after,
+        .board.x1111 .cell.x-symbol::after,
+        .board.x1212 .cell.x-symbol::after,
+        .board.x1313 .cell.x-symbol::after,
+        .board.x1414 .cell.x-symbol::after,
+        .board.x1515 .cell.x-symbol::after,
+        .board.x1010.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+        .board.x1111.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+        .board.x1212.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+        .board.x1313.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+        .board.x1414.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+        .board.x1515.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+        .board.x1010.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after,
+        .board.x1111.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after,
+        .board.x1212.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after,
+        .board.x1313.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after,
+        .board.x1414.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after,
+        .board.x1515.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after {
+            width: calc(var(--mark-size-mobile-large-board) * 0.1);
+            height: calc(var(--mark-size-mobile-large-board) * 1);
+        }
+        .board.x1010 .cell.o-symbol::before,
+        .board.x1111 .cell.o-symbol::before,
+        .board.x1212 .cell.o-symbol::before,
+        .board.x1313 .cell.o-symbol::before,
+        .board.x1414 .cell.o-symbol::before,
+        .board.x1515 .cell.o-symbol::before,
+        .board.x1010.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+        .board.x1111.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+        .board.x1212.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+        .board.x1313.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+        .board.x1414.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
+        .board.x1515.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before {
+            width: var(--mark-size-mobile-large-board);
+            height: var(--mark-size-mobile-large-board);
+        }
+        .board.x1010 .cell.o-symbol::after,
+        .board.x1111 .cell.o-symbol::after,
+        .board.x1212 .cell.o-symbol::after,
+        .board.x1313 .cell.o-symbol::after,
+        .board.x1414 .cell.o-symbol::after,
+        .board.x1515 .cell.o-symbol::after,
+        .board.x1010.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after,
+        .board.x1111.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after,
+        .board.x1212.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after,
+        .board.x1313.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after,
+        .board.x1414.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after,
+        .board.x1515.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after {
+            width: calc(var(--mark-size-mobile-large-board) * 0.8);
+            height: calc(var(--mark-size-mobile-large-board) * 0.8);
         }
     }
     @media (prefers-color-scheme: dark) {

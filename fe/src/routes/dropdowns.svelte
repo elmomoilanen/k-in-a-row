@@ -101,6 +101,7 @@
 <style>
     .dropdown input {
         position: relative;
+        width: 100%;
         background-color: var(--default-light-gray);
         padding: 1em 0.5em;
         border-radius: 10px;
@@ -112,12 +113,16 @@
     .dropdown#game-level {
         margin-top: 25px;
     }
+    .dropdown input.not-selected {
+        background-color: var(--default-light-gray);
+    }
     .dropdown input.not-selected:hover {
         background-color: var(--default-light-gray-hover);
     }
     .dropdown input.not-selected::placeholder {
-        color: black;
-        font-size: 1.1rem;
+        color: var(--default-black);
+        font-size: 1.2rem;
+        font-weight: bold;
     }
     .dropdown input.selected {
         background-color: var(--default-light-green);
@@ -126,8 +131,9 @@
         background-color: var(--default-light-green-hover);
     }
     .dropdown input.selected::placeholder {
-        color: black;
-        font-size: 1.1rem;
+        color: var(--default-black);
+        font-size: 1.2rem;
+        font-weight: bold;
     }
     .dropdown .options {
         display: none;
@@ -140,6 +146,7 @@
     .dropdown .options button {
         background-color: white;
         padding: 0.75em 0.5em;
+        width: 105%;
         border: none;
         outline: none;
         margin-bottom: 0em;
@@ -154,17 +161,18 @@
     .start-game-btn {
         margin-top: 4em;
         font-size: 1.5rem;
-        background-color: white;
-        padding: 0.5em 1.75em;
-        border-radius: 10px;
-        border: 1px solid black;
+        font-weight: bold;
+        background-color: var(--default-light-green);
+        padding: 0.5em 1.5em;
+        border-radius: 0.5em;
+        border: none;
         box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
         cursor: pointer;
-        color: black;
+        color: var(--default-black);
+        transition: background-color 0.3s, color 0.3s;
     }
     .start-game-btn:hover {
-        background-color: var(--default-light-green);
-        color: white;
+        background-color: var(--default-light-green-hover);
         border: 1px solid white;
     }
     @media (prefers-color-scheme: dark) {

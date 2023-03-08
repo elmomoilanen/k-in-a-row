@@ -96,8 +96,14 @@
     :global(:root) {
         --cell-size: 7em;
         --mark-size: calc(var(--cell-size) * 0.9);
-        --cell-size-small: 4.5em;
-        --mark-size-small: calc(var(--cell-size-small) * 0.9);
+        --cell-size-mobile-small-board: 4.5em;
+        --mark-size-mobile-small-board: calc(var(--cell-size-mobile-small-board) * 0.9);
+        --cell-size-mobile-mid-board: 3.5em;
+        --mark-size-mobile-mid-board: calc(var(--cell-size-mobile-mid-board) * 0.9);
+        --cell-size-large-board: 4.5em;
+        --mark-size-large-board: calc(var(--cell-size-large-board) * 0.9);
+        --cell-size-mobile-large-board: 2.5em;
+        --mark-size-mobile-large-board: calc(var(--cell-size-mobile-large-board) * 0.9);
         --default-black: #202020;
         --default-white: #fafafa;
         --default-light-green: #95e395;
@@ -130,7 +136,21 @@
     .open-page h1 {
         margin: 2em 0 1.5em;
     }
-
+    .open-page button {
+        margin: 0.5em;
+        padding: 0.5em 1em;
+        border: none;
+        border-radius: 0.5em;
+        background-color: var(--default-light-green);
+        color: var(--default-black);
+        font-size: 1.5em;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s, color 0.3s;
+    }
+    .open-page button:hover {
+        background-color: var(--default-light-green-hover);
+    }
     @media screen and (max-width: 450px) {
         .open-page h1 {
             font-size: 1.75em;
