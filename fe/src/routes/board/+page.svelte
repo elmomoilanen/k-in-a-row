@@ -111,6 +111,7 @@
         justify-items: center;
         align-content: center;
         align-items: center;
+        overflow: auto;
     }
     .cell {
         width: var(--cell-size);
@@ -152,6 +153,17 @@
         .board.x1515 .cell {
             width: var(--cell-size-mobile-large-board);
             height: var(--cell-size-mobile-large-board);
+        }
+        .board.x77,
+        .board.x88,
+        .board.x99,
+        .board.x1010,
+        .board.x1111,
+        .board.x1212,
+        .board.x1313,
+        .board.x1414,
+        .board.x1515 {
+            justify-content: flex-start;
         }
     }
     @media (prefers-color-scheme: dark) {

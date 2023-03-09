@@ -98,11 +98,11 @@
         --mark-size: calc(var(--cell-size) * 0.9);
         --cell-size-mobile-small-board: 4.5em;
         --mark-size-mobile-small-board: calc(var(--cell-size-mobile-small-board) * 0.9);
-        --cell-size-mobile-mid-board: 3.5em;
+        --cell-size-mobile-mid-board: 3.75em;
         --mark-size-mobile-mid-board: calc(var(--cell-size-mobile-mid-board) * 0.9);
         --cell-size-large-board: 4.5em;
         --mark-size-large-board: calc(var(--cell-size-large-board) * 0.9);
-        --cell-size-mobile-large-board: 2.5em;
+        --cell-size-mobile-large-board: 3.5em;
         --mark-size-mobile-large-board: calc(var(--cell-size-mobile-large-board) * 0.9);
         --default-black: #202020;
         --default-white: #fafafa;
