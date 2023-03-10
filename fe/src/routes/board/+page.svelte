@@ -13,8 +13,10 @@
     const X_MARK = "x-symbol";
     const O_MARK = "o-symbol";
     const EMPTY_MARK = "";
+    const HIGHLIGHT_MIN_BOARD_SIZE = 100;
 
     let currentMarker = Math.random() < 0.5 ? X_MARK : O_MARK;
+    let botPlayerLastSelectedCell: string | undefined = undefined;
     let gameOver = false;
     let gameWinner = Player.Empty;
 
@@ -28,6 +30,19 @@
 
     let cells = initCells(gameType.cellsTotal);
 
+    function highlightBotMove(botLastMoveCell: string) {
+        botPlayerLastSelectedCell = undefined;
+        const botLastMoveCellIdx = parseInt(botLastMoveCell);
+        const lastSelectedCell = document.querySelector(`[id='${botLastMoveCellIdx}']`);
+        if (lastSelectedCell) {
+            lastSelectedCell.classList.add("bot-last-move-cell");
+            console.log(lastSelectedCell);
+            setTimeout(() => {
+                lastSelectedCell.classList.remove("bot-last-move-cell");
+            }, 500);
+        }
+    }
+
     function changeMarker() {
         currentMarker = currentMarker === X_MARK ? O_MARK : X_MARK;
     }
@@ -37,6 +52,7 @@
     }
 
     function playP1Turn(cellId: string) {
+        botPlayerLastSelectedCell = undefined;
         const cell = parseInt(cellId);
         cells[cell] = { id: cellId, val: Player.P1, mark: currentMarker };
         changePlayer();
@@ -67,7 +83,8 @@
 
         if (responseParsed.next_is_valid) {
             const cell = responseParsed.next;
-            cells[cell] = { id: `${cell}`, val: Player.Bot, mark: currentMarker };
+            botPlayerLastSelectedCell = `${cell}`;
+            cells[cell] = { id: botPlayerLastSelectedCell, val: Player.Bot, mark: currentMarker };
         }
         gameWinner = responseParsed.winner;
         gameOver = responseParsed.game_over;
@@ -76,11 +93,7 @@
     }
 </script>
 
-{#if gameOver}
-    <Winner {gameWinner} {endGameFn} />
-{/if}
-
-{#if currentPlayer === Player.Bot}
+{#if !gameOver && currentPlayer === Player.Bot}
     {#await playBotTurn()}
         <div style="visibility:hidden;display:none" />
     {:catch error}
@@ -101,6 +114,14 @@
         {/if}
     {/each}
 </div>
+
+{#if gameType.cellsTotal >= HIGHLIGHT_MIN_BOARD_SIZE && !gameOver && currentPlayer === Player.P1 && botPlayerLastSelectedCell}
+    {highlightBotMove(botPlayerLastSelectedCell)}
+{/if}
+
+{#if gameOver}
+    <Winner {gameWinner} {endGameFn} />
+{/if}
 
 <style>
     .board {
@@ -134,6 +155,21 @@
         width: var(--cell-size-large-board);
         height: var(--cell-size-large-board);
     }
+    .bot-last-move-cell {
+        animation: bot-move-highlight 0.5s ease-in-out;
+    }
+    @keyframes bot-move-highlight {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+
     @media screen and (max-width: 800px) {
         .cell {
             width: var(--cell-size-mobile-small-board);
