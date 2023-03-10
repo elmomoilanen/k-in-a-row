@@ -81,7 +81,7 @@
     </div>
 {:else}
     <div class="open-page" id="new-game-view">
-        <h1>Welcome to play k-in-a-row!</h1>
+        <h1>Let's play k-in-a-row!</h1>
         <Dropdowns
             {setGameType}
             {setGameLevel}
