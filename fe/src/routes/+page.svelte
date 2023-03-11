@@ -2,7 +2,9 @@
     import { onMount } from "svelte";
     import { error } from "@sveltejs/kit";
     import type { Game, MaybeGame, MaybeGameLevel } from "$lib/games";
-    import { getRandomPlayer } from "$lib/players";
+    import { getRandomPlayer, Player } from "$lib/players";
+    import type { MaybePlayer } from "$lib/players";
+    import { getPhrase } from "$lib/phrases";
     import Board from "./board/+page.svelte";
     import Spinner from "./spinner.svelte";
     import Dropdowns from "./dropdowns.svelte";
@@ -12,6 +14,7 @@
     let previousGameType: MaybeGame = undefined;
     let currentGameLevel: MaybeGameLevel = undefined;
     let previousGameLevel: MaybeGameLevel = undefined;
+    let currentWinner: MaybePlayer = undefined;
     let startGame = false;
     let backendConnected = false;
     let showGameEndOptions = false;
@@ -24,11 +27,12 @@
         currentGameLevel = newGameLevel;
     }
 
-    function endGame() {
+    function endGame(gameWinner: Player) {
         previousGameType = currentGameType;
         previousGameLevel = currentGameLevel;
         currentGameType = undefined;
         currentGameLevel = undefined;
+        currentWinner = gameWinner;
         showGameEndOptions = true;
         toggleStartGame();
     }
@@ -38,6 +42,7 @@
         currentGameLevel = previousGameLevel;
         previousGameType = undefined;
         previousGameLevel = undefined;
+        currentWinner = undefined;
         showGameEndOptions = false;
         toggleStartGame();
     }
@@ -47,6 +52,7 @@
         currentGameLevel = undefined;
         previousGameType = undefined;
         previousGameLevel = undefined;
+        currentWinner = undefined;
         showGameEndOptions = false;
     }
 
@@ -75,7 +81,20 @@
     <Spinner />
 {:else if showGameEndOptions}
     <div class="open-page" id="game-end-view">
-        <h1>Game over!</h1>
+        {#if currentWinner !== undefined}
+            <h1>
+                Game over:{currentWinner === Player.Bot
+                    ? " Bot won!"
+                    : currentWinner === Player.P1
+                    ? " You won!"
+                    : " Tie game!"}
+            </h1>
+        {:else}
+            <h1>Game over</h1>
+        {/if}
+        {#if currentWinner !== undefined && previousGameLevel?.levelName !== "Easy" && Math.random() > 0.5}
+            <h2>{getPhrase(currentWinner)}</h2>
+        {/if}
         <button on:click={resetGame}>Play again</button>
         <button on:click={backToStart}>Back to start</button>
     </div>
@@ -134,10 +153,21 @@
         right: 0;
     }
     .open-page h1 {
-        margin: 2em 0 1.5em;
+        margin: 2em 0 2.5em;
+    }
+    .open-page#game-end-view h1 {
+        margin: 2em 0 0.75em;
+    }
+    .open-page#game-end-view h2 {
+        margin-bottom: 2em;
+        max-width: 70%;
+        width: 100%;
+        justify-content: center;
+        display: flex;
     }
     .open-page button {
         margin: 0.5em;
+        margin-bottom: 0.75em;
         padding: 0.5em 1em;
         border: none;
         border-radius: 0.5em;

@@ -2,13 +2,13 @@
     import type { BotMove } from "$lib/botmove";
     import type { Game, GameLevel } from "$lib/games";
     import { Player } from "$lib/players";
-    import Winner from "./winner.svelte";
+    import { hasWinner } from "$lib/winner";
     import { PUBLIC_API_URL } from "$env/static/public";
 
     export let gameType: Game;
     export let gameLevel: GameLevel;
     export let currentPlayer: Player;
-    export let endGameFn: () => void;
+    export let endGameFn: (winner: Player) => void;
 
     const X_MARK = "x-symbol";
     const O_MARK = "o-symbol";
@@ -17,13 +17,15 @@
 
     let currentMarker = Math.random() < 0.5 ? X_MARK : O_MARK;
     let botPlayerLastSelectedCell: string | undefined = undefined;
+    let p1LastMoveCell = -1;
+    let botLastMoveCell = -1;
     let gameOver = false;
     let gameWinner = Player.Empty;
 
     function initCells(cellsCount: number) {
         let cells = [];
         for (let j = 0; j < cellsCount; ++j) {
-            cells.push({ id: `${j}`, val: Player.Empty, mark: EMPTY_MARK });
+            cells.push({ id: `${j}`, value: Player.Empty, mark: EMPTY_MARK });
         }
         return cells;
     }
@@ -36,7 +38,6 @@
         const lastSelectedCell = document.querySelector(`[id='${botLastMoveCellIdx}']`);
         if (lastSelectedCell) {
             lastSelectedCell.classList.add("bot-last-move-cell");
-            console.log(lastSelectedCell);
             setTimeout(() => {
                 lastSelectedCell.classList.remove("bot-last-move-cell");
             }, 500);
@@ -52,9 +53,10 @@
     }
 
     function playP1Turn(cellId: string) {
-        botPlayerLastSelectedCell = undefined;
         const cell = parseInt(cellId);
-        cells[cell] = { id: cellId, val: Player.P1, mark: currentMarker };
+        p1LastMoveCell = cell;
+        botPlayerLastSelectedCell = undefined;
+        cells[cell] = { id: cellId, value: Player.P1, mark: currentMarker };
         changePlayer();
         changeMarker();
     }
@@ -70,7 +72,7 @@
                 Accept: "application/json"
             },
             body: JSON.stringify({
-                cells: cells.map((cell) => cell.val),
+                cells: cells.map((cell) => cell.value),
                 p1_mark: Player.P1,
                 bot_mark: Player.Bot,
                 empty_mark: Player.Empty
@@ -83,13 +85,43 @@
 
         if (responseParsed.next_is_valid) {
             const cell = responseParsed.next;
+            botLastMoveCell = cell;
             botPlayerLastSelectedCell = `${cell}`;
-            cells[cell] = { id: botPlayerLastSelectedCell, val: Player.Bot, mark: currentMarker };
+            cells[cell] = { id: botPlayerLastSelectedCell, value: Player.Bot, mark: currentMarker };
         }
         gameWinner = responseParsed.winner;
         gameOver = responseParsed.game_over;
         changePlayer();
         changeMarker();
+    }
+
+    function completeGame() {
+        if (gameWinner !== Player.Empty) {
+            const lastMoveCell = gameWinner === Player.Bot ? botLastMoveCell : p1LastMoveCell;
+            const cellsOffset = parseInt(
+                gameType.boardSize.substring(0, gameType.boardSize.indexOf("x"))
+            );
+            let result =
+                cellsOffset &&
+                hasWinner(
+                    { cells: cells, cellsOffset: cellsOffset, cellsToWin: gameType.cellsToWin },
+                    lastMoveCell,
+                    gameWinner
+                );
+            console.log(result);
+            if (result && result.hasWinner && result.winCells) {
+                for (let i = 0; i < result.winCells.length; ++i) {
+                    const boardCell = document.querySelector(`[id='${result.winCells[i]}']`);
+                    if (boardCell) {
+                        console.log(boardCell);
+                        boardCell.classList.add(`${gameWinner === Player.Bot ? "lost" : "win"}`);
+                    }
+                }
+            }
+        }
+        setTimeout(() => {
+            endGameFn(gameWinner);
+        }, 3000);
     }
 </script>
 
@@ -102,12 +134,12 @@
 {/if}
 
 <div class="board {gameType.gameKey} {currentMarker}" id="board-{gameType.gameKey}">
-    {#each cells as { id, val, mark }}
-        {#if gameOver && val === Player.Empty && mark === EMPTY_MARK}
+    {#each cells as { id, value, mark }}
+        {#if gameOver && value === Player.Empty && mark === EMPTY_MARK}
             <button class="cell bot" {id} />
-        {:else if currentPlayer === Player.P1 && val === Player.Empty && mark === EMPTY_MARK}
+        {:else if currentPlayer === Player.P1 && value === Player.Empty && mark === EMPTY_MARK}
             <button class="cell" {id} on:click={() => playP1Turn(id)} />
-        {:else if currentPlayer === Player.Bot && val === Player.Empty && mark === EMPTY_MARK}
+        {:else if currentPlayer === Player.Bot && value === Player.Empty && mark === EMPTY_MARK}
             <button class="cell bot" {id} />
         {:else}
             <button class="cell {mark}" {id} />
@@ -120,7 +152,7 @@
 {/if}
 
 {#if gameOver}
-    <Winner {gameWinner} {endGameFn} />
+    <div style="visibility:hidden;display:none">{completeGame()}</div>
 {/if}
 
 <style>
@@ -428,6 +460,18 @@
     .cell.o-symbol::after {
         background-color: black;
     }
+    .cell.lost.x-symbol::before,
+    .cell.lost.x-symbol::after,
+    .cell.lost.o-symbol::before,
+    .cell.lost.o-symbol::after {
+        background-color: red;
+    }
+    .cell.win.x-symbol::before,
+    .cell.win.x-symbol::after,
+    .cell.win.o-symbol::before,
+    .cell.win.o-symbol::after {
+        background-color: green;
+    }
     .board.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
     .board.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after {
         background-color: var(--default-gray);
@@ -648,6 +692,22 @@
         }
         .cell.o-symbol::after,
         .board.o-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after {
+            background-color: var(--default-black);
+        }
+        .cell.lost.x-symbol::before,
+        .cell.lost.x-symbol::after,
+        .cell.lost.o-symbol::before,
+        .cell.lost.o-symbol::after {
+            background-color: #b53b3b;
+        }
+        .cell.win.x-symbol::before,
+        .cell.win.x-symbol::after,
+        .cell.win.o-symbol::before,
+        .cell.win.o-symbol::after {
+            background-color: #50b53b;
+        }
+        .cell.lost.o-symbol::after,
+        .cell.win.o-symbol::after {
             background-color: var(--default-black);
         }
     }

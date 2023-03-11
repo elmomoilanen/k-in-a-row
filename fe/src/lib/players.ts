@@ -7,3 +7,5 @@ export enum Player {
 export function getRandomPlayer() {
     return Math.random() > 0.5 ? Player.P1 : Player.Bot;
 }
+
+export type MaybePlayer = Player | undefined;
