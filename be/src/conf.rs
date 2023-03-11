@@ -52,7 +52,7 @@ const X1414_CELLS_TO_WIN: u8 = 6;
 const X1515_CELLS_TO_WIN: u8 = 5; // win
 
 const X33_MAX_DEPTH: u8 = 9;
-const X44_MAX_DEPTH: u8 = 8;
+const X44_MAX_DEPTH: u8 = 7;
 const X55_MAX_DEPTH: u8 = 6;
 const X66_MAX_DEPTH: u8 = 5;
 const X77_MAX_DEPTH: u8 = 4;
