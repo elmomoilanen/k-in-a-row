@@ -32,7 +32,7 @@ curl "localhost:8080/api/bot/next?level=Normal" \
     -d '{"cells":[0, 0, 0, 0, 0, 0, 0, 0, 0],"p1_mark":1,"bot_mark":-1,"empty_mark":0}'
 ```
 
-and the response for it could be e.g.
+and the response for it could be for example
 
 ```bash
 {"next":0,"next_is_valid":true,"game_over":false,"winner":0}
