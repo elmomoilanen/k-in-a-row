@@ -16,6 +16,9 @@
     const O_MARK = "o-symbol";
     const EMPTY_MARK = "";
     const HIGHLIGHT_MIN_BOARD_SIZE = 100;
+    const HIGHLIGHT_BOT_MOVE_MS = 500;
+    const WAIT_AFTER_END_BEFORE_DESTROY_BOARD_MS = 2500;
+    const SHOW_P1_START_NOTIFICATION_MS = 1000;
 
     let currentMarker = Math.random() < 0.5 ? X_MARK : O_MARK;
     let botPlayerLastSelectedCell: string | undefined = undefined;
@@ -43,7 +46,7 @@
             lastSelectedCell.classList.add("bot-last-move-cell");
             setTimeout(() => {
                 lastSelectedCell.classList.remove("bot-last-move-cell");
-            }, 500);
+            }, HIGHLIGHT_BOT_MOVE_MS);
         }
     }
 
@@ -125,12 +128,12 @@
         }
         setTimeout(() => {
             endGameFn(gameWinner);
-        }, 2500);
+        }, WAIT_AFTER_END_BEFORE_DESTROY_BOARD_MS);
     }
 </script>
 
 {#if showStart}
-    <Start bind:showStart showTime={1000} />
+    <Start bind:showStart showTime={SHOW_P1_START_NOTIFICATION_MS} />
 {/if}
 
 {#if !gameOver && currentPlayer === Player.Bot}

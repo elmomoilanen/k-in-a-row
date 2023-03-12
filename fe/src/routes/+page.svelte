@@ -10,6 +10,8 @@
     import Errors from "./errors.svelte";
     import { PUBLIC_API_URL } from "$env/static/public";
 
+    const SHOW_PHRASES_LIMIT = 0.75;
+
     let currentGameType: MaybeGame = undefined;
     let previousGameType: MaybeGame = undefined;
     let currentGameLevel: MaybeGameLevel = undefined;
@@ -100,7 +102,7 @@
         {:else}
             <h1>Game over</h1>
         {/if}
-        {#if currentWinner !== undefined && previousGameLevel?.levelName !== "Easy" && Math.random() > 0.75}
+        {#if currentWinner !== undefined && previousGameLevel?.levelName !== "Easy" && Math.random() > SHOW_PHRASES_LIMIT}
             <h2>{getPhrase(currentWinner)}</h2>
         {/if}
         <button on:click={resetGame}>Play again</button>
