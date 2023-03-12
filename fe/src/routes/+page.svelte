@@ -92,7 +92,7 @@
         {:else}
             <h1>Game over</h1>
         {/if}
-        {#if currentWinner !== undefined && previousGameLevel?.levelName !== "Easy" && Math.random() > 0.5}
+        {#if currentWinner !== undefined && previousGameLevel?.levelName !== "Easy" && Math.random() > 0.75}
             <h2>{getPhrase(currentWinner)}</h2>
         {/if}
         <button on:click={resetGame}>Play again</button>

@@ -3,6 +3,7 @@
     import type { Game, GameLevel } from "$lib/games";
     import { Player } from "$lib/players";
     import { hasWinner } from "$lib/winner";
+    import Start from "./start.svelte";
     import { PUBLIC_API_URL } from "$env/static/public";
 
     export let gameType: Game;
@@ -19,6 +20,7 @@
     let botPlayerLastSelectedCell: string | undefined = undefined;
     let p1LastMoveCell = -1;
     let botLastMoveCell = -1;
+    let showStart = currentPlayer === Player.P1;
     let gameOver = false;
     let gameWinner = Player.Empty;
 
@@ -108,12 +110,10 @@
                     lastMoveCell,
                     gameWinner
                 );
-            console.log(result);
             if (result && result.hasWinner && result.winCells) {
                 for (let i = 0; i < result.winCells.length; ++i) {
                     const boardCell = document.querySelector(`[id='${result.winCells[i]}']`);
                     if (boardCell) {
-                        console.log(boardCell);
                         boardCell.classList.add(`${gameWinner === Player.Bot ? "lost" : "win"}`);
                     }
                 }
@@ -121,9 +121,13 @@
         }
         setTimeout(() => {
             endGameFn(gameWinner);
-        }, 3000);
+        }, 2500);
     }
 </script>
+
+{#if showStart}
+    <Start bind:showStart showTime={1000} />
+{/if}
 
 {#if !gameOver && currentPlayer === Player.Bot}
     {#await playBotTurn()}
@@ -460,18 +464,6 @@
     .cell.o-symbol::after {
         background-color: black;
     }
-    .cell.lost.x-symbol::before,
-    .cell.lost.x-symbol::after,
-    .cell.lost.o-symbol::before,
-    .cell.lost.o-symbol::after {
-        background-color: red;
-    }
-    .cell.win.x-symbol::before,
-    .cell.win.x-symbol::after,
-    .cell.win.o-symbol::before,
-    .cell.win.o-symbol::after {
-        background-color: green;
-    }
     .board.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::before,
     .board.x-symbol .cell:not(.x-symbol):not(.o-symbol):not(.bot):hover::after {
         background-color: var(--default-gray);
@@ -682,6 +674,22 @@
             width: calc(var(--mark-size-mobile-large-board) * 0.8);
             height: calc(var(--mark-size-mobile-large-board) * 0.8);
         }
+    }
+    .cell.lost.x-symbol::before,
+    .cell.lost.x-symbol::after,
+    .cell.lost.o-symbol::before,
+    .cell.lost.o-symbol::after {
+        background-color: red;
+    }
+    .cell.win.x-symbol::before,
+    .cell.win.x-symbol::after,
+    .cell.win.o-symbol::before,
+    .cell.win.o-symbol::after {
+        background-color: green;
+    }
+    .cell.lost.o-symbol::after,
+    .cell.win.o-symbol::after {
+        background-color: var(--default-white);
     }
     @media (prefers-color-scheme: dark) {
         .cell.x-symbol::before,
