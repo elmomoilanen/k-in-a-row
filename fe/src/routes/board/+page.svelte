@@ -4,6 +4,7 @@
     import { Player } from "$lib/players";
     import { hasWinner } from "$lib/winner";
     import Start from "./start.svelte";
+    import Errors from "../errors.svelte";
     import { PUBLIC_API_URL } from "$env/static/public";
 
     export let gameType: Game;
@@ -81,7 +82,10 @@
             })
         });
         if (!responseRaw.ok) {
-            throw new Error(`API error: ${responseRaw.status}`);
+            console.error(
+                `Received not an OK response from ${url} with status code ${responseRaw.status}.`
+            );
+            throw new Error("Did not receive OK response from play bot's turn backend API call.");
         }
         const responseParsed: BotMove = await responseRaw.json();
 
@@ -133,7 +137,7 @@
     {#await playBotTurn()}
         <div style="visibility:hidden;display:none" />
     {:catch error}
-        <p style="color: red">{error}</p>
+        <Errors message={error} />
     {/await}
 {/if}
 

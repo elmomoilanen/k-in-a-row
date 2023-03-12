@@ -13,7 +13,7 @@
 
 <style>
     div {
-        background-color: #979797;
+        background-color: #484848;
         display: flex;
         position: fixed;
         top: 0%;

@@ -1,6 +1,5 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import { error } from "@sveltejs/kit";
     import type { Game, MaybeGame, MaybeGameLevel } from "$lib/games";
     import { getRandomPlayer, Player } from "$lib/players";
     import type { MaybePlayer } from "$lib/players";
@@ -8,6 +7,7 @@
     import Board from "./board/+page.svelte";
     import Spinner from "./spinner.svelte";
     import Dropdowns from "./dropdowns.svelte";
+    import Errors from "./errors.svelte";
     import { PUBLIC_API_URL } from "$env/static/public";
 
     let currentGameType: MaybeGame = undefined;
@@ -18,6 +18,7 @@
     let startGame = false;
     let backendConnected = false;
     let showGameEndOptions = false;
+    let apiErrorOccurred = false;
 
     function setGameType(newGame: Game) {
         currentGameType = newGame;
@@ -64,11 +65,18 @@
         const url = `${PUBLIC_API_URL}/api/hello`;
         const resp = await fetch(url);
         if (!resp.ok) {
-            throw error(500, { message: `Did not receive OK response from ${url}.` });
+            console.error(
+                `Received not an OK response from ${url} with status code ${resp.status}.`
+            );
+            apiErrorOccurred = true;
         }
         backendConnected = true;
     });
 </script>
+
+{#if apiErrorOccurred}
+    <Errors message={"Did not receice initial OK response from the backend API."} />
+{/if}
 
 {#if currentGameType && currentGameLevel && startGame && backendConnected}
     <Board
