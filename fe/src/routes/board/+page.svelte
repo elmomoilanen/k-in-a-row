@@ -8,7 +8,8 @@
     import Errors from "../errors.svelte";
     import { PUBLIC_API_URL } from "$env/static/public";
 
-    export let gameType: Game;
+    // Default value is only for prerendering, otherwise always pass the correct game type as props
+    export let gameType: Game = { cellsTotal: 9, cellsToWin: 3, boardSize: "3x3", gameKey: "x33" };
     export let gameLevel: GameLevel;
     export let currentPlayer: Player;
     export let endGameFn: (winner: Player) => void;
@@ -138,7 +139,9 @@
     <Start bind:showStart showTime={SHOW_P1_START_NOTIFICATION_MS} />
 {/if}
 
-<Topbar boardSize={gameType.boardSize} cellsToWin={gameType.cellsToWin} goHome={goHomeFn} />
+{#if !gameOver}
+    <Topbar boardSize={gameType.boardSize} cellsToWin={gameType.cellsToWin} goHome={goHomeFn} />
+{/if}
 
 {#if !gameOver && currentPlayer === Player.Bot}
     {#await playBotTurn()}

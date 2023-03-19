@@ -71,7 +71,14 @@
 
     onMount(async () => {
         const url = `${PUBLIC_API_URL}/api/hello`;
-        const resp = await fetch(url);
+        let resp;
+        try {
+            resp = await fetch(url);
+        } catch (error) {
+            console.error(error);
+            apiErrorOccurred = true;
+            return;
+        }
         if (!resp.ok) {
             console.error(
                 `Received not an OK response from ${url} with status code ${resp.status}.`
