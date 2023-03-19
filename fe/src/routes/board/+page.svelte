@@ -4,6 +4,7 @@
     import { Player } from "$lib/players";
     import { hasWinner } from "$lib/winner";
     import Start from "./start.svelte";
+    import Topbar from "./topbar.svelte";
     import Errors from "../errors.svelte";
     import { PUBLIC_API_URL } from "$env/static/public";
 
@@ -11,6 +12,7 @@
     export let gameLevel: GameLevel;
     export let currentPlayer: Player;
     export let endGameFn: (winner: Player) => void;
+    export let goHomeFn: () => void;
 
     const X_MARK = "x-symbol";
     const O_MARK = "o-symbol";
@@ -135,6 +137,8 @@
 {#if showStart}
     <Start bind:showStart showTime={SHOW_P1_START_NOTIFICATION_MS} />
 {/if}
+
+<Topbar boardSize={gameType.boardSize} cellsToWin={gameType.cellsToWin} goHome={goHomeFn} />
 
 {#if !gameOver && currentPlayer === Player.Bot}
     {#await playBotTurn()}

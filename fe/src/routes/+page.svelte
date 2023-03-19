@@ -8,6 +8,7 @@
     import Spinner from "./spinner.svelte";
     import Dropdowns from "./dropdowns.svelte";
     import Errors from "./errors.svelte";
+    import Info from "./info.svelte";
     import { PUBLIC_API_URL } from "$env/static/public";
 
     const SHOW_PHRASES_LIMIT = 0.75;
@@ -20,6 +21,7 @@
     let startGame = false;
     let backendConnected = false;
     let showGameEndOptions = false;
+    let showGameInfo = false;
     let apiErrorOccurred = false;
 
     function setGameType(newGame: Game) {
@@ -60,7 +62,11 @@
     }
 
     function toggleStartGame() {
-        startGame = startGame ? false : true;
+        startGame = !startGame;
+    }
+
+    function toggleShowGameInfo() {
+        showGameInfo = !showGameInfo;
     }
 
     onMount(async () => {
@@ -86,6 +92,7 @@
         gameLevel={currentGameLevel}
         currentPlayer={getRandomPlayer()}
         endGameFn={endGame}
+        goHomeFn={resetGame}
     />
 {:else if currentGameType && currentGameLevel && startGame}
     <Spinner />
@@ -111,13 +118,34 @@
 {:else}
     <div class="open-page" id="new-game-view">
         <h1>Let's play k-in-a-row!</h1>
-        <Dropdowns
-            {setGameType}
-            {setGameLevel}
-            {toggleStartGame}
-            selectedGameType={currentGameType}
-            selectedGameLevel={currentGameLevel}
-        />
+        {#if showGameInfo}
+            <Info {toggleShowGameInfo} />
+        {:else}
+            <Dropdowns
+                {setGameType}
+                {setGameLevel}
+                {toggleStartGame}
+                selectedGameType={currentGameType}
+                selectedGameLevel={currentGameLevel}
+            />
+            <div on:click={toggleShowGameInfo} on:keydown class="info-icon">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="50"
+                    height="50"
+                    fill="currentColor"
+                    class="bi bi-info-circle"
+                    viewBox="0 0 16 16"
+                >
+                    <path
+                        d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"
+                    />
+                    <path
+                        d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"
+                    />
+                </svg>
+            </div>
+        {/if}
     </div>
 {/if}
 
@@ -157,6 +185,7 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        overflow: auto;
         top: 0;
         bottom: 0;
         left: 0;
@@ -191,9 +220,19 @@
     .open-page button:hover {
         background-color: var(--default-light-green-hover);
     }
+    .info-icon {
+        position: absolute;
+        bottom: 10%;
+        cursor: pointer;
+    }
     @media screen and (max-width: 450px) {
         .open-page h1 {
             font-size: 1.75em;
+        }
+    }
+    @media screen and (max-height: 950px) {
+        .info-icon {
+            bottom: 25%;
         }
     }
 </style>

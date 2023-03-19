@@ -36,12 +36,12 @@
     }
 
     function toggleShowGameTypeOptions() {
-        showGameTypeOptions = showGameTypeOptions ? false : true;
+        showGameTypeOptions = !showGameTypeOptions;
         showGameLevelOptions = false;
     }
 
     function toggleShowGameLevelOptions() {
-        showGameLevelOptions = showGameLevelOptions ? false : true;
+        showGameLevelOptions = !showGameLevelOptions;
         showGameTypeOptions = false;
     }
 
@@ -99,13 +99,14 @@
 {/if}
 
 <style>
+    .dropdown#game-type {
+        overflow-y: auto;
+    }
     .dropdown input {
         position: relative;
-        width: 100%;
         background-color: var(--default-light-gray);
-        padding: 1em 0.5em;
+        padding: 1em 0 1em 0.5em;
         border-radius: 10px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
         cursor: pointer;
         border: none;
         outline: none;
@@ -146,13 +147,13 @@
     .dropdown .options button {
         background-color: white;
         padding: 0.75em 0.5em;
-        width: 105%;
+        width: 100%;
         border: none;
         outline: none;
         margin-bottom: 0em;
         cursor: pointer;
         font-size: 1rem;
-        overflow: hidden;
+        z-index: 1;
     }
     .dropdown .options button:hover {
         background-color: var(--default-mid-gray-hover);
@@ -170,6 +171,8 @@
         cursor: pointer;
         color: var(--default-black);
         transition: background-color 0.3s, color 0.3s;
+        position: relative;
+        left: 0.5%;
     }
     .start-game-btn:hover {
         background-color: var(--default-light-green-hover);
