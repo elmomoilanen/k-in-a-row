@@ -27,14 +27,18 @@ async fn main() -> io::Result<()> {
         Ok(addr) => addr,
         _ => String::from("0.0.0.0"),
     };
+    let client_url = match env::var("CLIENT_URL") {
+        Ok(client_url) => client_url,
+        _ => String::from("http://127.0.0.1:5173"),
+    };
     let address = format!("{addr}:{port}");
 
-    HttpServer::new(|| {
+    HttpServer::new(move || {
         App::new()
             .wrap(
                 Cors::default()
                     .allowed_origin("http://localhost:5173")
-                    .allowed_origin("http://127.0.0.1:5173")
+                    .allowed_origin(&client_url)
                     .allowed_methods(vec!["GET", "POST"])
                     .allowed_headers(vec![header::CONTENT_TYPE, header::ACCEPT])
                     .max_age(3600),

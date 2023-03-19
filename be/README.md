@@ -2,7 +2,7 @@
 
 Backend service for the game. Computes the bot player's next move in the game board. This is done by applying the minimax algorithm with alpha-beta pruning.
 
-## Build and run ##
+## Quick build and run ##
 
 Following instructions contain the recommended way to start the backend service locally.
 
@@ -53,3 +53,7 @@ ADDR=127.0.0.1 PORT=8000 cargo run
 ```
 
 In principle, it is easy to add new game boards. A board must have a same number of rows and columns (i.e., a k x k board) and that's about the only strict requirement. Place proper board size parameters in `src/conf.rs` and the new board is ready to be used. Of course, the drawback for larger boards is that the search space for bot player's moves increases exponentially.
+
+## Production ##
+
+`gcp/README.md` gives instructions for deploying to Google cloud run.
