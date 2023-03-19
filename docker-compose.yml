@@ -9,3 +9,5 @@ services:
       context: ./fe
     ports:
       - 5173:80
+    environment:
+      - PUBLIC_API_URL="http://localhost:8080"
