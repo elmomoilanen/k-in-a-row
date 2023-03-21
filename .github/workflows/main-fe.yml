@@ -7,7 +7,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  fe:
+  check:
+    name: Run lint and check
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -27,6 +28,19 @@ jobs:
           cp .env.example .env
           npm run lint
           npm run check -- --fail-on-warnings --fail-on-hints
+          exit 1
+  deploy:
+    name: Deployment to Firebase
+    needs: check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./fe
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
       - name: Build
         env:
           PUBLIC_API_URL: '${{ secrets.PUBLIC_API_URL }}'
@@ -37,3 +51,5 @@ jobs:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_K_INAROW }}'
           projectId: k-inarow
+          channelId: live
+          entryPoint: ./fe
