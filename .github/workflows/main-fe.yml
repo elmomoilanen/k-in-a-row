@@ -28,7 +28,6 @@ jobs:
           cp .env.example .env
           npm run lint
           npm run check -- --fail-on-warnings --fail-on-hints
-          exit 1
   deploy:
     name: Deployment to Firebase
     needs: check
