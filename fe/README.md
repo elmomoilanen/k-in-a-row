@@ -41,3 +41,5 @@ npm run dev -- --open
 TypeScript support for reading environment variables requires that command `svelte-kit sync` has been run. To do this, run for example the command `npm run check` which includes this svelte-kit command.
 
 ## Production
+
+Firebase hosting is used in production. `main-fe.yml` Github workflow uploads a new release for every push event to the main branch.

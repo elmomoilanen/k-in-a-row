@@ -1,9 +1,12 @@
 node_modules
 /build
 /.svelte-kit
+/.firebase
 .eslint*
 .prettier*
+.firebase*
 .git*
 README.md
 Dockerfile
 tsconfig.json
+firebase.json
