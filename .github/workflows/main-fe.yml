@@ -1,0 +1,39 @@
+name: main-fe
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  fe:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./fe
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: npm
+          cache-dependency-path: ./fe/package-lock.json
+      - name: Install dependencies
+        run: |
+          npm ci
+      - name: Lint
+        run: |
+          cp .env.example .env
+          npm run lint
+          npm run check -- --fail-on-warnings --fail-on-hints
+      - name: Build
+        env:
+          PUBLIC_API_URL: '${{ secrets.PUBLIC_API_URL }}'
+        run: |
+          npm run build
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_K_INAROW }}'
+          projectId: k-inarow
