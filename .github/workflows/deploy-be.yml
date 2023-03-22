@@ -1,0 +1,23 @@
+name: deploy-be
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  tests:
+    uses: ./.github/workflows/tests-be.yml
+  build:
+    uses: ./.github/workflows/build-be.yml
+  deploy:
+    name: Deployment to Cloud Run
+    needs: [tests, build]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./be
+    steps:
+      - uses: actions/checkout@v3
+      - name: Fail for now
+        run: exit 1
