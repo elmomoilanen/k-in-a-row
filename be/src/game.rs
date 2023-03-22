@@ -406,7 +406,11 @@ impl Game {
         let window_sum_abs = window_sum.unsigned_abs() as usize;
         let window_thres = window >> 1;
 
-        if window_sum_abs == window - 1 && window_sum > 0 {
+        // Following makes sense if `bot_mark` > 0 and `p1_mark` (opponent) < 0
+
+        if window_sum_abs == window && window_sum > 0 {
+            WINNER_VALUE
+        } else if window_sum_abs == window - 1 && window_sum > 0 {
             window_sum * ONE_TO_WIN_VALUE
         } else if window_sum_abs == window - 1 && window_sum < 0 {
             window_sum * ONE_TO_WIN_VALUE * OPPONENT_PENALTY_MULTIPLIER
@@ -882,7 +886,7 @@ mod tests {
         let cells: [i8; 25] = [
             0, 0, 1, 1, 1, 1, -1, 1, 0, 0, 1, -1, -1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0,
         ];
-        let (p1_mark, bot_mark, empty_mark) = (1, -1, 0);
+        let (p1_mark, bot_mark, empty_mark) = (-1, 1, 0);
         // Board (cells) is now inconsistent and cannot thus call Game::new
         let game = init_5x5_game_literal(&cells, p1_mark, bot_mark, empty_mark);
         // First and last row bring value (cells' sum * value)
@@ -898,7 +902,7 @@ mod tests {
         let cells: [i8; 25] = [
             0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0,
         ];
-        let (p1_mark, bot_mark, empty_mark) = (1, -1, 0);
+        let (p1_mark, bot_mark, empty_mark) = (-1, 1, 0);
         let game = init_5x5_game_literal(&cells, p1_mark, bot_mark, empty_mark);
         // 1st, 2nd, 3rd and 5th column bring value
         // 3 ONE_TO_WIN and 5 TWO_TO_WIN cases in total
@@ -912,7 +916,7 @@ mod tests {
         let cells: [i8; 25] = [
             0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1,
         ];
-        let (p1_mark, bot_mark, empty_mark) = (1, -1, 0);
+        let (p1_mark, bot_mark, empty_mark) = (-1, 1, 0);
         let game = init_5x5_game_literal(&cells, p1_mark, bot_mark, empty_mark);
         // 2 ONE_TO_WIN and 2 TWO_TO_WIN cases in total
         let correct_value = 2 * 3 * ONE_TO_WIN_VALUE + 2 * 2 * TWO_TO_WIN_VALUE;
@@ -925,7 +929,7 @@ mod tests {
         let cells: [i8; 25] = [
             0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
         ];
-        let (p1_mark, bot_mark, empty_mark) = (1, -1, 0);
+        let (p1_mark, bot_mark, empty_mark) = (-1, 1, 0);
         let game = init_5x5_game_literal(&cells, p1_mark, bot_mark, empty_mark);
         // 1 ONE_TO_WIN and 3 TWO_TO_WIN cases in total
         let correct_value = 3 * ONE_TO_WIN_VALUE + 3 * 2 * TWO_TO_WIN_VALUE;
