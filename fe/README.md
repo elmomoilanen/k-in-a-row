@@ -42,4 +42,4 @@ TypeScript support for reading environment variables requires that command `svel
 
 ## Production
 
-Firebase hosting is used in production. `main-fe.yml` Github workflow uploads a new release for every push event to the main branch.
+Firebase hosting is used in production. This directory has been connected to a Firebase project by running `firebase init` command. GitHub workflow `deploy-fe.yml` uploads a new release to Firebase for every versioned push event to the main branch.

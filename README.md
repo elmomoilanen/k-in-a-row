@@ -1,6 +1,6 @@
 # k-in-a-row game
 
-[![main fe](https://github.com/elmomoilanen/k-in-a-row/actions/workflows/main-fe.yml/badge.svg)](https://github.com/elmomoilanen/k-in-a-row/actions/workflows/main-fe.yml)
+[![main fe](https://github.com/elmomoilanen/k-in-a-row/actions/workflows/tests-fe.yml/badge.svg)](https://github.com/elmomoilanen/k-in-a-row/actions/workflows/tests-fe.yml)
 [![main be](https://github.com/elmomoilanen/k-in-a-row/actions/workflows/main-be.yml/badge.svg)](https://github.com/elmomoilanen/k-in-a-row/actions/workflows/main-be.yml)
 
 Play k-in-a-row game against a bot player.
