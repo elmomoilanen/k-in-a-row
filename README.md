@@ -1,7 +1,7 @@
 # k-in-a-row game
 
 [![main fe](https://github.com/elmomoilanen/k-in-a-row/actions/workflows/tests-fe.yml/badge.svg)](https://github.com/elmomoilanen/k-in-a-row/actions/workflows/tests-fe.yml)
-[![main be](https://github.com/elmomoilanen/k-in-a-row/actions/workflows/main-be.yml/badge.svg)](https://github.com/elmomoilanen/k-in-a-row/actions/workflows/main-be.yml)
+[![main be](https://github.com/elmomoilanen/k-in-a-row/actions/workflows/tests-be.yml/badge.svg)](https://github.com/elmomoilanen/k-in-a-row/actions/workflows/tests-be.yml)
 
 Play k-in-a-row game against a bot player.
 
@@ -32,3 +32,5 @@ It is also possible to play without the Docker but in that case Rust and Svelte 
 Read more on this and development in general from README files in backend and frontend subdirectories.
 
 ## Production
+
+Currently, Google's Firebase is used to host the frontend code and Cloud Run to run the backend service. Read more from the subdirectory README files and deployment GitHub workflows.

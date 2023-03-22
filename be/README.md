@@ -56,4 +56,4 @@ In principle, it is easy to add new game boards. A board must have a same number
 
 ## Production ##
 
-`gcp/README.md` gives instructions for deploying to Google cloud run.
+`gcp/README.md` gives instructions for deploying to Google Cloud Run.

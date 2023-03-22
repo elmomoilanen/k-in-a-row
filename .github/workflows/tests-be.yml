@@ -1,13 +1,15 @@
-name: main-be
+name: tests-be
 
 on:
   push:
     branches:
       - main
   workflow_dispatch:
+  workflow_call:
 
 jobs:
-  be:
+  check:
+    name: Run lints, checks and tests
     runs-on: ubuntu-latest
     defaults:
       run:
