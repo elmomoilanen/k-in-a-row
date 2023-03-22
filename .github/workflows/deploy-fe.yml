@@ -22,9 +22,6 @@ jobs:
           node-version: 18
           cache: npm
           cache-dependency-path: ./fe/package-lock.json
-      - name: Check that target branch is main
-        if: endsWith(github.event.base_ref, 'main') == false
-        run: exit 1
       - name: Build
         env:
           PUBLIC_API_URL: '${{ secrets.PUBLIC_API_URL }}'
