@@ -34,13 +34,30 @@ jobs:
         run: |
           docker push "gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA"
   deploy:
-    name: Deployment to Google Cloud Run
+    name: Deployment to Google Cloud Run with Terraform
     needs: build
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./be
+        working-directory: ./be/gcp
+    env:
+      TF_VAR_service_name: '${{ secrets.GOOGLE_SERVICE_NAME }}'
+      TF_VAR_image_tag: '${{ github.sha }}'
+      TF_VAR_client_url: '${{ secrets.CLIENT_URL }}'
     steps:
       - uses: actions/checkout@v3
-      - name: Fail for now
-        run: exit 1
+      - name: Terraform fmt check
+        run: |
+          terraform fmt -check
+      - uses: google-github-actions/auth@v1
+        with:
+          credentials_json: '${{ secrets.GOOGLE_SERVICE_ACCOUNT_FILE }}'
+      - name: Terraform init
+        run: |
+          terraform init -input=false
+      - name: Terraform plan
+        run: |
+          terraform plan -input=false -var-file=environments/prod.tfvars
+      - name: Terraform apply
+        run: |
+          terraform apply -input=false -auto-approve -var-file=environments/prod.tfvars
