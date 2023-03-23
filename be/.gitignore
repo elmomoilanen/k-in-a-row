@@ -1,1 +1,5 @@
 /target
+
+/gcp/.terraform*
+!.terraform.lock.hcl
+/gcp/*.json
