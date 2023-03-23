@@ -17,7 +17,7 @@ jobs:
         working-directory: ./be
     steps:
       - uses: actions/checkout@v3
-      - name: Build image
+      - name: Build an image
         env:
           PROJECT_ID: '${{ secrets.GOOGLE_PROJECT_ID }}'
           SERVICE_NAME: '${{ secrets.GOOGLE_SERVICE_NAME }}'
@@ -26,7 +26,11 @@ jobs:
       - uses: google-github-actions/auth@v1
         with:
           credentials_json: '${{ secrets.GOOGLE_SERVICE_ACCOUNT_FILE }}'
-      - name: Push image to gcr.io
+      - uses: google-github-actions/setup-gcloud@v1
+      - name: Authorize Docker push
+        run: |
+          gcloud auth configure-docker -q
+      - name: Push the image to gcr.io
         env:
           PROJECT_ID: '${{ secrets.GOOGLE_PROJECT_ID }}'
           SERVICE_NAME: '${{ secrets.GOOGLE_SERVICE_NAME }}'
