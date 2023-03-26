@@ -1,7 +1,12 @@
-use rand::Rng;
+use rand::{seq::SliceRandom, Rng};
 use std::cmp;
 
-use crate::{conf::BoardSize, first_move::FirstMove, game::Game, models::BotMove};
+use crate::{
+    conf::BoardSize,
+    first_move::FirstMove,
+    game::Game,
+    models::{BotMove, Level},
+};
 
 pub struct Bot;
 
@@ -17,6 +22,13 @@ impl Bot {
         if empty_cells == cells_count - 1 {
             if let Some(bot_move) = Self::play_bot_first_move_if_defined(&game) {
                 return bot_move;
+            }
+        }
+
+        if let Level::Easy = game.level {
+            // Following gives 0.5 probability for value `true`
+            if rand::random() {
+                return Self::play_bot_random_move(game);
             }
         }
 
@@ -58,6 +70,22 @@ impl Bot {
             game_over: false,
             winner: game.orig_empty_mark,
         })
+    }
+
+    fn play_bot_random_move(mut game: Game) -> BotMove {
+        let winner = game.winner();
+
+        if winner != game.empty_mark || game.empty_cell_count() == 0 {
+            return Self::complete_bot_move(game, None);
+        }
+
+        let mut empty_cells = game.empty_cell_indices();
+        empty_cells.shuffle(&mut rand::thread_rng());
+
+        match empty_cells.first() {
+            Some(&cell_idx) => Self::complete_bot_move(game, Some(cell_idx)),
+            None => Self::complete_bot_move(game, None),
+        }
     }
 
     fn renormalize_winner_marker(game: &Game, winner: i8) -> i8 {

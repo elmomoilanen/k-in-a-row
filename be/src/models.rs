@@ -43,7 +43,7 @@ impl From<web::Json<Board>> for Board {
 /// bot player (mark `bot_mark`) might make unoptimal decisions here
 /// and there making it possible for player 1 to win.
 
-#[derive(Deserialize, Clone, Debug)]
+#[derive(Deserialize, Clone, Copy, Debug)]
 pub enum Level {
     Easy,
     Normal,
