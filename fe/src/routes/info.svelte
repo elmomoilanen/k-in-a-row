@@ -42,7 +42,7 @@
         padding: 0.5em 1em;
         border: none;
         border-radius: 0.5em;
-        font-size: 1.5em;
+        font-size: 1.5rem;
         font-weight: bold;
         cursor: pointer;
     }

@@ -25,14 +25,14 @@
     }
     .message {
         color: white;
-        font-size: 1.5em;
+        font-size: 1.5rem;
         display: flex;
         justify-content: center;
         padding: 0.25em;
     }
     .emoji {
         color: white;
-        font-size: 5em;
+        font-size: 5rem;
         display: flex;
         justify-content: center;
         margin-top: 0.5em;

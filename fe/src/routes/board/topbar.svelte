@@ -34,8 +34,9 @@
     }
     .topbar p {
         position: relative;
-        font-size: 1.2em;
+        font-size: 1.3rem;
         margin-top: 10px;
+        left: 1%;
     }
     .topbar .home-icon {
         position: relative;
