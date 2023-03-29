@@ -219,7 +219,7 @@
         border-radius: 0.5em;
         background-color: var(--default-light-green);
         color: var(--default-black);
-        font-size: 1.5em;
+        font-size: 1.5rem;
         font-weight: bold;
         cursor: pointer;
         transition: background-color 0.3s, color 0.3s;
@@ -234,12 +234,12 @@
     }
     @media screen and (max-width: 450px) {
         .open-page h1 {
-            font-size: 1.75em;
+            font-size: 1.75rem;
         }
     }
-    @media screen and (max-height: 950px) {
+    @media screen and (max-height: 500px) {
         .info-icon {
-            bottom: 25%;
+            bottom: 1%;
         }
     }
 </style>

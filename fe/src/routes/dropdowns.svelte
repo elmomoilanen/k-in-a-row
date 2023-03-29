@@ -100,7 +100,7 @@
 
 <style>
     .dropdown#game-type {
-        overflow-y: auto;
+        overflow-y: scroll;
     }
     .dropdown input {
         position: relative;
@@ -122,7 +122,7 @@
     }
     .dropdown input.not-selected::placeholder {
         color: var(--default-black);
-        font-size: 1.2rem;
+        font-size: 1rem;
         font-weight: bold;
     }
     .dropdown input.selected {
@@ -133,7 +133,7 @@
     }
     .dropdown input.selected::placeholder {
         color: var(--default-black);
-        font-size: 1.2rem;
+        font-size: 1rem;
         font-weight: bold;
     }
     .dropdown .options {
@@ -172,14 +172,15 @@
         color: var(--default-black);
         transition: background-color 0.3s, color 0.3s;
         position: relative;
-        left: 0.5%;
+        left: 0%;
     }
     .start-game-btn:hover {
         background-color: var(--default-light-green-hover);
         border: 1px solid white;
     }
     @media (prefers-color-scheme: dark) {
-        .dropdown input {
+        .dropdown input,
+        .dropdown input.not-selected {
             background-color: white;
         }
         .dropdown .options button {

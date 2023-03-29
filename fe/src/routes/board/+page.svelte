@@ -182,7 +182,7 @@
         justify-items: center;
         align-content: center;
         align-items: center;
-        overflow-x: auto;
+        overflow-x: scroll;
         scroll-snap-type: x mandatory;
     }
     .cell {
@@ -719,7 +719,7 @@
     .cell.win.x-symbol::after,
     .cell.win.o-symbol::before,
     .cell.win.o-symbol::after {
-        background-color: green;
+        background-color: rgb(0, 180, 0);
     }
     .cell.lost.o-symbol::after,
     .cell.win.o-symbol::after {
