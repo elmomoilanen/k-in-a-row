@@ -46,4 +46,4 @@ Firebase hosting is used in production.
 
 This directory has been connected to a Firebase project by running `firebase init` command. As a result of running the command, two public Firebase configuration files were added to this directory which are required when running the frontend deployment pipeline.
 
-GitHub workflow `deploy-fe.yml` uploads a new release to Firebase for every versioned push event to the main branch. For this pipeline, `PUBLIC_API_URL` (backend's production URL) and `FIREBASE_SERVICE_ACCOUNT_K_INAROW` (service account credentials) must have been stored as secrets in GitHub's Actions secrets.
+GitHub workflow `deploy-fe.yml` uploads a new release to Firebase for every versioned push event to the main branch. For this pipeline, `PUBLIC_API_URL` (backend's production URL) and `FIREBASE_SERVICE_ACCOUNT_K_INAROW` (Firebase service account credentials) must have been stored as secrets in GitHub's Actions secrets.
