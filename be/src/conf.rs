@@ -68,16 +68,16 @@ const X1515_MAX_DEPTH: u8 = 3;
 const X33_EASY_MAX_DEPTH: u8 = 1;
 const X44_EASY_MAX_DEPTH: u8 = 1;
 const X55_EASY_MAX_DEPTH: u8 = 1;
-const X66_EASY_MAX_DEPTH: u8 = 1;
-const X77_EASY_MAX_DEPTH: u8 = 1;
-const X88_EASY_MAX_DEPTH: u8 = 1;
-const X99_EASY_MAX_DEPTH: u8 = 1;
-const X1010_EASY_MAX_DEPTH: u8 = 1;
-const X1111_EASY_MAX_DEPTH: u8 = 1;
-const X1212_EASY_MAX_DEPTH: u8 = 1;
-const X1313_EASY_MAX_DEPTH: u8 = 1;
-const X1414_EASY_MAX_DEPTH: u8 = 1;
-const X1515_EASY_MAX_DEPTH: u8 = 1;
+const X66_EASY_MAX_DEPTH: u8 = 2;
+const X77_EASY_MAX_DEPTH: u8 = 2;
+const X88_EASY_MAX_DEPTH: u8 = 2;
+const X99_EASY_MAX_DEPTH: u8 = 2;
+const X1010_EASY_MAX_DEPTH: u8 = 2;
+const X1111_EASY_MAX_DEPTH: u8 = 2;
+const X1212_EASY_MAX_DEPTH: u8 = 2;
+const X1313_EASY_MAX_DEPTH: u8 = 2;
+const X1414_EASY_MAX_DEPTH: u8 = 2;
+const X1515_EASY_MAX_DEPTH: u8 = 2;
 
 pub struct BoardParams {
     pub size: BoardSize,

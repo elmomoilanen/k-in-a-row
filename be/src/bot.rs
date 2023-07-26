@@ -8,6 +8,8 @@ use crate::{
     models::{BotMove, Level},
 };
 
+const EASY_LEVEL_RANDOM_MOVE_THRESHOLD: f32 = 0.67;
+
 pub struct Bot;
 
 impl Bot {
@@ -26,8 +28,7 @@ impl Bot {
         }
 
         if let Level::Easy = game.level {
-            // Following gives 0.5 probability for value `true`
-            if rand::random() {
+            if rand::random::<f32>() > EASY_LEVEL_RANDOM_MOVE_THRESHOLD {
                 return Self::play_bot_random_move(game);
             }
         }
