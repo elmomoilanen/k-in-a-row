@@ -26,8 +26,8 @@ resource "google_cloud_run_service" "kinarow_backend" {
 
         resources {
           limits = {
-            memory = "4096Mi"
-            cpu    = "2"
+            memory = "512Mi"
+            cpu    = "1"
           }
         }
 
@@ -41,7 +41,7 @@ resource "google_cloud_run_service" "kinarow_backend" {
 
     metadata {
       annotations = {
-        "autoscaling.knative.dev/maxScale" = "2"
+        "autoscaling.knative.dev/maxScale" = "1"
         "run.googleapis.com/client-name"   = "terraform"
       }
     }
