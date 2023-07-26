@@ -4,7 +4,7 @@ Backend service for the game. Computes the bot player's next move in the game bo
 
 ## Quick build and run ##
 
-Following instructions contain the recommended way to start the backend service locally.
+Following instructions contain the recommended way to start the backend service locally without worrying about Rust installation.
 
 First build an image from the Dockerfile
 
@@ -24,7 +24,7 @@ With the previous command, port 8080 of the container (server's default port) is
 
 Server implements an endpoint `/api/bot/next` that accepts POST requests with a JSON type payload and a URL query string `level=VALUE` with allowed values of *Easy* and *Normal*.
 
-Following example shows a valid HTTP request with curl that is used to compute the first move of a normal level 3x3 3-in-a-row game for the bot player
+Following example shows a valid HTTP request with command line tool *curl* that is used to compute the first move of a normal level 3x3 3-in-a-row game for the bot player
 
 ```bash
 curl "localhost:8080/api/bot/next?level=Normal" \
