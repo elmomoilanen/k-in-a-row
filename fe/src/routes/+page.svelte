@@ -11,7 +11,7 @@
     import Info from "./info.svelte";
     import { PUBLIC_API_URL } from "$env/static/public";
 
-    const SHOW_PHRASES_LIMIT = 0.75;
+    const SHOW_PHRASES_LIMIT = 0.5;
 
     let currentGameType: MaybeGame = undefined;
     let previousGameType: MaybeGame = undefined;
