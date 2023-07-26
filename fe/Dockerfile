@@ -1,11 +1,11 @@
-FROM node:19-alpine as build
+FROM node:20-alpine as build
 
 WORKDIR /app
 COPY . .
 RUN npm ci
 RUN npm run build
 
-FROM nginx:1.23-alpine
+FROM nginx:1.25-alpine
 
 WORKDIR /usr/share/nginx/html
 RUN rm -rf ./*
