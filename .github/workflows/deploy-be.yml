@@ -19,12 +19,13 @@ jobs:
       PROJECT_ID: '${{ secrets.GOOGLE_PROJECT_ID }}'
       SERVICE_NAME: '${{ secrets.GOOGLE_SERVICE_NAME }}'
       REGION: '${{ secrets.GOOGLE_REGION }}'
+      IMAGE_NAME: '${{ secrets.GOOGLE_IMAGE_NAME }}'
       AR_DOMAIN: 'docker.pkg.dev'
     steps:
       - uses: actions/checkout@v3
       - name: Build an image
         run: |
-          docker build -t "$REGION-$AR_DOMAIN/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA" .
+          docker build -t "$REGION-$AR_DOMAIN/$PROJECT_ID/$SERVICE_NAME/$IMAGE_NAME:$GITHUB_SHA" .
       - uses: google-github-actions/auth@v1
         with:
           credentials_json: '${{ secrets.GOOGLE_SERVICE_ACCOUNT_FILE }}'
@@ -34,7 +35,7 @@ jobs:
           gcloud auth configure-docker "$REGION-$AR_DOMAIN" -q
       - name: Push the image to Artifact Registry
         run: |
-          docker push "$REGION-$AR_DOMAIN/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA"
+          docker push "$REGION-$AR_DOMAIN/$PROJECT_ID/$SERVICE_NAME/$IMAGE_NAME:$GITHUB_SHA"
   deploy:
     name: Deployment to Google Cloud Run with Terraform
     needs: build
@@ -46,6 +47,7 @@ jobs:
       TF_VAR_service_name: '${{ secrets.GOOGLE_SERVICE_NAME }}'
       TF_VAR_image_tag: '${{ github.sha }}'
       TF_VAR_client_url: '${{ secrets.CLIENT_URL }}'
+      TF_VAR_image_name: '${{ secrets.GOOGLE_IMAGE_NAME }}'
     steps:
       - uses: actions/checkout@v3
       - name: Terraform fmt check

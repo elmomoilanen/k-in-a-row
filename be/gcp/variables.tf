@@ -11,6 +11,10 @@ variable "ar_domain" {
   default = "docker.pkg.dev"
 }
 
+variable "image_name" {
+  type = string
+}
+
 variable "image_tag" {
   type    = string
   default = "latest"
