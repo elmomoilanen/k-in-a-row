@@ -7,7 +7,7 @@ variable "region" {
 }
 
 variable "ar_domain" {
-  type = string
+  type    = string
   default = "docker.pkg.dev"
 }
 
