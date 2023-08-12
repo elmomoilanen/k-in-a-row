@@ -31,7 +31,7 @@ jobs:
       - uses: google-github-actions/setup-gcloud@v1
       - name: Authorize Docker push
         run: |
-          gcloud auth configure-docker -q
+          gcloud auth configure-docker "$REGION-$AR_DOMAIN" -q
       - name: Push the image to Artifact Registry
         run: |
           docker push "$REGION-$AR_DOMAIN/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA"
