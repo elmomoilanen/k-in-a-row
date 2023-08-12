@@ -17,7 +17,7 @@ resource "google_cloud_run_service" "kinarow_backend" {
   template {
     spec {
       containers {
-        image = "gcr.io/${var.project_id}/${var.service_name}:${var.image_tag}"
+        image = "${var.region}-${var.ar_domain}/${var.project_id}/${var.service_name}:${var.image_tag}"
 
         ports {
           name           = "http1"

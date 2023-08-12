@@ -6,6 +6,11 @@ variable "region" {
   type = string
 }
 
+variable "ar_domain" {
+  type = string
+  default = "docker.pkg.dev"
+}
+
 variable "image_tag" {
   type    = string
   default = "latest"
