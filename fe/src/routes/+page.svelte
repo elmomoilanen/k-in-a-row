@@ -81,16 +81,17 @@
         }
         if (!resp.ok) {
             console.error(
-                `Received not an OK response from ${url} with status code ${resp.status}.`
+                `Received an error response from ${url} with status code ${resp.status}.`
             );
             apiErrorOccurred = true;
+            return;
         }
         backendConnected = true;
     });
 </script>
 
 {#if apiErrorOccurred}
-    <Errors message={"Did not receice initial OK response from the backend API."} />
+    <Errors message={"Failed to make initial connection to the backend API."} />
 {/if}
 
 {#if currentGameType && currentGameLevel && startGame && backendConnected}

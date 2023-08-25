@@ -3,6 +3,7 @@
     import type { Game, GameLevel } from "$lib/games";
     import { Player } from "$lib/players";
     import { hasWinner } from "$lib/winner";
+    import { sleep } from "$lib/utils";
     import Start from "./start.svelte";
     import Topbar from "./topbar.svelte";
     import Errors from "../errors.svelte";
@@ -22,6 +23,8 @@
     const HIGHLIGHT_BOT_MOVE_MS = 500;
     const WAIT_AFTER_END_BEFORE_DESTROY_BOARD_MS = 2500;
     const SHOW_P1_START_NOTIFICATION_MS = 1000;
+    const BE_REQUESTS_MAX_TRIES = 3;
+    const BE_REQUESTS_RETRY_DELAY_MS = 500;
 
     let currentMarker = Math.random() < 0.5 ? X_MARK : O_MARK;
     let botPlayerLastSelectedCell: string | undefined = undefined;
@@ -70,29 +73,49 @@
         changeMarker();
     }
 
+    async function requestBotMove(url: string) {
+        try {
+            return await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json"
+                },
+                body: JSON.stringify({
+                    cells: cells.map((cell) => cell.value),
+                    p1_mark: Player.P1,
+                    bot_mark: Player.Bot,
+                    empty_mark: Player.Empty
+                })
+            });
+        } catch (error) {
+            console.error(error);
+            return undefined;
+        }
+    }
+
     async function playBotTurn() {
         const level = gameLevel.levelName === "Easy" ? "Easy" : "Normal";
         const url = `${PUBLIC_API_URL}/api/bot/next?level=${level}`;
 
-        const responseRaw = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json"
-            },
-            body: JSON.stringify({
-                cells: cells.map((cell) => cell.value),
-                p1_mark: Player.P1,
-                bot_mark: Player.Bot,
-                empty_mark: Player.Empty
-            })
-        });
-        if (!responseRaw.ok) {
-            console.error(
-                `Received not an OK response from ${url} with status code ${responseRaw.status}.`
-            );
-            throw new Error("Did not receive OK response from play bot's turn backend API call.");
+        let responseRaw;
+
+        for (let j = 1; j <= BE_REQUESTS_MAX_TRIES; ++j) {
+            responseRaw = await requestBotMove(url);
+            if (responseRaw?.ok) {
+                break;
+            }
+            if (j >= BE_REQUESTS_MAX_TRIES) {
+                throw new Error("Failed to get proper response from the backend API call.");
+            }
+            await sleep(BE_REQUESTS_RETRY_DELAY_MS * j);
         }
+
+        if (!responseRaw?.ok) {
+            // This should never happen, if logic is correct
+            throw new Error("Failed to get proper response from the backend API call.");
+        }
+
         const responseParsed: BotMove = await responseRaw.json();
 
         if (responseParsed.next_is_valid) {
