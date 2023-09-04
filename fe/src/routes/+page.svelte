@@ -136,7 +136,13 @@
                 selectedGameType={currentGameType}
                 selectedGameLevel={currentGameLevel}
             />
-            <div on:click={toggleShowGameInfo} on:keydown class="info-icon">
+            <div
+                on:click={toggleShowGameInfo}
+                on:keydown
+                role="button"
+                tabindex="0"
+                class="info-icon"
+            >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="50"
@@ -223,7 +229,9 @@
         font-size: 1.5rem;
         font-weight: bold;
         cursor: pointer;
-        transition: background-color 0.3s, color 0.3s;
+        transition:
+            background-color 0.3s,
+            color 0.3s;
     }
     .open-page button:hover {
         background-color: var(--default-light-green-hover);

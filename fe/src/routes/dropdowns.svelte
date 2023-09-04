@@ -170,7 +170,9 @@
         box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
         cursor: pointer;
         color: var(--default-black);
-        transition: background-color 0.3s, color 0.3s;
+        transition:
+            background-color 0.3s,
+            color 0.3s;
         position: relative;
         left: 0%;
     }
