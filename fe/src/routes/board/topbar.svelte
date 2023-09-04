@@ -7,7 +7,7 @@
 </script>
 
 <div class="topbar">
-    <div on:click={goHome} on:keydown class="home-icon">
+    <div on:click={goHome} on:keydown role="button" tabindex="0" class="home-icon">
         <svg
             xmlns="http://www.w3.org/2000/svg"
             width="32"
