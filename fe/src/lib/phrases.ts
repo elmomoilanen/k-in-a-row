@@ -13,7 +13,8 @@ const phrasesTie = [
     "That was so exciting bywatchers almost fell asleep. Keep up the thrilling gameplay!",
     "Looks like we've got two evenly matched opponents - a tie is a not a bad result!",
     "Looks like you're both experts at placing X's and O's in all the wrong places.",
-    "I think you two just invented a new game: tic-tac-tie. The rules are simple, the winner is the one who doesn't lose."
+    "I think you two just invented a new game: tic-tac-tie. The rules are simple, the winner is the one who doesn't lose.",
+    "You have crafted another tie, leaving us all in awe of your commitment to maintaining the status quo."
 ];
 
 const phrasesP1Win = [
@@ -37,7 +38,7 @@ const phrasesBotWin = [
     "Looks like the bot's algorithms are just too advanced for human brains to comprehend.",
     "The AI is pretty tough, but I hear it's still not as challenging as tying your shoe laces.",
     "Better luck next time. Maybe you should stick to games that don't involve thinking.",
-    "What a thrilling game but the bot was better this time!",
+    "Another day, another victory for the almighty AI. Who's surprised?",
     "The AI might be a k-in-a-row mastermind, but it's probably never even tasted a pizza. So you've still got that going for you!",
     "Well, it looks like the AI just schooled you in k-in-a-row. But at least you know how to tie your own shoes, right?",
     "Don't worry, you'll get the hang of it eventually. Maybe in a few thousand more games?",
@@ -45,17 +46,18 @@ const phrasesBotWin = [
     "The AI is taking over... one k-in-a-row game at a time.",
     "The AI might be great at k-in-a-row, but I hear it's terrible at Pictionary. Maybe try that one next time!",
     "You just got beaten by a machine that doesn't even have feelings. That's gotta hurt.",
-    "You know you're not having a good day when a machine beats you at k-in-a-row.",
-    "Well, that was a close one... if by close, you mean the bot won by a landslide.",
-    "Looks like the bot just dominated you like a boss.",
+    "It's like the bot has a PhD in k-in-a-row, and humans are still in kindergarten.",
+    "Oh, dear human, you fell right into the bot's k-in-a-row trap. Classic move.",
+    "The bot doesn't always play k-in-a-row, but when it does, it prefers to win.",
     "If it makes you feel any better, I heard the AI has never won a game of Monopoly. So you're still one up on it.",
     "The AI just taught you a thing or two about k-in-a-row.",
     "You just lost to a machine that can't even feel the joy of victory. That's gotta sting.",
     "Looks like the bot is now your master. Don't worry, it won't be too hard to learn how to bow.",
     "You know, the only way to beat a computer at k-in-a-row is to unplug it - which is cheating, by the way.",
     "Looks like the bot has mastered the ancient art of making k in a row.",
-    "You lost to a computer in a game that's been solved for over 50 years. Your ability to make meaningless decisions is truly impressive.",
-    "You lost to a machine in a game that even a toddler can play. Maybe next time you'll get lucky and win a game of rock-paper-scissors."
+    "Well, it seems the AI just gave you a lesson in k-in-a-row strategy. But hey, at least you can make a killer omelet, right?",
+    "Fear not, for you've been outsmarted by lines of code! It's a rite of passage in the digital age.",
+    "In the world of k-in-a-row, the bot reigns supreme, but at least you can still claim the title of 'human with hobbies.'"
 ];
 
 function getRandomIndex(min: number, max: number) {
