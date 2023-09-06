@@ -9,7 +9,7 @@ on:
 
 jobs:
   check:
-    name: Run lints, checks and tests
+    name: Backend lints, build checks and tests
     runs-on: ubuntu-latest
     defaults:
       run:

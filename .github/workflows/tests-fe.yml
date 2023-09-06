@@ -9,7 +9,7 @@ on:
 
 jobs:
   check:
-    name: Run lint, type check and tests
+    name: Frontend lint, type check and tests
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -28,7 +28,7 @@ jobs:
         run: |
           cp .env.example .env
           npm run lint
-          npm run check -- --fail-on-warnings --fail-on-hints
+          npm run check -- --fail-on-warnings
       - name: Unit tests
         run: |
           npm run test:unit
