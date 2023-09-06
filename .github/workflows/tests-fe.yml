@@ -9,7 +9,7 @@ on:
 
 jobs:
   check:
-    name: Run lint and check
+    name: Run lint, type check and tests
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -24,8 +24,11 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
-      - name: Lint and Check
+      - name: Lint and type checks
         run: |
           cp .env.example .env
           npm run lint
           npm run check -- --fail-on-warnings --fail-on-hints
+      - name: Unit tests
+        run: |
+          npm run test:unit
