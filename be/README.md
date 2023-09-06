@@ -49,7 +49,7 @@ Run `cargo run` to start the server.
 By default the server is bound to 0.0.0.0:8080 but during development one may want to modify these values. Following command shows how to start the server bound to a different address
 
 ```bash
-ADDR=127.0.0.1 PORT=8000 cargo run
+ADDR=127.0.0.1 PORT=8080 cargo run
 ```
 
 In principle, it is easy to add new game boards. A board must have a same number of rows and columns (i.e., a k x k board) and that's about the only strict requirement. Place proper board size parameters in `src/conf.rs` and the new board is ready to be used. Of course, the drawback for larger boards is that the search space for bot player's moves increases exponentially.
