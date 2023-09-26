@@ -24,7 +24,7 @@
         below their maximal theoretical values). Furthermore, at least the Freestyle gomoku allows a
         winning strategy for the starting player.
     </p>
-    <button on:click={toggleShowGameInfo}>Close</button>
+    <button on:click={toggleShowGameInfo} id="info-close">Close</button>
 </div>
 
 <style>
