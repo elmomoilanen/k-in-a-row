@@ -64,6 +64,7 @@
     <input
         on:click={toggleShowGameTypeOptions}
         type="text"
+        id="game-type-input"
         class={selectedGameType && !showGameTypeOptions ? "selected" : "not-selected"}
         placeholder={selectedGameType
             ? `${selectedGameType.boardSize} ${selectedGameType.cellsToWin}-in-a-row`
@@ -82,6 +83,7 @@
         <input
             on:click={toggleShowGameLevelOptions}
             type="text"
+            id="game-level-input"
             class={selectedGameLevel && !showGameLevelOptions ? "selected" : "not-selected"}
             placeholder={selectedGameLevel ? `${selectedGameLevel.levelName}` : "Select level"}
             readonly
@@ -95,7 +97,7 @@
 {/if}
 
 {#if selectedGameType && !showGameTypeOptions && selectedGameLevel && !showGameLevelOptions}
-    <button class="start-game-btn" on:click={toggleStartGame}>Start game</button>
+    <button class="start-game-btn" id="start-game" on:click={toggleStartGame}>Start game</button>
 {/if}
 
 <style>
@@ -105,7 +107,7 @@
     .dropdown input {
         position: relative;
         background-color: var(--default-light-gray);
-        padding: 1em 0 1em 0.5em;
+        padding: 1em 0.5em 1em 0.5em;
         border-radius: 10px;
         cursor: pointer;
         border: none;
@@ -164,7 +166,7 @@
         font-size: 1.5rem;
         font-weight: bold;
         background-color: var(--default-light-green);
-        padding: 0.5em 1.5em;
+        padding: 0.5em 1em;
         border-radius: 0.5em;
         border: none;
         box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);

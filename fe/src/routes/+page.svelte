@@ -120,8 +120,8 @@
         {#if currentWinner !== undefined && previousGameLevel?.levelName !== "Easy" && Math.random() > SHOW_PHRASES_LIMIT}
             <h2>{getPhrase(currentWinner)}</h2>
         {/if}
-        <button on:click={resetGame}>Play again</button>
-        <button on:click={backToStart}>Back to start</button>
+        <button on:click={resetGame} id="game-end-reset">Play again</button>
+        <button on:click={backToStart} id="game-end-back">Back to start</button>
     </div>
 {:else}
     <div class="open-page" id="new-game-view">
@@ -142,6 +142,7 @@
                 role="button"
                 tabindex="0"
                 class="info-icon"
+                id="info-icon"
             >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -232,6 +233,9 @@
         transition:
             background-color 0.3s,
             color 0.3s;
+    }
+    .open-page button#game-end-reset {
+        margin-bottom: 1.25em;
     }
     .open-page button:hover {
         background-color: var(--default-light-green-hover);
