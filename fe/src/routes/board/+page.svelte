@@ -35,7 +35,7 @@
     let gameWinner = Player.Empty;
 
     function initCells(cellsCount: number) {
-        let cells = [];
+        const cells = [];
         for (let j = 0; j < cellsCount; ++j) {
             cells.push({ id: `${j}`, value: Player.Empty, mark: EMPTY_MARK });
         }
@@ -98,11 +98,12 @@
         const level = gameLevel.levelName === "Easy" ? "Easy" : "Normal";
         const url = `${PUBLIC_API_URL}/api/bot/next?level=${level}`;
 
-        let responseRaw;
+        let responseParsed: BotMove | undefined = undefined;
 
         for (let j = 1; j <= BE_REQUESTS_MAX_TRIES; ++j) {
-            responseRaw = await requestBotMove(url);
+            const responseRaw = await requestBotMove(url);
             if (responseRaw?.ok) {
+                responseParsed = await responseRaw.json();
                 break;
             }
             if (j >= BE_REQUESTS_MAX_TRIES) {
@@ -111,12 +112,10 @@
             await sleep(BE_REQUESTS_RETRY_DELAY_MS * j);
         }
 
-        if (!responseRaw?.ok) {
-            // This should never happen, if logic is correct
+        if (responseParsed === undefined || Object.keys(responseParsed).length === 0) {
+            // It's a logic error if we get here
             throw new Error("Failed to get proper response from the backend API call.");
         }
-
-        const responseParsed: BotMove = await responseRaw.json();
 
         if (responseParsed.next_is_valid) {
             const cell = responseParsed.next;
@@ -124,6 +123,7 @@
             botPlayerLastSelectedCell = `${cell}`;
             cells[cell] = { id: botPlayerLastSelectedCell, value: Player.Bot, mark: currentMarker };
         }
+
         gameWinner = responseParsed.winner;
         gameOver = responseParsed.game_over;
         changePlayer();
