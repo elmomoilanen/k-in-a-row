@@ -153,9 +153,7 @@ export function hasWinner(board: Board, lastMoveCell: number, player: Player) {
         if (lastAllowedCell < cellsLen) {
             const winnerIndices = checkWinner(board, player, i, lastAllowedCell, 1);
             if (winnerIndices) {
-                result["hasWinner"] = true;
-                result["winner"] = player;
-                result["winCells"] = winnerIndices;
+                Object.assign(result, { hasWinner: true, winner: player, winCells: winnerIndices });
                 return result;
             }
         }
@@ -171,9 +169,7 @@ export function hasWinner(board: Board, lastMoveCell: number, player: Player) {
         if (lastAllowedCell < cellsLen) {
             const winnerIndices = checkWinner(board, player, i, lastAllowedCell, board.cellsOffset);
             if (winnerIndices) {
-                result["hasWinner"] = true;
-                result["winner"] = player;
-                result["winCells"] = winnerIndices;
+                Object.assign(result, { hasWinner: true, winner: player, winCells: winnerIndices });
                 return result;
             }
         }
@@ -182,18 +178,18 @@ export function hasWinner(board: Board, lastMoveCell: number, player: Player) {
     // Check possible winner in the diagonal containing `lastMoveCell`
     const winnerIndicesDiag = checkDiagonal(board, lastMoveCell, player);
     if (winnerIndicesDiag) {
-        result["hasWinner"] = true;
-        result["winner"] = player;
-        result["winCells"] = winnerIndicesDiag;
+        Object.assign(result, { hasWinner: true, winner: player, winCells: winnerIndicesDiag });
         return result;
     }
 
     // Check possible winner in the antidiagonal containing `lastMoveCell`
     const winnerIndicesAntiDiag = checkAntiDiagonal(board, lastMoveCell, player);
     if (winnerIndicesAntiDiag) {
-        result["hasWinner"] = true;
-        result["winner"] = player;
-        result["winCells"] = winnerIndicesAntiDiag;
+        Object.assign(result, {
+            hasWinner: true,
+            winner: player,
+            winCells: winnerIndicesAntiDiag
+        });
         return result;
     }
 
