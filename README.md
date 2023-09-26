@@ -5,21 +5,19 @@
 
 Play k-in-a-row game against a bot player.
 
-## Quick start local
+## Quick start
 
-Play the game in your machine with these instructions.
+Play locally in your machine with these instructions using `Docker`.
 
-Make sure that `Docker` is installed and available.
-
-Run the following command
+Run the following command to start services
 
 ```bash
 docker compose up
 ```
 
-and when it's ready (might take few minutes in the first time) open `localhost:5173` via a web browser and start playing.
+and when it's ready open `localhost:5173` via a web browser and start playing.
 
-When finished with playing, press ctrl+c and remove the used containers with a command
+When finished with playing, press ctrl+c and remove the used containers
 
 ```bash
 docker compose down
@@ -27,10 +25,8 @@ docker compose down
 
 ## Development
 
-It is also possible to play without the Docker but in that case Rust and Svelte installations must be taken care of manually.
-
-Read more on this and development in general from README files in backend and frontend subdirectories.
+See instructions on README files in backend and frontend subdirectories.
 
 ## Production
 
-Currently, Google's Firebase is used to host the frontend code and Cloud Run to run the backend service. Read more from the subdirectory README files and deployment GitHub workflows.
+Google's Firebase is used to host the frontend code and Cloud Run to run the backend service. Read more from the subdirectory README files and deployment GitHub workflows.
