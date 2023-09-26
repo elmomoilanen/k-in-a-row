@@ -4,12 +4,15 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
   workflow_call:
 
 jobs:
   check:
-    name: Frontend lint, type check and tests
+    name: Frontend lint, type check and unit tests
     runs-on: ubuntu-latest
     defaults:
       run:
