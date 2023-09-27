@@ -71,7 +71,6 @@ export function getPhrase(winnerPlayer: Player) {
         return phrasesBotWin[getRandomIndex(0, phrasesBotWin.length - 1)];
     } else if (winnerPlayer === Player.P1) {
         return phrasesP1Win[getRandomIndex(0, phrasesP1Win.length - 1)];
-    } else {
-        return phrasesTie[getRandomIndex(0, phrasesTie.length - 1)];
     }
+    return phrasesTie[getRandomIndex(0, phrasesTie.length - 1)];
 }
