@@ -2,25 +2,17 @@
 
 Backend service for the game. Computes the bot player's next move in the game board. This is done by applying the minimax algorithm with alpha-beta pruning.
 
-## Quick build and run ##
+## Development
 
-Following instructions contain the recommended way to start the backend service locally without worrying about Rust installation.
+Run `cargo run` to start the server.
 
-First build an image from the Dockerfile
-
-```bash
-docker build -t k-in-a-row/be:latest .
-```
-
-and after that run the image so that the server becomes available inside a new running container
+By default the server is bound to 0.0.0.0:8080 but during development one may want to modify these values e.g. due to security concerns. Following command shows how to start the server bound to a standard IPv4 loopback address
 
 ```bash
-docker run -p 127.0.0.1:8080:8080 --rm k-in-a-row/be
+ADDR=127.0.0.1 PORT=8080 cargo run
 ```
 
-With the previous command, port 8080 of the container (server's default port) is bound to the same port on 127.0.0.1 of the host machine and is not accessible from the outside.
-
-## Use ##
+In principle, it is easy to add new game boards. A board must have a same number of rows and columns (i.e., a k x k board) and that's about the only strict requirement. Place proper board size parameters in `src/conf.rs` and the new board is ready to be used. Of course, the drawback for larger boards is that the search space for bot player's moves increases exponentially.
 
 Server implements an endpoint `/api/bot/next` that accepts POST requests with a JSON type payload and a URL query string `level=VALUE` with allowed values of *Easy* and *Normal*.
 
@@ -42,18 +34,6 @@ where *next* indicates the board index for the bot's next move. Here indices mus
 
 For more information on the payload requirements, please see the model definitions in `src/models.rs`.
 
-## Development ##
+## Production
 
-Run `cargo run` to start the server.
-
-By default the server is bound to 0.0.0.0:8080 but during development one may want to modify these values. Following command shows how to start the server bound to a different address
-
-```bash
-ADDR=127.0.0.1 PORT=8080 cargo run
-```
-
-In principle, it is easy to add new game boards. A board must have a same number of rows and columns (i.e., a k x k board) and that's about the only strict requirement. Place proper board size parameters in `src/conf.rs` and the new board is ready to be used. Of course, the drawback for larger boards is that the search space for bot player's moves increases exponentially.
-
-## Production ##
-
-`gcp/README.md` gives instructions for deploying to Google Cloud Run.
+Document `gcp/README.md` gives instructions for deploying to Google Cloud Run.
