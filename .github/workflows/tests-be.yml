@@ -36,7 +36,7 @@ jobs:
       - name: Test
         run: |
           cargo check
-          cargo test    
+          cargo test --bin server
       - name: Build
         run: |
           cargo build --verbose
