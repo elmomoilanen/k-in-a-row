@@ -8,6 +8,7 @@ default-run = "server"
 
 [[bin]]
 name = "server"
+bench = false
 
 [profile.dev]
 opt-level = 2
@@ -21,8 +22,15 @@ overflow-checks = false
 opt-level = 2
 
 [dependencies]
-actix-web = "4.3"
-actix-rt = "2.8"
+actix-web = "4.4"
+actix-rt = "2.9"
 actix-cors = "0.6"
-serde = { version = "1.0.175", features = ["derive"] }
+serde = { version = "1.0.188", features = ["derive"] }
 rand = "0.8"
+
+[dev-dependencies]
+criterion = "0.5"
+
+[[bench]]
+name = "bench"
+harness = false
