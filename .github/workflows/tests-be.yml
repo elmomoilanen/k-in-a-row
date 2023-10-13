@@ -11,8 +11,8 @@ on:
   workflow_call:
 
 jobs:
-  check:
-    name: Backend lints, build checks and tests
+  lint:
+    name: Backend lints
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -28,15 +28,37 @@ jobs:
         run: |
           cargo --version --verbose
           rustc --version
-          cargo clippy --version    
+          cargo clippy --version
       - name: Lint
         run: |
           cargo fmt -- --check
-          cargo clippy -- -D warnings        
+          cargo clippy -- -D warnings
+  test:
+    name: Backend tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./be
+    steps:
+      - uses: actions/checkout@v3
+      - name: Update local toolchain
+        run: |
+          rustup update
       - name: Test
         run: |
           cargo check
           cargo test --bin server
+  build:
+    name: Backend build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./be
+    steps:
+      - uses: actions/checkout@v3
+      - name: Update local toolchain
+        run: |
+          rustup update
       - name: Build
         run: |
           cargo build --verbose
