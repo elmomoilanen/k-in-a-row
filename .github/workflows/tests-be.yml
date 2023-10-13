@@ -31,10 +31,12 @@ jobs:
           cargo clippy --version
       - name: Lint
         run: |
+          cargo check
           cargo fmt -- --check
           cargo clippy -- -D warnings
   test:
     name: Backend tests
+    needs: lint
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -46,10 +48,10 @@ jobs:
           rustup update
       - name: Test
         run: |
-          cargo check
           cargo test --bin server
-  build:
+  cargo-build:
     name: Backend build
+    needs: lint
     runs-on: ubuntu-latest
     defaults:
       run:

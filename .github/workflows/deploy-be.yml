@@ -6,11 +6,15 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
-  tests:
+  lint:
+    uses: ./.github/workflows/tests-be.yml
+  test:
+    uses: ./.github/workflows/tests-be.yml
+  cargo-build:
     uses: ./.github/workflows/tests-be.yml
   build:
     name: Build an image and push it to Google Artifact Registry
-    needs: tests
+    needs: [lint, test, cargo-build]
     runs-on: ubuntu-latest
     defaults:
       run:
