@@ -50,7 +50,7 @@ jobs:
           cargo test --bin server
   cargo-build:
     name: Backend build
-    needs: [lint, test]
+    needs: lint
     runs-on: ubuntu-latest
     defaults:
       run:
