@@ -36,7 +36,6 @@ jobs:
           cargo clippy -- -D warnings
   test:
     name: Backend tests
-    needs: lint
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -51,7 +50,7 @@ jobs:
           cargo test --bin server
   cargo-build:
     name: Backend build
-    needs: lint
+    needs: [lint, test]
     runs-on: ubuntu-latest
     defaults:
       run:
