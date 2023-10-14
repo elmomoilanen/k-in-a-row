@@ -1,4 +1,4 @@
-name: build-run-local
+name: build-images
 
 on:
   push:
@@ -7,12 +7,10 @@ on:
   pull_request:
     branches:
       - main
-  workflow_dispatch:
-  workflow_call:
 
 jobs:
-  build-and-run-fe:
-    name: Build and run frontend image
+  build-fe:
+    name: Build frontend image
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -24,20 +22,26 @@ jobs:
       - name: Build image
         run: |
           docker build -t k-in-a-row/fe:latest .
-      - name: Run container
-        run: |
-          docker run --rm k-in-a-row/fe
-  build-and-run-be:
-    name: Build and run backend image
+  build-run-be:
+    name: Build image and start a container from it
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./be
+    env:
+      API_HOST_PORT: 8080
     steps:
       - uses: actions/checkout@v3
+      - name: Install curl
+        run: |
+          sudo apt-get update && sudo apt-get install -y curl
       - name: Build image
         run: |
           docker build -t k-in-a-row/be:latest .
-      - name: Run container
+      # Check that there aren't runtime errors when starting a container
+      - name: Start container
         run: |
-          docker run --rm k-in-a-row/be
+          docker run -d -p 127.0.0.1:$API_HOST_PORT:8080 --rm k-in-a-row/be
+      - name: Wait for container to start
+        run: |
+          ./scripts/poll_next_move.sh $API_HOST_PORT
