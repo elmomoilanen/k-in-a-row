@@ -2,7 +2,8 @@ FROM node:20-alpine as build
 
 WORKDIR /app
 COPY . .
-RUN npm ci && npm run build
+RUN npm ci && ./node_modules/.bin/svelte-kit sync
+RUN npm run build
 
 FROM nginx:1.25-alpine
 
