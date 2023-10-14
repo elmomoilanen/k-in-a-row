@@ -1,0 +1,43 @@
+name: build-run-local
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  build-and-run-fe:
+    name: Build and run frontend image
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./fe
+    env:
+      PUBLIC_API_URL: 'http://localhost:8080'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build image
+        run: |
+          docker build -t k-in-a-row/fe:latest .
+      - name: Run container
+        run: |
+          docker run --rm k-in-a-row/fe
+  build-and-run-be:
+    name: Build and run backend image
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./be
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build image
+        run: |
+          docker build -t k-in-a-row/be:latest .
+      - name: Run container
+        run: |
+          docker run --rm k-in-a-row/be
