@@ -10,20 +10,19 @@ on:
 
 jobs:
   build-fe:
-    name: Build frontend image
+    name: Frontend build image
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./fe
-    env:
-      PUBLIC_API_URL: 'http://localhost:8080'
     steps:
       - uses: actions/checkout@v3
       - name: Build image
         run: |
+          cp .env.example .env
           docker build -t k-in-a-row/fe:latest .
   build-run-be:
-    name: Build image and start a container from it
+    name: Backend build image and start a container
     runs-on: ubuntu-latest
     defaults:
       run:
