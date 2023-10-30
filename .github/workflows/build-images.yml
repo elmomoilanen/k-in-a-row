@@ -19,7 +19,6 @@ jobs:
       - uses: actions/checkout@v3
       - name: Build image
         run: |
-          cp .env.example .env
           docker build -t k-in-a-row/fe:latest .
   build-run-be:
     name: Backend build image and start a container

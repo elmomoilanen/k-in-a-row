@@ -2,6 +2,7 @@ FROM node:20-alpine as build
 
 WORKDIR /app
 COPY . .
+COPY .env.example .env
 RUN npm ci && ./node_modules/.bin/svelte-kit sync
 RUN npm run build
 
