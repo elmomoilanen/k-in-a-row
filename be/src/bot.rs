@@ -578,7 +578,7 @@ mod tests {
 
     #[test]
     fn complete_game_play_5x5_normal() {
-        // Run separately with live board updates: cargo test complete_game_play_5x5_normal -- --nocapture
+        // Run separately with live board updates: cargo test --bin server complete_game_play_5x5_normal -- --nocapture
         play_complete_game(25, false, 0);
     }
 
@@ -618,7 +618,7 @@ mod tests {
     #[test]
     #[ignore]
     fn complete_game_play_10x10_normal() {
-        // How to run: cargo test complete_game_play_10x10_normal -- --nocapture --ignored
+        // How to run: cargo test --bin server complete_game_play_10x10_normal -- --nocapture --ignored
         play_complete_game(100, false, 0);
     }
 
