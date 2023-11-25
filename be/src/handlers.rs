@@ -29,6 +29,9 @@ pub async fn next_move(
         Err(GameInitError::Inconsistent) => {
             return HttpResponse::BadRequest().body("Board state is inconsistent.");
         }
+        Err(GameInitError::CellsToWin) => {
+            return HttpResponse::BadRequest().body("Cells to win value is unaccepted.");
+        }
     };
 
     let bot_next_move = Bot::next_move(game);

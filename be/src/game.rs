@@ -15,6 +15,34 @@ const ONE_TO_WIN_VALUE: i32 = 500;
 const TWO_TO_WIN_VALUE: i32 = 100;
 const OPPONENT_PENALTY_MULTIPLIER: i32 = 3;
 
+/// Type to represent the game parameters and board status.
+///
+/// Use method `new` to initialise a game.
+///
+/// # Examples
+///
+/// Init a 3x3 3-in-a-row game in normal mode
+///
+/// ```
+/// use be::{Board, Game, Level};
+///
+/// let board = Board {
+///     cells: vec![0, 0, 0, 0, 0, 0, 0, 0, 0],
+///     cells_to_win: 3,
+///     p1_mark: 1,
+///     bot_mark: -1,
+///     empty_mark: 0,
+/// };
+///
+/// let game = match Game::new(board, Level::Normal) {
+///     Ok(game) => game,
+///     Err(error) => panic!("Game::new(): {:?}", error),
+/// };
+///
+/// assert_eq!(game.cells.len(), 9);
+/// assert_eq!(game.orig_bot_mark, -1);
+/// ```
+/// Next one would call struct Bot's `next_move` method with this `game` instance.
 pub struct Game {
     pub cells: Vec<i8>,
     pub p1_mark: i8,
@@ -408,7 +436,7 @@ impl Game {
         let window_sum_abs = window_sum.unsigned_abs() as usize;
         let window_thres = window >> 1;
 
-        // Following makes sense if `bot_mark` > 0 and `p1_mark` (opponent) < 0
+        // Following makes sense if `bot_mark` > 0 and `p1_mark` < 0
 
         if window_sum_abs == window && window_sum > 0 {
             WINNER_VALUE
@@ -454,10 +482,18 @@ impl Display for Game {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::conf::*;
 
-    fn init_game(cells: &[i8], p1_mark: i8, bot_mark: i8, empty_mark: i8) -> Game {
+    fn init_game(
+        cells: &[i8],
+        p1_mark: i8,
+        bot_mark: i8,
+        empty_mark: i8,
+        cells_to_win: u8,
+    ) -> Game {
         let board = Board {
             cells: cells.to_vec(),
+            cells_to_win,
             p1_mark,
             bot_mark,
             empty_mark,
@@ -468,7 +504,13 @@ mod tests {
         }
     }
 
-    fn init_5x5_game_literal(cells: &[i8], p1_mark: i8, bot_mark: i8, empty_mark: i8) -> Game {
+    fn init_5x5_game_literal(
+        cells: &[i8],
+        p1_mark: i8,
+        bot_mark: i8,
+        empty_mark: i8,
+        cells_to_win: u8,
+    ) -> Game {
         // Use this e.g. to init an inconsistent game board
         Game {
             cells: cells.to_vec(),
@@ -482,7 +524,7 @@ mod tests {
             board_size: BoardSize::X55,
             max_depth: 7,
             cells_offset: BoardSize::X55 as usize,
-            cells_to_win: 4,
+            cells_to_win: cells_to_win.into(),
         }
     }
 
@@ -490,14 +532,18 @@ mod tests {
     fn board_size_error() {
         let board = Board {
             cells: vec![0; 10],
+            cells_to_win: X33_CELLS_TO_WIN_MIN,
             p1_mark: -1,
             bot_mark: 1,
             empty_mark: 0,
         };
         match Game::new(board, Level::Normal) {
-            Ok(_) => panic!("Game::new() returned Ok."),
+            Ok(_) => panic!("Game::new() returned Ok for size error."),
             Err(GameInitError::Size) => (),
-            Err(error_kind) => panic!("Game::new() returned wrong error type {:?}", error_kind),
+            Err(error_kind) => panic!(
+                "Game::new() returned wrong error type {:?} for size error.",
+                error_kind
+            ),
         }
     }
 
@@ -505,14 +551,18 @@ mod tests {
     fn board_mark_error() {
         let board = Board {
             cells: vec![0, 0, 0, 0, 0, 0, 0, 0, 2],
+            cells_to_win: X33_CELLS_TO_WIN_MIN,
             p1_mark: 1,
             bot_mark: -1,
             empty_mark: 0,
         };
         match Game::new(board, Level::Normal) {
-            Ok(_) => panic!("Game::new() returned Ok."),
+            Ok(_) => panic!("Game::new() returned Ok for marker error."),
             Err(GameInitError::Marks) => (),
-            Err(error_kind) => panic!("Game::new() returned wrong error type {:?}", error_kind),
+            Err(error_kind) => panic!(
+                "Game::new() returned wrong error type {:?} for marker error.",
+                error_kind
+            ),
         }
     }
 
@@ -524,14 +574,39 @@ mod tests {
         for cells in &cells_collections {
             let board = Board {
                 cells: cells.to_vec(),
+                cells_to_win: X33_CELLS_TO_WIN_MAX,
                 p1_mark: 1,
                 bot_mark: -1,
                 empty_mark: 0,
             };
             match Game::new(board, Level::Normal) {
-                Ok(_) => panic!("Game::new() returned Ok."),
+                Ok(_) => panic!("Game::new() returned Ok for inconsistent board."),
                 Err(GameInitError::Inconsistent) => (),
-                Err(error_kind) => panic!("Game::new() returned wrong error type {:?}", error_kind),
+                Err(error_kind) => panic!(
+                    "Game::new() returned wrong error type {:?} for inconsistent board.",
+                    error_kind
+                ),
+            }
+        }
+    }
+
+    #[test]
+    fn board_cells_to_win_error() {
+        // Test all board sizes from 3x3 to 15x15
+        let board_offsets = 3..=15;
+
+        for board_offset in board_offsets {
+            let board = Board {
+                cells: vec![0; board_offset * board_offset],
+                cells_to_win: board_offset as u8 + 1,
+                p1_mark: -1,
+                bot_mark: 1,
+                empty_mark: 0,
+            };
+            match Game::new(board, Level::Normal) {
+                Ok(_) => panic!("Game::new() returned Ok for invalid `cells_to_win` argument."),
+                Err(GameInitError::CellsToWin) => (),
+                Err(error_kind) => panic!("Game::new() returned wrong error type {:?} for invalid `cells_to_win` argument", error_kind),
             }
         }
     }
@@ -539,8 +614,11 @@ mod tests {
     #[test]
     fn init_new_game() {
         let (p1_mark, bot_mark, empty_mark) = (2, 11, 8);
+        let cells_to_win = X33_CELLS_TO_WIN_MIN;
+
         let board = Board {
             cells: vec![8, 8, 11, 11, 8, 8, 2, 8, 2],
+            cells_to_win,
             p1_mark,
             bot_mark,
             empty_mark,
@@ -550,6 +628,7 @@ mod tests {
             Err(error_kind) => panic!("Game::new() returned error {:?}", error_kind),
         };
 
+        // Cell values are expected to be normalized
         let correct_cells = vec![0, 0, 1, 1, 0, 0, -1, 0, -1];
 
         // Test normalized marker values
@@ -562,7 +641,7 @@ mod tests {
         assert_eq!(game.orig_empty_mark, empty_mark);
 
         assert_eq!(game.cells_offset, 3);
-        assert_eq!(game.cells_to_win, 3);
+        assert_eq!(game.cells_to_win, cells_to_win as usize);
         assert_eq!(game.cells, correct_cells);
     }
 
@@ -575,10 +654,11 @@ mod tests {
             [-1, 1, -1, 1, -1, 1, -1, 1, 0],
         ];
         let (p1_mark, bot_mark, empty_mark) = (1, -1, 0);
+        let cells_to_win = X33_CELLS_TO_WIN_MIN;
 
         for cells in &cells_collections {
             let true_empty_count = cells.iter().filter(|&cell| *cell == 0).count();
-            let mut game = init_game(cells, p1_mark, bot_mark, empty_mark);
+            let mut game = init_game(cells, p1_mark, bot_mark, empty_mark, cells_to_win);
 
             let indices = game.empty_cell_indices();
 
@@ -600,7 +680,15 @@ mod tests {
             ],
         ];
         let (p1_mark, bot_mark, empty_mark) = (-1, 1, 0);
-        let mut game = init_game(&cells_collections[0], p1_mark, bot_mark, empty_mark);
+        let cells_to_win = X55_CELLS_TO_WIN_MIN;
+
+        let mut game = init_game(
+            &cells_collections[0],
+            p1_mark,
+            bot_mark,
+            empty_mark,
+            cells_to_win,
+        );
 
         let indices = game.empty_cell_indices();
         assert!(
@@ -613,7 +701,13 @@ mod tests {
         // There are 15 adjacent empty cells for this board situation
         assert_eq!(indices.len(), 15);
 
-        game = init_game(&cells_collections[1], p1_mark, bot_mark, empty_mark);
+        game = init_game(
+            &cells_collections[1],
+            p1_mark,
+            bot_mark,
+            empty_mark,
+            cells_to_win,
+        );
 
         let indices = game.empty_cell_indices();
         assert!(
@@ -633,8 +727,9 @@ mod tests {
             1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1,
         ];
         let (p1_mark, bot_mark, empty_mark) = (1, -1, 0);
+        let cells_to_win = X55_CELLS_TO_WIN_MIN;
         // Board (cells) is now inconsistent and cannot thus call Game::new directly
-        let game = init_5x5_game_literal(&cells, p1_mark, bot_mark, empty_mark);
+        let game = init_5x5_game_literal(&cells, p1_mark, bot_mark, empty_mark, cells_to_win);
 
         // For an index test whether any of its nearby cells is occupied (has mark 1)
         let test_indices = [4, 6, 19, 21];
@@ -675,6 +770,7 @@ mod tests {
             [0, 0, 0, 0, 0, 0, 0, 1, 0],
         ];
         let (p1_mark, bot_mark, empty_mark) = (1, -1, 0);
+        let cells_to_win = X33_CELLS_TO_WIN_MIN;
         let correct_adjacent_count = [8, 3, 5, 5, 5];
 
         let it = cells_collections
@@ -683,7 +779,7 @@ mod tests {
             .zip(correct_adjacent_count);
 
         for ((j, cells), corr_adj_count) in it {
-            let game = init_game(cells, p1_mark, bot_mark, empty_mark);
+            let game = init_game(cells, p1_mark, bot_mark, empty_mark, cells_to_win);
             let adj_res = compute_adjacent_cell_occupied_count_for_empty_cells(&game);
             assert_eq!(adj_res, corr_adj_count, "collection {j}");
         }
@@ -706,6 +802,7 @@ mod tests {
             ],
         ];
         let (p1_mark, bot_mark, empty_mark) = (1, -1, 0);
+        let cells_to_win = X55_CELLS_TO_WIN_MIN;
         let correct_adjacent_count = [3, 8, 8, 5];
 
         let it = cells_collections
@@ -714,7 +811,7 @@ mod tests {
             .zip(correct_adjacent_count);
 
         for ((j, cells), corr_adj_count) in it {
-            let game = init_5x5_game_literal(cells, p1_mark, bot_mark, empty_mark);
+            let game = init_5x5_game_literal(cells, p1_mark, bot_mark, empty_mark, cells_to_win);
             let adj_res = compute_adjacent_cell_occupied_count_for_empty_cells(&game);
             assert_eq!(adj_res, corr_adj_count, "collection {j}");
         }
@@ -723,6 +820,7 @@ mod tests {
     #[test]
     fn row_winner_3x3() {
         let (p1_mark, bot_mark, empty_mark) = (1, -1, 0);
+        let cells_to_win = X33_CELLS_TO_WIN_MIN;
 
         let cells_collections: [[i8; 9]; 4] = [
             [-1, -1, 0, 1, 1, 1, 0, 0, 0],
@@ -732,7 +830,7 @@ mod tests {
         ];
 
         for cells in &cells_collections {
-            let game = init_game(cells, p1_mark, bot_mark, empty_mark);
+            let game = init_game(cells, p1_mark, bot_mark, empty_mark, cells_to_win);
             // Notice that `game.p1_mark` must be used on the right side (due to marker normalization)
             assert_eq!(game.winner_in_row(), game.p1_mark);
         }
@@ -741,6 +839,7 @@ mod tests {
     #[test]
     fn col_winner_3x3() {
         let (p1_mark, bot_mark, empty_mark) = (1, -1, 0);
+        let cells_to_win = X33_CELLS_TO_WIN_MIN;
 
         let cells_collections: [[i8; 9]; 4] = [
             [-1, 1, 1, -1, 0, 0, -1, 0, 1],
@@ -750,7 +849,7 @@ mod tests {
         ];
 
         for cells in &cells_collections {
-            let game = init_game(cells, p1_mark, bot_mark, empty_mark);
+            let game = init_game(cells, p1_mark, bot_mark, empty_mark, cells_to_win);
             assert_eq!(game.winner_in_col(), game.bot_mark);
         }
     }
@@ -758,6 +857,7 @@ mod tests {
     #[test]
     fn diag_winner_3x3() {
         let (p1_mark, bot_mark, empty_mark) = (1, -1, 0);
+        let cells_to_win = X33_CELLS_TO_WIN_MIN;
 
         let cells_collections: [[i8; 9]; 4] = [
             [1, -1, -1, 0, 1, 0, 0, -1, 1],
@@ -768,7 +868,7 @@ mod tests {
         ];
 
         for (j, cells) in cells_collections.iter().enumerate() {
-            let game = init_game(cells, p1_mark, bot_mark, empty_mark);
+            let game = init_game(cells, p1_mark, bot_mark, empty_mark, cells_to_win);
             if j < 2 {
                 assert_eq!(game.winner_in_diag(), game.p1_mark);
             } else {
@@ -780,6 +880,7 @@ mod tests {
     #[test]
     fn row_winner_5x5() {
         let (p1_mark, bot_mark, empty_mark) = (1, -1, 0);
+        let cells_to_win = X55_CELLS_TO_WIN_MIN;
 
         let cells_collections: [[i8; 25]; 5] = [
             [
@@ -800,7 +901,7 @@ mod tests {
         ];
 
         for cells in &cells_collections {
-            let game = init_game(cells, p1_mark, bot_mark, empty_mark);
+            let game = init_game(cells, p1_mark, bot_mark, empty_mark, cells_to_win);
             // Notice that `game.p1_mark` must be used on the right side (due to marker normalization)
             assert_eq!(game.winner_in_row(), game.p1_mark);
         }
@@ -809,6 +910,7 @@ mod tests {
     #[test]
     fn col_winner_5x5() {
         let (p1_mark, bot_mark, empty_mark) = (1, -1, 0);
+        let cells_to_win = X55_CELLS_TO_WIN_MIN;
 
         let cells_collections: [[i8; 25]; 5] = [
             [
@@ -829,7 +931,7 @@ mod tests {
         ];
 
         for cells in &cells_collections {
-            let game = init_game(cells, p1_mark, bot_mark, empty_mark);
+            let game = init_game(cells, p1_mark, bot_mark, empty_mark, cells_to_win);
             assert_eq!(game.winner_in_col(), game.p1_mark);
         }
     }
@@ -837,6 +939,7 @@ mod tests {
     #[test]
     fn diag_winner_5x5() {
         let (p1_mark, bot_mark, empty_mark) = (1, -1, 0);
+        let cells_to_win = X55_CELLS_TO_WIN_MIN;
 
         let cells_collections: [[i8; 25]; 4] = [
             [
@@ -854,7 +957,7 @@ mod tests {
         ];
 
         for cells in &cells_collections {
-            let game = init_game(cells, p1_mark, bot_mark, empty_mark);
+            let game = init_game(cells, p1_mark, bot_mark, empty_mark, cells_to_win);
             assert_eq!(game.winner_in_diag(), game.p1_mark);
         }
     }
@@ -862,6 +965,7 @@ mod tests {
     #[test]
     fn antidiag_winner_5x5() {
         let (p1_mark, bot_mark, empty_mark) = (1, -1, 0);
+        let cells_to_win = X55_CELLS_TO_WIN_MIN;
 
         let cells_collections: [[i8; 25]; 4] = [
             [
@@ -879,7 +983,7 @@ mod tests {
         ];
 
         for cells in &cells_collections {
-            let game = init_game(cells, p1_mark, bot_mark, empty_mark);
+            let game = init_game(cells, p1_mark, bot_mark, empty_mark, cells_to_win);
             assert_eq!(game.winner_in_antidiag(), game.p1_mark);
         }
     }
@@ -890,8 +994,9 @@ mod tests {
             0, 0, 1, 1, 1, 1, -1, 1, 0, 0, 1, -1, -1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0,
         ];
         let (p1_mark, bot_mark, empty_mark) = (-1, 1, 0);
+        let cells_to_win = X55_CELLS_TO_WIN_MIN;
         // Board (cells) is now inconsistent and cannot thus call Game::new
-        let game = init_5x5_game_literal(&cells, p1_mark, bot_mark, empty_mark);
+        let game = init_5x5_game_literal(&cells, p1_mark, bot_mark, empty_mark, cells_to_win);
         // First and last row bring value (cells' sum * value)
         // First row contribute for both cases, hence the extra "2 *" after + sign
         // Opponent's marks don't cause any penalty in this case
@@ -906,7 +1011,9 @@ mod tests {
             0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0,
         ];
         let (p1_mark, bot_mark, empty_mark) = (-1, 1, 0);
-        let game = init_5x5_game_literal(&cells, p1_mark, bot_mark, empty_mark);
+        let cells_to_win = X55_CELLS_TO_WIN_MIN;
+
+        let game = init_5x5_game_literal(&cells, p1_mark, bot_mark, empty_mark, cells_to_win);
         // 1st, 2nd, 3rd and 5th column bring value
         // 3 ONE_TO_WIN and 5 TWO_TO_WIN cases in total
         let correct_value = 3 * 3 * ONE_TO_WIN_VALUE + 5 * 2 * TWO_TO_WIN_VALUE;
@@ -920,7 +1027,9 @@ mod tests {
             0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1,
         ];
         let (p1_mark, bot_mark, empty_mark) = (-1, 1, 0);
-        let game = init_5x5_game_literal(&cells, p1_mark, bot_mark, empty_mark);
+        let cells_to_win = X55_CELLS_TO_WIN_MIN;
+
+        let game = init_5x5_game_literal(&cells, p1_mark, bot_mark, empty_mark, cells_to_win);
         // 2 ONE_TO_WIN and 2 TWO_TO_WIN cases in total
         let correct_value = 2 * 3 * ONE_TO_WIN_VALUE + 2 * 2 * TWO_TO_WIN_VALUE;
 
@@ -933,7 +1042,9 @@ mod tests {
             0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
         ];
         let (p1_mark, bot_mark, empty_mark) = (-1, 1, 0);
-        let game = init_5x5_game_literal(&cells, p1_mark, bot_mark, empty_mark);
+        let cells_to_win = X55_CELLS_TO_WIN_MIN;
+
+        let game = init_5x5_game_literal(&cells, p1_mark, bot_mark, empty_mark, cells_to_win);
         // 1 ONE_TO_WIN and 3 TWO_TO_WIN cases in total
         let correct_value = 3 * ONE_TO_WIN_VALUE + 3 * 2 * TWO_TO_WIN_VALUE;
 
@@ -946,7 +1057,9 @@ mod tests {
             0, -1, -1, -1, 0, 0, 0, 0, 0, 0, -1, 1, -1, -1, 0, 0, 0, 0, 0, 0, -1, 0, -1, 0, 1,
         ];
         let (p1_mark, bot_mark, empty_mark) = (1, -1, 0);
-        let game = init_5x5_game_literal(&cells, p1_mark, bot_mark, empty_mark);
+        let cells_to_win = X55_CELLS_TO_WIN_MIN;
+
+        let game = init_5x5_game_literal(&cells, p1_mark, bot_mark, empty_mark, cells_to_win);
 
         let correct_value_first_row = 2 * -3 * ONE_TO_WIN_VALUE * OPPONENT_PENALTY_MULTIPLIER;
         let correct_value_last_row = 1 * -2 * TWO_TO_WIN_VALUE * OPPONENT_PENALTY_MULTIPLIER;

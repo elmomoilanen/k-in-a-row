@@ -19,10 +19,7 @@
     </p>
     <p>
         Bot player uses a variation of the Minimax algorithm with alpha-beta pruning for its game
-        playing strategy. For normal level games, a human player is expected to achieve a tie at
-        best if playing optimally but there might be exceptions (search depths of game trees are
-        below their maximal theoretical values). Furthermore, at least the Freestyle gomoku allows a
-        winning strategy for the starting player.
+        playing strategy.
     </p>
     <button on:click={toggleShowGameInfo} id="info-close">Close</button>
 </div>

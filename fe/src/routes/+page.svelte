@@ -24,15 +24,15 @@
     let showGameInfo = false;
     let apiErrorOccurred = false;
 
-    function setGameType(newGame: Game) {
+    function setGameType(newGame: Game): void {
         currentGameType = newGame;
     }
 
-    function setGameLevel(newGameLevel: MaybeGameLevel) {
+    function setGameLevel(newGameLevel: MaybeGameLevel): void {
         currentGameLevel = newGameLevel;
     }
 
-    function endGame(gameWinner: Player) {
+    function endGame(gameWinner: Player): void {
         previousGameType = currentGameType;
         previousGameLevel = currentGameLevel;
         currentGameType = undefined;
@@ -42,7 +42,7 @@
         toggleStartGame();
     }
 
-    function resetGame() {
+    function resetGame(): void {
         currentGameType = previousGameType;
         currentGameLevel = previousGameLevel;
         previousGameType = undefined;
@@ -52,7 +52,7 @@
         toggleStartGame();
     }
 
-    function backToStart() {
+    function backToStart(): void {
         currentGameType = undefined;
         currentGameLevel = undefined;
         previousGameType = undefined;
@@ -61,15 +61,23 @@
         showGameEndOptions = false;
     }
 
-    function toggleStartGame() {
+    function toggleStartGame(): void {
         startGame = !startGame;
     }
 
-    function toggleShowGameInfo() {
+    function toggleShowGameInfo(): void {
         showGameInfo = !showGameInfo;
     }
 
-    onMount(async () => {
+    function isCellsToWinWithinLimits(gameType: MaybeGame): boolean {
+        return (
+            !!gameType &&
+            gameType.cellsToWin >= gameType.cellsToWinMin &&
+            gameType.cellsToWin <= gameType.cellsToWinMax
+        );
+    }
+
+    onMount(async (): Promise<void> => {
         const url = `${PUBLIC_API_URL}/api/hello`;
         let resp;
         try {
@@ -94,7 +102,7 @@
     <Errors message={"Failed to make initial connection to the backend API."} />
 {/if}
 
-{#if currentGameType && currentGameLevel && startGame && backendConnected}
+{#if currentGameType && isCellsToWinWithinLimits(currentGameType) && currentGameLevel && startGame && backendConnected}
     <Board
         gameType={currentGameType}
         gameLevel={currentGameLevel}
@@ -102,7 +110,8 @@
         endGameFn={endGame}
         goHomeFn={resetGame}
     />
-{:else if currentGameType && currentGameLevel && startGame}
+{:else if currentGameType && isCellsToWinWithinLimits(currentGameType) && currentGameLevel && startGame}
+    <!-- Wait backend connection -->
     <Spinner />
 {:else if showGameEndOptions}
     <div class="open-page" id="game-end-view">
@@ -133,7 +142,7 @@
                 {setGameType}
                 {setGameLevel}
                 {toggleStartGame}
-                selectedGameType={currentGameType}
+                selectedGame={currentGameType}
                 selectedGameLevel={currentGameLevel}
             />
             <div

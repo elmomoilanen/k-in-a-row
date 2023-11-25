@@ -108,7 +108,7 @@ test("detect a winner in the antidiagonal of a 3x3 board", () => {
     expect(result.winCells).toEqual([2, 4, 6]);
 });
 
-test("detect a winner in the 3rd row of a 6x6 board", () => {
+test("detect a winner in the 3rd row of a 6x6 5-in-a-row game", () => {
     const board = createBoard(
         [
             Player.Bot,
@@ -158,7 +158,7 @@ test("detect a winner in the 3rd row of a 6x6 board", () => {
     expect(result.winCells).toEqual([13, 14, 15, 16, 17]);
 });
 
-test("detect a winner in the 5rd column of a 6x6 board", () => {
+test("detect a winner in the 5rd column of a 6x6 5-in-a-row game", () => {
     const board = createBoard(
         [
             Player.Bot,
@@ -208,7 +208,7 @@ test("detect a winner in the 5rd column of a 6x6 board", () => {
     expect(result.winCells).toEqual([10, 16, 22, 28, 34]);
 });
 
-test("detect a winner in the diagonal of a 6x6 board", () => {
+test("detect a winner in the diagonal of a 6x6 board 5-in-a-row game", () => {
     const board = createBoard(
         [
             Player.Empty,
@@ -258,7 +258,7 @@ test("detect a winner in the diagonal of a 6x6 board", () => {
     expect(result.winCells).toEqual([7, 14, 21, 28, 35]);
 });
 
-test("detect a winner in the antidiagonal of a 6x6 board", () => {
+test("detect a winner in the antidiagonal of a 6x6 board 5-in-a-row game", () => {
     const board = createBoard(
         [
             Player.Empty,

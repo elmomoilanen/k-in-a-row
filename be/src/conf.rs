@@ -17,7 +17,7 @@ pub enum BoardSize {
     X1515 = 15,
 }
 
-// Do not define boards over this size
+// Do not define board sizes over this value
 const MAX_BOARD_SIZE: u8 = u8::MAX;
 
 const BOARD_SIZES: [(u8, BoardSize); 13] = [
@@ -36,20 +36,33 @@ const BOARD_SIZES: [(u8, BoardSize); 13] = [
     (225, BoardSize::X1515),
 ];
 
-// Must satisfy: to_win <= offset (for k x k board, offset is k)
-const X33_CELLS_TO_WIN: u8 = 3; // draw at best for optimal play
-const X44_CELLS_TO_WIN: u8 = 4; // draw
-const X55_CELLS_TO_WIN: u8 = 4; // draw
-const X66_CELLS_TO_WIN: u8 = 5; // draw
-const X77_CELLS_TO_WIN: u8 = 5; // draw
-const X88_CELLS_TO_WIN: u8 = 5; // draw
-const X99_CELLS_TO_WIN: u8 = 6;
-const X1010_CELLS_TO_WIN: u8 = 5;
-const X1111_CELLS_TO_WIN: u8 = 5;
-const X1212_CELLS_TO_WIN: u8 = 5;
-const X1313_CELLS_TO_WIN: u8 = 6;
-const X1414_CELLS_TO_WIN: u8 = 7;
-const X1515_CELLS_TO_WIN: u8 = 5; // win
+pub const X33_CELLS_TO_WIN_MIN: u8 = 3;
+pub const X44_CELLS_TO_WIN_MIN: u8 = 4;
+pub const X55_CELLS_TO_WIN_MIN: u8 = 4;
+pub const X66_CELLS_TO_WIN_MIN: u8 = 4;
+pub const X77_CELLS_TO_WIN_MIN: u8 = 4;
+pub const X88_CELLS_TO_WIN_MIN: u8 = 4;
+pub const X99_CELLS_TO_WIN_MIN: u8 = 4;
+pub const X1010_CELLS_TO_WIN_MIN: u8 = 5;
+pub const X1111_CELLS_TO_WIN_MIN: u8 = 5;
+pub const X1212_CELLS_TO_WIN_MIN: u8 = 5;
+pub const X1313_CELLS_TO_WIN_MIN: u8 = 5;
+pub const X1414_CELLS_TO_WIN_MIN: u8 = 5;
+pub const X1515_CELLS_TO_WIN_MIN: u8 = 5;
+// Max value must be less than or equal to offset (for a k x k board, offset is k)
+pub const X33_CELLS_TO_WIN_MAX: u8 = 3;
+pub const X44_CELLS_TO_WIN_MAX: u8 = 4;
+pub const X55_CELLS_TO_WIN_MAX: u8 = 5;
+pub const X66_CELLS_TO_WIN_MAX: u8 = 6;
+pub const X77_CELLS_TO_WIN_MAX: u8 = 7;
+pub const X88_CELLS_TO_WIN_MAX: u8 = 8;
+pub const X99_CELLS_TO_WIN_MAX: u8 = 9;
+pub const X1010_CELLS_TO_WIN_MAX: u8 = 10;
+pub const X1111_CELLS_TO_WIN_MAX: u8 = 10;
+pub const X1212_CELLS_TO_WIN_MAX: u8 = 10;
+pub const X1313_CELLS_TO_WIN_MAX: u8 = 10;
+pub const X1414_CELLS_TO_WIN_MAX: u8 = 10;
+pub const X1515_CELLS_TO_WIN_MAX: u8 = 10;
 
 const X33_MAX_DEPTH: u8 = 9;
 const X44_MAX_DEPTH: u8 = 7;
@@ -57,7 +70,7 @@ const X55_MAX_DEPTH: u8 = 6;
 const X66_MAX_DEPTH: u8 = 5;
 const X77_MAX_DEPTH: u8 = 4;
 const X88_MAX_DEPTH: u8 = 4;
-const X99_MAX_DEPTH: u8 = 3;
+const X99_MAX_DEPTH: u8 = 4;
 const X1010_MAX_DEPTH: u8 = 3;
 const X1111_MAX_DEPTH: u8 = 3;
 const X1212_MAX_DEPTH: u8 = 3;
@@ -66,12 +79,12 @@ const X1414_MAX_DEPTH: u8 = 3;
 const X1515_MAX_DEPTH: u8 = 3;
 
 const X33_EASY_MAX_DEPTH: u8 = 1;
-const X44_EASY_MAX_DEPTH: u8 = 1;
-const X55_EASY_MAX_DEPTH: u8 = 1;
-const X66_EASY_MAX_DEPTH: u8 = 2;
-const X77_EASY_MAX_DEPTH: u8 = 2;
-const X88_EASY_MAX_DEPTH: u8 = 2;
-const X99_EASY_MAX_DEPTH: u8 = 2;
+const X44_EASY_MAX_DEPTH: u8 = 2;
+const X55_EASY_MAX_DEPTH: u8 = 3;
+const X66_EASY_MAX_DEPTH: u8 = 3;
+const X77_EASY_MAX_DEPTH: u8 = 3;
+const X88_EASY_MAX_DEPTH: u8 = 3;
+const X99_EASY_MAX_DEPTH: u8 = 3;
 const X1010_EASY_MAX_DEPTH: u8 = 2;
 const X1111_EASY_MAX_DEPTH: u8 = 2;
 const X1212_EASY_MAX_DEPTH: u8 = 2;
@@ -91,6 +104,7 @@ pub enum GameInitError {
     Size,
     Marks,
     Inconsistent,
+    CellsToWin,
 }
 
 impl BoardParams {
@@ -105,50 +119,119 @@ impl BoardParams {
 
         for &(cells_count, board_size) in BOARD_SIZES.iter() {
             if cells_total_count == cells_count {
-                return Ok(Self::init(board_size, level));
+                if let Ok(board_params) = Self::init(board_size, level, board.cells_to_win) {
+                    return Ok(board_params);
+                } else {
+                    return Err(GameInitError::CellsToWin);
+                }
             }
         }
         Err(GameInitError::Size)
     }
 
-    fn init(board_size: BoardSize, level: Level) -> Self {
+    fn init(board_size: BoardSize, level: Level, cells_to_win: u8) -> Result<Self, GameInitError> {
         let offset = board_size as usize;
 
-        let (to_win, max_depth) = match (board_size, level) {
-            (BoardSize::X33, Level::Easy) => (X33_CELLS_TO_WIN, X33_EASY_MAX_DEPTH),
-            (BoardSize::X33, Level::Normal) => (X33_CELLS_TO_WIN, X33_MAX_DEPTH),
-            (BoardSize::X44, Level::Easy) => (X44_CELLS_TO_WIN, X44_EASY_MAX_DEPTH),
-            (BoardSize::X44, Level::Normal) => (X44_CELLS_TO_WIN, X44_MAX_DEPTH),
-            (BoardSize::X55, Level::Easy) => (X55_CELLS_TO_WIN, X55_EASY_MAX_DEPTH),
-            (BoardSize::X55, Level::Normal) => (X55_CELLS_TO_WIN, X55_MAX_DEPTH),
-            (BoardSize::X66, Level::Easy) => (X66_CELLS_TO_WIN, X66_EASY_MAX_DEPTH),
-            (BoardSize::X66, Level::Normal) => (X66_CELLS_TO_WIN, X66_MAX_DEPTH),
-            (BoardSize::X77, Level::Easy) => (X77_CELLS_TO_WIN, X77_EASY_MAX_DEPTH),
-            (BoardSize::X77, Level::Normal) => (X77_CELLS_TO_WIN, X77_MAX_DEPTH),
-            (BoardSize::X88, Level::Easy) => (X88_CELLS_TO_WIN, X88_EASY_MAX_DEPTH),
-            (BoardSize::X88, Level::Normal) => (X88_CELLS_TO_WIN, X88_MAX_DEPTH),
-            (BoardSize::X99, Level::Easy) => (X99_CELLS_TO_WIN, X99_EASY_MAX_DEPTH),
-            (BoardSize::X99, Level::Normal) => (X99_CELLS_TO_WIN, X99_MAX_DEPTH),
-            (BoardSize::X1010, Level::Easy) => (X1010_CELLS_TO_WIN, X1010_EASY_MAX_DEPTH),
-            (BoardSize::X1010, Level::Normal) => (X1010_CELLS_TO_WIN, X1010_MAX_DEPTH),
-            (BoardSize::X1111, Level::Easy) => (X1111_CELLS_TO_WIN, X1111_EASY_MAX_DEPTH),
-            (BoardSize::X1111, Level::Normal) => (X1111_CELLS_TO_WIN, X1111_MAX_DEPTH),
-            (BoardSize::X1212, Level::Easy) => (X1212_CELLS_TO_WIN, X1212_EASY_MAX_DEPTH),
-            (BoardSize::X1212, Level::Normal) => (X1212_CELLS_TO_WIN, X1212_MAX_DEPTH),
-            (BoardSize::X1313, Level::Easy) => (X1313_CELLS_TO_WIN, X1313_EASY_MAX_DEPTH),
-            (BoardSize::X1313, Level::Normal) => (X1313_CELLS_TO_WIN, X1313_MAX_DEPTH),
-            (BoardSize::X1414, Level::Easy) => (X1414_CELLS_TO_WIN, X1414_EASY_MAX_DEPTH),
-            (BoardSize::X1414, Level::Normal) => (X1414_CELLS_TO_WIN, X1414_MAX_DEPTH),
-            (BoardSize::X1515, Level::Easy) => (X1515_CELLS_TO_WIN, X1515_EASY_MAX_DEPTH),
-            (BoardSize::X1515, Level::Normal) => (X1515_CELLS_TO_WIN, X1515_MAX_DEPTH),
+        let (to_win, max_depth) = match (board_size, level, cells_to_win) {
+            (BoardSize::X33, Level::Easy, (X33_CELLS_TO_WIN_MIN..=X33_CELLS_TO_WIN_MAX)) => {
+                (cells_to_win, X33_EASY_MAX_DEPTH)
+            }
+            (BoardSize::X33, Level::Normal, (X33_CELLS_TO_WIN_MIN..=X33_CELLS_TO_WIN_MAX)) => {
+                (cells_to_win, X33_MAX_DEPTH)
+            }
+            (BoardSize::X44, Level::Easy, (X44_CELLS_TO_WIN_MIN..=X44_CELLS_TO_WIN_MAX)) => {
+                (cells_to_win, X44_EASY_MAX_DEPTH)
+            }
+            (BoardSize::X44, Level::Normal, (X44_CELLS_TO_WIN_MIN..=X44_CELLS_TO_WIN_MAX)) => {
+                (cells_to_win, X44_MAX_DEPTH)
+            }
+            (BoardSize::X55, Level::Easy, (X55_CELLS_TO_WIN_MIN..=X55_CELLS_TO_WIN_MAX)) => {
+                (cells_to_win, X55_EASY_MAX_DEPTH)
+            }
+            (BoardSize::X55, Level::Normal, (X55_CELLS_TO_WIN_MIN..=X55_CELLS_TO_WIN_MAX)) => {
+                (cells_to_win, X55_MAX_DEPTH)
+            }
+            (BoardSize::X66, Level::Easy, (X66_CELLS_TO_WIN_MIN..=X66_CELLS_TO_WIN_MAX)) => {
+                (cells_to_win, X66_EASY_MAX_DEPTH)
+            }
+            (BoardSize::X66, Level::Normal, (X66_CELLS_TO_WIN_MIN..=X66_CELLS_TO_WIN_MAX)) => {
+                (cells_to_win, X66_MAX_DEPTH)
+            }
+            (BoardSize::X77, Level::Easy, (X77_CELLS_TO_WIN_MIN..=X77_CELLS_TO_WIN_MAX)) => {
+                (cells_to_win, X77_EASY_MAX_DEPTH)
+            }
+            (BoardSize::X77, Level::Normal, (X77_CELLS_TO_WIN_MIN..=X77_CELLS_TO_WIN_MAX)) => {
+                (cells_to_win, X77_MAX_DEPTH)
+            }
+            (BoardSize::X88, Level::Easy, (X88_CELLS_TO_WIN_MIN..=X88_CELLS_TO_WIN_MAX)) => {
+                (cells_to_win, X88_EASY_MAX_DEPTH)
+            }
+            (BoardSize::X88, Level::Normal, (X88_CELLS_TO_WIN_MIN..=X88_CELLS_TO_WIN_MAX)) => {
+                (cells_to_win, X88_MAX_DEPTH)
+            }
+            (BoardSize::X99, Level::Easy, (X99_CELLS_TO_WIN_MIN..=X99_CELLS_TO_WIN_MAX)) => {
+                (cells_to_win, X99_EASY_MAX_DEPTH)
+            }
+            (BoardSize::X99, Level::Normal, (X99_CELLS_TO_WIN_MIN..=X99_CELLS_TO_WIN_MAX)) => {
+                (cells_to_win, X99_MAX_DEPTH)
+            }
+            (BoardSize::X1010, Level::Easy, (X1010_CELLS_TO_WIN_MIN..=X1010_CELLS_TO_WIN_MAX)) => {
+                (cells_to_win, X1010_EASY_MAX_DEPTH)
+            }
+            (
+                BoardSize::X1010,
+                Level::Normal,
+                (X1010_CELLS_TO_WIN_MIN..=X1010_CELLS_TO_WIN_MAX),
+            ) => (cells_to_win, X1010_MAX_DEPTH),
+            (BoardSize::X1111, Level::Easy, (X1111_CELLS_TO_WIN_MIN..=X1111_CELLS_TO_WIN_MAX)) => {
+                (cells_to_win, X1111_EASY_MAX_DEPTH)
+            }
+            (
+                BoardSize::X1111,
+                Level::Normal,
+                (X1111_CELLS_TO_WIN_MIN..=X1111_CELLS_TO_WIN_MAX),
+            ) => (cells_to_win, X1111_MAX_DEPTH),
+            (BoardSize::X1212, Level::Easy, (X1212_CELLS_TO_WIN_MIN..=X1212_CELLS_TO_WIN_MAX)) => {
+                (cells_to_win, X1212_EASY_MAX_DEPTH)
+            }
+            (
+                BoardSize::X1212,
+                Level::Normal,
+                (X1212_CELLS_TO_WIN_MIN..=X1212_CELLS_TO_WIN_MAX),
+            ) => (cells_to_win, X1212_MAX_DEPTH),
+            (BoardSize::X1313, Level::Easy, (X1313_CELLS_TO_WIN_MIN..=X1313_CELLS_TO_WIN_MAX)) => {
+                (cells_to_win, X1313_EASY_MAX_DEPTH)
+            }
+            (
+                BoardSize::X1313,
+                Level::Normal,
+                (X1313_CELLS_TO_WIN_MIN..=X1313_CELLS_TO_WIN_MAX),
+            ) => (cells_to_win, X1313_MAX_DEPTH),
+            (BoardSize::X1414, Level::Easy, (X1414_CELLS_TO_WIN_MIN..=X1414_CELLS_TO_WIN_MAX)) => {
+                (cells_to_win, X1414_EASY_MAX_DEPTH)
+            }
+            (
+                BoardSize::X1414,
+                Level::Normal,
+                (X1414_CELLS_TO_WIN_MIN..=X1414_CELLS_TO_WIN_MAX),
+            ) => (cells_to_win, X1414_MAX_DEPTH),
+            (BoardSize::X1515, Level::Easy, (X1515_CELLS_TO_WIN_MIN..=X1515_CELLS_TO_WIN_MAX)) => {
+                (cells_to_win, X1515_EASY_MAX_DEPTH)
+            }
+            (
+                BoardSize::X1515,
+                Level::Normal,
+                (X1515_CELLS_TO_WIN_MIN..=X1515_CELLS_TO_WIN_MAX),
+            ) => (cells_to_win, X1515_MAX_DEPTH),
+            _ => return Err(GameInitError::CellsToWin),
         };
 
-        BoardParams {
+        Ok(BoardParams {
             size: board_size,
             offset,
             to_win: to_win as usize,
             max_depth: max_depth as usize,
-        }
+        })
     }
 
     fn board_inconsistent(board: &Board) -> Result<(), GameInitError> {

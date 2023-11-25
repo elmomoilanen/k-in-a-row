@@ -6,7 +6,7 @@ Backend service for the game. Computes the bot player's next move in the game bo
 
 Run `cargo run` to start the server.
 
-By default the server is bound to 0.0.0.0:8080 but during development one may want to modify these values e.g. due to security concerns. Following command shows how to start the server bound to a standard IPv4 loopback address
+By default the server is bound to 0.0.0.0:8080 but this can be modified. Following command shows how to start the server bound to a standard IPv4 loopback address
 
 ```bash
 ADDR=127.0.0.1 PORT=8080 cargo run

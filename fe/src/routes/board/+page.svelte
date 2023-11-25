@@ -10,7 +10,14 @@
     import { PUBLIC_API_URL } from "$env/static/public";
 
     // Default value is only for prerendering, otherwise always pass the correct game type as props
-    export let gameType: Game = { cellsTotal: 9, cellsToWin: 3, boardSize: "3x3", gameKey: "x33" };
+    export let gameType: Game = {
+        cellsTotal: 9,
+        cellsToWin: 3,
+        cellsToWinMin: 3,
+        cellsToWinMax: 3,
+        boardSize: "3x3",
+        gameKey: "x33"
+    };
     export let gameLevel: GameLevel;
     export let currentPlayer: Player;
     export let endGameFn: (winner: Player) => void;
@@ -20,7 +27,7 @@
     const O_MARK = "o-symbol";
     const EMPTY_MARK = "";
     const HIGHLIGHT_MIN_BOARD_SIZE = 100;
-    const HIGHLIGHT_BOT_MOVE_MS = 500;
+    const HIGHLIGHT_BOT_MOVE_MS = 1000;
     const WAIT_AFTER_END_BEFORE_DESTROY_BOARD_MS = 2500;
     const SHOW_P1_START_NOTIFICATION_MS = 1000;
     const BE_REQUESTS_MAX_TRIES = 3;
@@ -83,6 +90,7 @@
                 },
                 body: JSON.stringify({
                     cells: cells.map((cell) => cell.value),
+                    cells_to_win: gameType.cellsToWin,
                     p1_mark: Player.P1,
                     bot_mark: Player.Bot,
                     empty_mark: Player.Empty
