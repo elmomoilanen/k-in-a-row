@@ -3,7 +3,7 @@
 [![main fe](https://github.com/elmomoilanen/k-in-a-row/actions/workflows/tests-fe.yml/badge.svg)](https://github.com/elmomoilanen/k-in-a-row/actions/workflows/tests-fe.yml)
 [![main be](https://github.com/elmomoilanen/k-in-a-row/actions/workflows/tests-be.yml/badge.svg)](https://github.com/elmomoilanen/k-in-a-row/actions/workflows/tests-be.yml)
 
-Play k-in-a-row game against a bot player. You can choose from various board sizes and winning conditions, starting from a 3x3 board where the objective is to get 3 in a row, up to a 15x15 board where the target is to get 5 in a row.
+Play k-in-a-row game against a bot player. You can choose from various board sizes, game types and winning conditions, starting from a 3x3 board up to a 15x15 board.
 
 ## Quick start
 
