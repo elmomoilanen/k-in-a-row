@@ -21,7 +21,7 @@ Following example shows a valid HTTP request with command line tool *curl* that 
 ```bash
 curl "localhost:8080/api/bot/next?level=Normal" \
     -H "content-type: application/json" \
-    -d '{"cells":[0, 0, 0, 0, 0, 0, 0, 0, 0],"p1_mark":1,"bot_mark":-1,"empty_mark":0}'
+    -d '{"cells":[0, 0, 0, 0, 0, 0, 0, 0, 0],"cells_to_win":3,"p1_mark":1,"bot_mark":-1,"empty_mark":0}'
 ```
 
 and the response for it could be for example
