@@ -48,6 +48,9 @@ jobs:
       - name: Test
         run: |
           cargo test --bin server
+      - name: Doc tests
+        run: |
+          cargo test --doc
   cargo-build:
     name: Backend build
     needs: lint

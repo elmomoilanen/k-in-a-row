@@ -5,21 +5,28 @@ use serde::{Deserialize, Serialize};
 ///
 /// Length of `cells` must be equal to the game board size k x k
 /// such that first k cell values represent the first board row,
-/// next k values second row and etc. Player marks are given
-/// separately as `p1_mark` and `bot_mark` and must be different.
-/// Empty mark `empty_mark` is used for cells without one of the
-/// player marks. `Cells` must contain equal amount of player marks
-/// or one more for `p1_mark` as the bot player plays next.
+/// next k values the second row and etc. `cells_to_win` determines
+/// how many consecutive cells of a same marker value are required
+/// to win the game.
 ///
-/// For example, in a 3x3 3-in-a-row game where the `p1_mark` has
-/// made the first move of the game to the center cell
-/// (2nd row and column) using -1 as the mark value, following `cells`
-/// \[0, 0, 0, 0, -1, 0, 0, 0, 0\] would represent this situation
-/// correctly with 0 representing the `empty_mark`.
+/// Player markers are given separately as `p1_mark` and `bot_mark`,
+/// and their values must be different. Empty mark `empty_mark`
+/// is used for cells without one of the player markers. `Cells` must
+/// contain equal amount of player marks or one more for `p1_mark`
+/// as the bot player plays next.
+///
+/// For example, consider a 3x3 3-in-a-row game where the player
+/// using the `p1_mark` marker has made the first move of the game to
+/// the center cell (2nd row and column). Using -1 as this marker value,
+/// following `cells` \[0, 0, 0, 0, -1, 0, 0, 0, 0\] would represent this
+/// situation correctly with 0 values representing the `empty_mark`.
+/// Of course, in this case the bot player must be play next using its
+/// `bot_mark` marker.
 
 #[derive(Deserialize, Clone, Debug)]
 pub struct Board {
     pub cells: Vec<i8>,
+    pub cells_to_win: u8,
     pub p1_mark: i8,
     pub bot_mark: i8,
     pub empty_mark: i8,
@@ -29,6 +36,7 @@ impl From<web::Json<Board>> for Board {
     fn from(board: web::Json<Board>) -> Self {
         Board {
             cells: board.cells.clone(),
+            cells_to_win: board.cells_to_win,
             p1_mark: board.p1_mark,
             bot_mark: board.bot_mark,
             empty_mark: board.empty_mark,
@@ -38,10 +46,12 @@ impl From<web::Json<Board>> for Board {
 
 /// URL query string parameter indicating difficulty of a game.
 ///
-/// With value `Normal` a game should always end to a draw if played
-/// optimally by the player 1 (mark `p1_mark`). For value `Easy`, the
-/// bot player (mark `bot_mark`) might make unoptimal decisions here
-/// and there making it possible for player 1 to win.
+/// With value `Normal` a game should usually end up to a draw if played
+/// optimally by the player 1 (associated with marker `p1_mark`). Word
+/// "usually" is used because at least the 15x15 5-in-a-row game type
+/// enables the starting player to win if playing optimally. For value `Easy`,
+/// the bot player (marker `bot_mark`) might make unoptimal decisions
+/// here and there making it possible for player 1 to win.
 
 #[derive(Deserialize, Clone, Copy, Debug)]
 pub enum Level {
