@@ -18,7 +18,7 @@ jobs:
       run:
         working-directory: ./be
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Update local toolchain
         run: |
           rustup update
@@ -41,7 +41,7 @@ jobs:
       run:
         working-directory: ./be
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Update local toolchain
         run: |
           rustup update
@@ -59,7 +59,7 @@ jobs:
       run:
         working-directory: ./be
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Update local toolchain
         run: |
           rustup update

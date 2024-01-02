@@ -16,7 +16,7 @@ jobs:
       run:
         working-directory: ./fe
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Build image
         run: |
           docker build -t k-in-a-row/fe:latest .
@@ -29,7 +29,7 @@ jobs:
     env:
       API_HOST_PORT: 8080
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install curl
         run: |
           sudo apt-get update && sudo apt-get install -y curl
