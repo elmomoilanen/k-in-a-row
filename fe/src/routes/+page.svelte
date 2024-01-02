@@ -120,8 +120,8 @@
                 Game over:{currentWinner === Player.Bot
                     ? " Bot won!"
                     : currentWinner === Player.P1
-                    ? " You won!"
-                    : " Tie game!"}
+                      ? " You won!"
+                      : " Tie game!"}
             </h1>
         {:else}
             <h1>Game over</h1>
