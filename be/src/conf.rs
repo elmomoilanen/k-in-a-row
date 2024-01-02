@@ -1,6 +1,6 @@
 use crate::models::{Board, Level};
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub enum BoardSize {
     X33 = 3,
     X44 = 4,
@@ -92,6 +92,7 @@ const X1313_EASY_MAX_DEPTH: u8 = 2;
 const X1414_EASY_MAX_DEPTH: u8 = 2;
 const X1515_EASY_MAX_DEPTH: u8 = 2;
 
+#[derive(Debug)]
 pub struct BoardParams {
     pub size: BoardSize,
     pub offset: usize,
@@ -132,98 +133,189 @@ impl BoardParams {
     fn init(board_size: BoardSize, level: Level, cells_to_win: u8) -> Result<Self, GameInitError> {
         let offset = board_size as usize;
 
-        let (to_win, max_depth) = match (board_size, level, cells_to_win) {
-            (BoardSize::X33, Level::Easy, (X33_CELLS_TO_WIN_MIN..=X33_CELLS_TO_WIN_MAX)) => {
-                (cells_to_win, X33_EASY_MAX_DEPTH)
+        let (to_win, max_depth) = match (board_size, level) {
+            (BoardSize::X33, Level::Easy) => {
+                if (X33_CELLS_TO_WIN_MIN..=X33_CELLS_TO_WIN_MAX).contains(&cells_to_win) {
+                    (cells_to_win, X33_EASY_MAX_DEPTH)
+                } else {
+                    return Err(GameInitError::CellsToWin);
+                }
             }
-            (BoardSize::X33, Level::Normal, (X33_CELLS_TO_WIN_MIN..=X33_CELLS_TO_WIN_MAX)) => {
-                (cells_to_win, X33_MAX_DEPTH)
+            (BoardSize::X33, Level::Normal) => {
+                if (X33_CELLS_TO_WIN_MIN..=X33_CELLS_TO_WIN_MAX).contains(&cells_to_win) {
+                    (cells_to_win, X33_MAX_DEPTH)
+                } else {
+                    return Err(GameInitError::CellsToWin);
+                }
             }
-            (BoardSize::X44, Level::Easy, (X44_CELLS_TO_WIN_MIN..=X44_CELLS_TO_WIN_MAX)) => {
-                (cells_to_win, X44_EASY_MAX_DEPTH)
+            (BoardSize::X44, Level::Easy) => {
+                if (X44_CELLS_TO_WIN_MIN..=X44_CELLS_TO_WIN_MAX).contains(&cells_to_win) {
+                    (cells_to_win, X44_EASY_MAX_DEPTH)
+                } else {
+                    return Err(GameInitError::CellsToWin);
+                }
             }
-            (BoardSize::X44, Level::Normal, (X44_CELLS_TO_WIN_MIN..=X44_CELLS_TO_WIN_MAX)) => {
-                (cells_to_win, X44_MAX_DEPTH)
+            (BoardSize::X44, Level::Normal) => {
+                if (X44_CELLS_TO_WIN_MIN..=X44_CELLS_TO_WIN_MAX).contains(&cells_to_win) {
+                    (cells_to_win, X44_MAX_DEPTH)
+                } else {
+                    return Err(GameInitError::CellsToWin);
+                }
             }
-            (BoardSize::X55, Level::Easy, (X55_CELLS_TO_WIN_MIN..=X55_CELLS_TO_WIN_MAX)) => {
-                (cells_to_win, X55_EASY_MAX_DEPTH)
+            (BoardSize::X55, Level::Easy) => {
+                if (X55_CELLS_TO_WIN_MIN..=X55_CELLS_TO_WIN_MAX).contains(&cells_to_win) {
+                    (cells_to_win, X55_EASY_MAX_DEPTH)
+                } else {
+                    return Err(GameInitError::CellsToWin);
+                }
             }
-            (BoardSize::X55, Level::Normal, (X55_CELLS_TO_WIN_MIN..=X55_CELLS_TO_WIN_MAX)) => {
-                (cells_to_win, X55_MAX_DEPTH)
+            (BoardSize::X55, Level::Normal) => {
+                if (X55_CELLS_TO_WIN_MIN..=X55_CELLS_TO_WIN_MAX).contains(&cells_to_win) {
+                    (cells_to_win, X55_MAX_DEPTH)
+                } else {
+                    return Err(GameInitError::CellsToWin);
+                }
             }
-            (BoardSize::X66, Level::Easy, (X66_CELLS_TO_WIN_MIN..=X66_CELLS_TO_WIN_MAX)) => {
-                (cells_to_win, X66_EASY_MAX_DEPTH)
+            (BoardSize::X66, Level::Easy) => {
+                if (X66_CELLS_TO_WIN_MIN..=X66_CELLS_TO_WIN_MAX).contains(&cells_to_win) {
+                    (cells_to_win, X66_EASY_MAX_DEPTH)
+                } else {
+                    return Err(GameInitError::CellsToWin);
+                }
             }
-            (BoardSize::X66, Level::Normal, (X66_CELLS_TO_WIN_MIN..=X66_CELLS_TO_WIN_MAX)) => {
-                (cells_to_win, X66_MAX_DEPTH)
+            (BoardSize::X66, Level::Normal) => {
+                if (X66_CELLS_TO_WIN_MIN..=X66_CELLS_TO_WIN_MAX).contains(&cells_to_win) {
+                    (cells_to_win, X66_MAX_DEPTH)
+                } else {
+                    return Err(GameInitError::CellsToWin);
+                }
             }
-            (BoardSize::X77, Level::Easy, (X77_CELLS_TO_WIN_MIN..=X77_CELLS_TO_WIN_MAX)) => {
-                (cells_to_win, X77_EASY_MAX_DEPTH)
+            (BoardSize::X77, Level::Easy) => {
+                if (X77_CELLS_TO_WIN_MIN..=X77_CELLS_TO_WIN_MAX).contains(&cells_to_win) {
+                    (cells_to_win, X77_EASY_MAX_DEPTH)
+                } else {
+                    return Err(GameInitError::CellsToWin);
+                }
             }
-            (BoardSize::X77, Level::Normal, (X77_CELLS_TO_WIN_MIN..=X77_CELLS_TO_WIN_MAX)) => {
-                (cells_to_win, X77_MAX_DEPTH)
+            (BoardSize::X77, Level::Normal) => {
+                if (X77_CELLS_TO_WIN_MIN..=X77_CELLS_TO_WIN_MAX).contains(&cells_to_win) {
+                    (cells_to_win, X77_MAX_DEPTH)
+                } else {
+                    return Err(GameInitError::CellsToWin);
+                }
             }
-            (BoardSize::X88, Level::Easy, (X88_CELLS_TO_WIN_MIN..=X88_CELLS_TO_WIN_MAX)) => {
-                (cells_to_win, X88_EASY_MAX_DEPTH)
+            (BoardSize::X88, Level::Easy) => {
+                if (X88_CELLS_TO_WIN_MIN..=X88_CELLS_TO_WIN_MAX).contains(&cells_to_win) {
+                    (cells_to_win, X88_EASY_MAX_DEPTH)
+                } else {
+                    return Err(GameInitError::CellsToWin);
+                }
             }
-            (BoardSize::X88, Level::Normal, (X88_CELLS_TO_WIN_MIN..=X88_CELLS_TO_WIN_MAX)) => {
-                (cells_to_win, X88_MAX_DEPTH)
+            (BoardSize::X88, Level::Normal) => {
+                if (X88_CELLS_TO_WIN_MIN..=X88_CELLS_TO_WIN_MAX).contains(&cells_to_win) {
+                    (cells_to_win, X88_MAX_DEPTH)
+                } else {
+                    return Err(GameInitError::CellsToWin);
+                }
             }
-            (BoardSize::X99, Level::Easy, (X99_CELLS_TO_WIN_MIN..=X99_CELLS_TO_WIN_MAX)) => {
-                (cells_to_win, X99_EASY_MAX_DEPTH)
+            (BoardSize::X99, Level::Easy) => {
+                if (X99_CELLS_TO_WIN_MIN..=X99_CELLS_TO_WIN_MAX).contains(&cells_to_win) {
+                    (cells_to_win, X99_EASY_MAX_DEPTH)
+                } else {
+                    return Err(GameInitError::CellsToWin);
+                }
             }
-            (BoardSize::X99, Level::Normal, (X99_CELLS_TO_WIN_MIN..=X99_CELLS_TO_WIN_MAX)) => {
-                (cells_to_win, X99_MAX_DEPTH)
+            (BoardSize::X99, Level::Normal) => {
+                if (X99_CELLS_TO_WIN_MIN..=X99_CELLS_TO_WIN_MAX).contains(&cells_to_win) {
+                    (cells_to_win, X99_MAX_DEPTH)
+                } else {
+                    return Err(GameInitError::CellsToWin);
+                }
             }
-            (BoardSize::X1010, Level::Easy, (X1010_CELLS_TO_WIN_MIN..=X1010_CELLS_TO_WIN_MAX)) => {
-                (cells_to_win, X1010_EASY_MAX_DEPTH)
+            (BoardSize::X1010, Level::Easy) => {
+                if (X1010_CELLS_TO_WIN_MIN..=X1010_CELLS_TO_WIN_MAX).contains(&cells_to_win) {
+                    (cells_to_win, X1010_EASY_MAX_DEPTH)
+                } else {
+                    return Err(GameInitError::CellsToWin);
+                }
             }
-            (
-                BoardSize::X1010,
-                Level::Normal,
-                (X1010_CELLS_TO_WIN_MIN..=X1010_CELLS_TO_WIN_MAX),
-            ) => (cells_to_win, X1010_MAX_DEPTH),
-            (BoardSize::X1111, Level::Easy, (X1111_CELLS_TO_WIN_MIN..=X1111_CELLS_TO_WIN_MAX)) => {
-                (cells_to_win, X1111_EASY_MAX_DEPTH)
+            (BoardSize::X1010, Level::Normal) => {
+                if (X1010_CELLS_TO_WIN_MIN..=X1010_CELLS_TO_WIN_MAX).contains(&cells_to_win) {
+                    (cells_to_win, X1010_MAX_DEPTH)
+                } else {
+                    return Err(GameInitError::CellsToWin);
+                }
             }
-            (
-                BoardSize::X1111,
-                Level::Normal,
-                (X1111_CELLS_TO_WIN_MIN..=X1111_CELLS_TO_WIN_MAX),
-            ) => (cells_to_win, X1111_MAX_DEPTH),
-            (BoardSize::X1212, Level::Easy, (X1212_CELLS_TO_WIN_MIN..=X1212_CELLS_TO_WIN_MAX)) => {
-                (cells_to_win, X1212_EASY_MAX_DEPTH)
+            (BoardSize::X1111, Level::Easy) => {
+                if (X1111_CELLS_TO_WIN_MIN..=X1111_CELLS_TO_WIN_MAX).contains(&cells_to_win) {
+                    (cells_to_win, X1111_EASY_MAX_DEPTH)
+                } else {
+                    return Err(GameInitError::CellsToWin);
+                }
             }
-            (
-                BoardSize::X1212,
-                Level::Normal,
-                (X1212_CELLS_TO_WIN_MIN..=X1212_CELLS_TO_WIN_MAX),
-            ) => (cells_to_win, X1212_MAX_DEPTH),
-            (BoardSize::X1313, Level::Easy, (X1313_CELLS_TO_WIN_MIN..=X1313_CELLS_TO_WIN_MAX)) => {
-                (cells_to_win, X1313_EASY_MAX_DEPTH)
+            (BoardSize::X1111, Level::Normal) => {
+                if (X1111_CELLS_TO_WIN_MIN..=X1111_CELLS_TO_WIN_MAX).contains(&cells_to_win) {
+                    (cells_to_win, X1111_MAX_DEPTH)
+                } else {
+                    return Err(GameInitError::CellsToWin);
+                }
             }
-            (
-                BoardSize::X1313,
-                Level::Normal,
-                (X1313_CELLS_TO_WIN_MIN..=X1313_CELLS_TO_WIN_MAX),
-            ) => (cells_to_win, X1313_MAX_DEPTH),
-            (BoardSize::X1414, Level::Easy, (X1414_CELLS_TO_WIN_MIN..=X1414_CELLS_TO_WIN_MAX)) => {
-                (cells_to_win, X1414_EASY_MAX_DEPTH)
+            (BoardSize::X1212, Level::Easy) => {
+                if (X1212_CELLS_TO_WIN_MIN..=X1212_CELLS_TO_WIN_MAX).contains(&cells_to_win) {
+                    (cells_to_win, X1212_EASY_MAX_DEPTH)
+                } else {
+                    return Err(GameInitError::CellsToWin);
+                }
             }
-            (
-                BoardSize::X1414,
-                Level::Normal,
-                (X1414_CELLS_TO_WIN_MIN..=X1414_CELLS_TO_WIN_MAX),
-            ) => (cells_to_win, X1414_MAX_DEPTH),
-            (BoardSize::X1515, Level::Easy, (X1515_CELLS_TO_WIN_MIN..=X1515_CELLS_TO_WIN_MAX)) => {
-                (cells_to_win, X1515_EASY_MAX_DEPTH)
+            (BoardSize::X1212, Level::Normal) => {
+                if (X1212_CELLS_TO_WIN_MIN..=X1212_CELLS_TO_WIN_MAX).contains(&cells_to_win) {
+                    (cells_to_win, X1212_MAX_DEPTH)
+                } else {
+                    return Err(GameInitError::CellsToWin);
+                }
             }
-            (
-                BoardSize::X1515,
-                Level::Normal,
-                (X1515_CELLS_TO_WIN_MIN..=X1515_CELLS_TO_WIN_MAX),
-            ) => (cells_to_win, X1515_MAX_DEPTH),
-            _ => return Err(GameInitError::CellsToWin),
+            (BoardSize::X1313, Level::Easy) => {
+                if (X1313_CELLS_TO_WIN_MIN..=X1313_CELLS_TO_WIN_MAX).contains(&cells_to_win) {
+                    (cells_to_win, X1313_EASY_MAX_DEPTH)
+                } else {
+                    return Err(GameInitError::CellsToWin);
+                }
+            }
+            (BoardSize::X1313, Level::Normal) => {
+                if (X1313_CELLS_TO_WIN_MIN..=X1313_CELLS_TO_WIN_MAX).contains(&cells_to_win) {
+                    (cells_to_win, X1313_MAX_DEPTH)
+                } else {
+                    return Err(GameInitError::CellsToWin);
+                }
+            }
+            (BoardSize::X1414, Level::Easy) => {
+                if (X1414_CELLS_TO_WIN_MIN..=X1414_CELLS_TO_WIN_MAX).contains(&cells_to_win) {
+                    (cells_to_win, X1414_EASY_MAX_DEPTH)
+                } else {
+                    return Err(GameInitError::CellsToWin);
+                }
+            }
+            (BoardSize::X1414, Level::Normal) => {
+                if (X1414_CELLS_TO_WIN_MIN..=X1414_CELLS_TO_WIN_MAX).contains(&cells_to_win) {
+                    (cells_to_win, X1414_MAX_DEPTH)
+                } else {
+                    return Err(GameInitError::CellsToWin);
+                }
+            }
+            (BoardSize::X1515, Level::Easy) => {
+                if (X1515_CELLS_TO_WIN_MIN..=X1515_CELLS_TO_WIN_MAX).contains(&cells_to_win) {
+                    (cells_to_win, X1515_EASY_MAX_DEPTH)
+                } else {
+                    return Err(GameInitError::CellsToWin);
+                }
+            }
+            (BoardSize::X1515, Level::Normal) => {
+                if (X1515_CELLS_TO_WIN_MIN..=X1515_CELLS_TO_WIN_MAX).contains(&cells_to_win) {
+                    (cells_to_win, X1515_MAX_DEPTH)
+                } else {
+                    return Err(GameInitError::CellsToWin);
+                }
+            }
         };
 
         Ok(BoardParams {
@@ -265,5 +357,219 @@ impl BoardParams {
         }
 
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn board_params_valid_init_calls() {
+        let test_cases = vec![
+            (
+                BoardSize::X33,
+                Level::Easy,
+                X33_CELLS_TO_WIN_MIN,
+                X33_CELLS_TO_WIN_MAX,
+                X33_EASY_MAX_DEPTH,
+            ),
+            (
+                BoardSize::X33,
+                Level::Normal,
+                X33_CELLS_TO_WIN_MIN,
+                X33_CELLS_TO_WIN_MAX,
+                X33_MAX_DEPTH,
+            ),
+            (
+                BoardSize::X44,
+                Level::Easy,
+                X44_CELLS_TO_WIN_MIN,
+                X44_CELLS_TO_WIN_MAX,
+                X44_EASY_MAX_DEPTH,
+            ),
+            (
+                BoardSize::X44,
+                Level::Normal,
+                X44_CELLS_TO_WIN_MIN,
+                X44_CELLS_TO_WIN_MAX,
+                X44_MAX_DEPTH,
+            ),
+            (
+                BoardSize::X55,
+                Level::Easy,
+                X55_CELLS_TO_WIN_MIN,
+                X55_CELLS_TO_WIN_MAX,
+                X55_EASY_MAX_DEPTH,
+            ),
+            (
+                BoardSize::X55,
+                Level::Normal,
+                X55_CELLS_TO_WIN_MIN,
+                X55_CELLS_TO_WIN_MAX,
+                X55_MAX_DEPTH,
+            ),
+            (
+                BoardSize::X66,
+                Level::Easy,
+                X66_CELLS_TO_WIN_MIN,
+                X66_CELLS_TO_WIN_MAX,
+                X66_EASY_MAX_DEPTH,
+            ),
+            (
+                BoardSize::X66,
+                Level::Normal,
+                X66_CELLS_TO_WIN_MIN,
+                X66_CELLS_TO_WIN_MAX,
+                X66_MAX_DEPTH,
+            ),
+            (
+                BoardSize::X77,
+                Level::Easy,
+                X77_CELLS_TO_WIN_MIN,
+                X77_CELLS_TO_WIN_MAX,
+                X77_EASY_MAX_DEPTH,
+            ),
+            (
+                BoardSize::X77,
+                Level::Normal,
+                X77_CELLS_TO_WIN_MIN,
+                X77_CELLS_TO_WIN_MAX,
+                X77_MAX_DEPTH,
+            ),
+            (
+                BoardSize::X88,
+                Level::Easy,
+                X88_CELLS_TO_WIN_MIN,
+                X88_CELLS_TO_WIN_MAX,
+                X88_EASY_MAX_DEPTH,
+            ),
+            (
+                BoardSize::X88,
+                Level::Normal,
+                X88_CELLS_TO_WIN_MIN,
+                X88_CELLS_TO_WIN_MAX,
+                X88_MAX_DEPTH,
+            ),
+            (
+                BoardSize::X99,
+                Level::Easy,
+                X99_CELLS_TO_WIN_MIN,
+                X99_CELLS_TO_WIN_MAX,
+                X99_EASY_MAX_DEPTH,
+            ),
+            (
+                BoardSize::X99,
+                Level::Normal,
+                X99_CELLS_TO_WIN_MIN,
+                X99_CELLS_TO_WIN_MAX,
+                X99_MAX_DEPTH,
+            ),
+            (
+                BoardSize::X1010,
+                Level::Easy,
+                X1010_CELLS_TO_WIN_MIN,
+                X1010_CELLS_TO_WIN_MAX,
+                X1010_EASY_MAX_DEPTH,
+            ),
+            (
+                BoardSize::X1010,
+                Level::Normal,
+                X1010_CELLS_TO_WIN_MIN,
+                X1010_CELLS_TO_WIN_MAX,
+                X1010_MAX_DEPTH,
+            ),
+            (
+                BoardSize::X1111,
+                Level::Easy,
+                X1111_CELLS_TO_WIN_MIN,
+                X1111_CELLS_TO_WIN_MAX,
+                X1111_EASY_MAX_DEPTH,
+            ),
+            (
+                BoardSize::X1111,
+                Level::Normal,
+                X1111_CELLS_TO_WIN_MIN,
+                X1111_CELLS_TO_WIN_MAX,
+                X1111_MAX_DEPTH,
+            ),
+            (
+                BoardSize::X1212,
+                Level::Easy,
+                X1212_CELLS_TO_WIN_MIN,
+                X1212_CELLS_TO_WIN_MAX,
+                X1212_EASY_MAX_DEPTH,
+            ),
+            (
+                BoardSize::X1212,
+                Level::Normal,
+                X1212_CELLS_TO_WIN_MIN,
+                X1212_CELLS_TO_WIN_MAX,
+                X1212_MAX_DEPTH,
+            ),
+            (
+                BoardSize::X1313,
+                Level::Easy,
+                X1313_CELLS_TO_WIN_MIN,
+                X1313_CELLS_TO_WIN_MAX,
+                X1313_EASY_MAX_DEPTH,
+            ),
+            (
+                BoardSize::X1313,
+                Level::Normal,
+                X1313_CELLS_TO_WIN_MIN,
+                X1313_CELLS_TO_WIN_MAX,
+                X1313_MAX_DEPTH,
+            ),
+            (
+                BoardSize::X1414,
+                Level::Easy,
+                X1414_CELLS_TO_WIN_MIN,
+                X1414_CELLS_TO_WIN_MAX,
+                X1414_EASY_MAX_DEPTH,
+            ),
+            (
+                BoardSize::X1414,
+                Level::Normal,
+                X1414_CELLS_TO_WIN_MIN,
+                X1414_CELLS_TO_WIN_MAX,
+                X1414_MAX_DEPTH,
+            ),
+            (
+                BoardSize::X1515,
+                Level::Easy,
+                X1515_CELLS_TO_WIN_MIN,
+                X1515_CELLS_TO_WIN_MAX,
+                X1515_EASY_MAX_DEPTH,
+            ),
+            (
+                BoardSize::X1515,
+                Level::Normal,
+                X1515_CELLS_TO_WIN_MIN,
+                X1515_CELLS_TO_WIN_MAX,
+                X1515_MAX_DEPTH,
+            ),
+        ];
+        for (board_size, level, cells_to_win_min, cells_to_win_max, max_depth) in test_cases {
+            for cells_to_win in cells_to_win_min..=cells_to_win_max {
+                let result = BoardParams::init(board_size, level, cells_to_win).unwrap();
+                assert_eq!(result.offset, board_size as usize);
+                assert_eq!(result.to_win, cells_to_win as usize);
+                assert_eq!(result.max_depth, max_depth as usize);
+            }
+        }
+    }
+
+    #[test]
+    fn board_params_invalid_init_calls() {
+        BoardParams::init(BoardSize::X33, Level::Easy, X33_CELLS_TO_WIN_MIN - 1).unwrap_err();
+        BoardParams::init(BoardSize::X33, Level::Easy, X33_CELLS_TO_WIN_MAX + 1).unwrap_err();
+        BoardParams::init(BoardSize::X33, Level::Normal, X33_CELLS_TO_WIN_MIN - 1).unwrap_err();
+        BoardParams::init(BoardSize::X33, Level::Normal, X33_CELLS_TO_WIN_MAX + 1).unwrap_err();
+
+        BoardParams::init(BoardSize::X1515, Level::Easy, X1515_CELLS_TO_WIN_MIN - 1).unwrap_err();
+        BoardParams::init(BoardSize::X1515, Level::Easy, X1515_CELLS_TO_WIN_MAX + 1).unwrap_err();
+        BoardParams::init(BoardSize::X1515, Level::Normal, X1515_CELLS_TO_WIN_MIN - 1).unwrap_err();
+        BoardParams::init(BoardSize::X1515, Level::Normal, X1515_CELLS_TO_WIN_MAX + 1).unwrap_err();
     }
 }
