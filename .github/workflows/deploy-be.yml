@@ -56,7 +56,7 @@ jobs:
       - name: Terraform config format check
         run: |
           terraform fmt -check
-      - uses: google-github-actions/auth@v1
+      - uses: google-github-actions/auth@v2
         with:
           credentials_json: '${{ secrets.GOOGLE_SERVICE_ACCOUNT_FILE }}'
       - name: Terraform init
