@@ -24,7 +24,7 @@ opt-level = 2
 [dependencies]
 actix-web = "4.4"
 actix-rt = "2.9"
-actix-cors = "0.6"
+actix-cors = "0.7"
 serde = { version = "1.0.188", features = ["derive"] }
 rand = "0.8"
 
