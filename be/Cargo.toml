@@ -22,10 +22,10 @@ overflow-checks = false
 opt-level = 2
 
 [dependencies]
-actix-web = "4.4"
+actix-web = "4.5"
 actix-rt = "2.9"
-actix-cors = "0.6"
-serde = { version = "1.0.188", features = ["derive"] }
+actix-cors = "0.7"
+serde = { version = "1.0.196", features = ["derive"] }
 rand = "0.8"
 
 [dev-dependencies]
