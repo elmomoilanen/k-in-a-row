@@ -30,8 +30,8 @@
     const HIGHLIGHT_BOT_MOVE_MS = 1000;
     const WAIT_AFTER_END_BEFORE_DESTROY_BOARD_MS = 2500;
     const SHOW_P1_START_NOTIFICATION_MS = 1000;
-    const BE_REQUESTS_MAX_TRIES = 3;
-    const BE_REQUESTS_RETRY_DELAY_MS = 500;
+    const BE_REQUESTS_MAX_TRIES = 5;
+    const BE_REQUESTS_RETRY_DELAY_MS = 1000;
 
     let currentMarker = Math.random() < 0.5 ? X_MARK : O_MARK;
     let botPlayerLastSelectedCell: string | undefined = undefined;
