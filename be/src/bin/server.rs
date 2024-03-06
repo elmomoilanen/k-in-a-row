@@ -1,4 +1,5 @@
 use actix_cors::Cors;
+use actix_governor::{Governor, GovernorConfigBuilder};
 use actix_web::{guard, http::header, web, App, HttpServer};
 use std::{env, io};
 
@@ -33,6 +34,8 @@ async fn main() -> io::Result<()> {
     };
     let address = format!("{addr}:{port}");
 
+    let governor_conf = GovernorConfigBuilder::default().finish().unwrap();
+
     HttpServer::new(move || {
         App::new()
             .wrap(
@@ -43,6 +46,7 @@ async fn main() -> io::Result<()> {
                     .allowed_headers(vec![header::CONTENT_TYPE, header::ACCEPT])
                     .max_age(3600),
             )
+            .wrap(Governor::new(&governor_conf))
             .service(
                 web::scope("/api")
                     .route(
