@@ -152,6 +152,7 @@
                 tabindex="0"
                 class="info-icon"
                 id="info-icon"
+                aria-label="Show game info"
             >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
