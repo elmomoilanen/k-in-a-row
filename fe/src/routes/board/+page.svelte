@@ -175,9 +175,7 @@
 {/if}
 
 {#if !gameOver && currentPlayer === Player.Bot}
-    {#await playBotTurn()}
-        <div style="visibility:hidden;display:none" />
-    {:catch error}
+    {#await playBotTurn() catch error}
         <Errors message={error} />
     {/await}
 {/if}
