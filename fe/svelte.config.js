@@ -11,7 +11,17 @@ const config = {
             fallback: undefined,
             precompress: false,
             strict: true
-        })
+        }),
+        csp: {
+            mode: "auto",
+            directives: {
+                "script-src": ["self"],
+                "style-src": ["self", "unsafe-inline"],
+                "object-src": ["none"],
+                "frame-src": ["none"],
+                "base-uri": ["none"]
+            }
+        }
     }
 };
 
