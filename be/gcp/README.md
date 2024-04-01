@@ -22,7 +22,7 @@ Furthermore, create a bucket in Cloud Storage that matches the backend bucket na
 
 ## Terraform local
 
-Deployment commands can be run locally, within this `gcp` directory. Remove the old Terraform state (under .terraform) if needed, but normally this shouldn't be necessary.
+Deployment commands can be run locally, within this `gcp` directory, although following instructions doesn't cover the mandatory step of pushing the backend image to Google Artifact Registry.
 
 File `variables.tf` lists required Terraform variables. Make sure that insensitive variables are listed in `environments/prod.tfvars` and others saved as environment variables (e.g., client_url must be saved as TF_VAR_client_url). Service account credentials must also be available in the current shell environment similarly to the following example
 
@@ -54,11 +54,11 @@ Now wait for the cloud infrastructure to be created. On success, file `outputs.t
 
 ## Terraform pipeline
 
-GitHub workflow `deploy-be.yml` uploads a new revision to the Google Cloud Run for every versioned push event to the main branch. For this pipeline to succeed following variables must have been stored as secrets in GitHub's Actions secrets (notice that only some of them are really critically sensitive):
+GitHub workflow `deploy-be.yml` uploads a new revision to Google Cloud Run for every versioned push event to the main branch. For this pipeline to succeed following variables must have been stored as secrets in GitHub's Actions secrets (notice that only some of them are really critically sensitive):
 
 - GOOGLE_PROJECT_ID
 - GOOGLE_REGION
-- GOOGLE_IMAGE_NAME (name for the docker image)
+- GOOGLE_IMAGE_NAME
 - GOOGLE_SERVICE_NAME (just some descriptive name)
 - CLIENT_URL (frontend service prod URL)
 - GOOGLE_SERVICE_ACCOUNT_FILE (service account credentials, sensitive)
