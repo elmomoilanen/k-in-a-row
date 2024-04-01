@@ -1,6 +1,5 @@
 version: 2
 updates:
-  # be
   - package-ecosystem: cargo
     directory: be
     schedule:
@@ -11,7 +10,6 @@ updates:
     commit-message:
       prefix: chore(be)
 
-  # fe
   - package-ecosystem: npm
     directory: fe
     schedule:
