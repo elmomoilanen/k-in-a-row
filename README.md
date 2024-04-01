@@ -25,7 +25,7 @@ docker compose down
 
 ## Development
 
-See instructions in the README files in the backend and frontend subdirectories.
+See the README files in the backend and frontend subdirectories.
 
 ## Production
 
