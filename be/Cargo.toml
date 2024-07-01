@@ -22,7 +22,7 @@ overflow-checks = false
 opt-level = 2
 
 [dependencies]
-actix-web = "4.6"
+actix-web = "4.8"
 actix-rt = "2.9"
 actix-cors = "0.7"
 actix-governor = "0.5.0"
