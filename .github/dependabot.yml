@@ -8,7 +8,7 @@ updates:
       - dependency-name: '*'
         update-types: ['version-update:semver-patch']
     commit-message:
-      prefix: chore(be)
+      prefix: chore[be]
 
   - package-ecosystem: npm
     directory: fe
@@ -18,4 +18,4 @@ updates:
       - dependency-name: '*'
         update-types: ['version-update:semver-patch']
     commit-message:
-      prefix: chore(fe)
+      prefix: chore[fe]
