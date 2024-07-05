@@ -4,9 +4,15 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'fe/**'
+      - '.github/workflows/tests-fe.yml'
   pull_request:
     branches:
       - main
+    paths:
+      - 'fe/**'
+      - '.github/workflows/tests-fe.yml'
   workflow_dispatch:
   workflow_call:
 
