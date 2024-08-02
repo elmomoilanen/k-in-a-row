@@ -1,4 +1,4 @@
-FROM rust:1.78 as build
+FROM rust:1.78 AS build
 
 # Create a new empty project
 RUN USER=root cargo new --bin be
