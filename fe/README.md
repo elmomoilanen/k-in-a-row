@@ -6,13 +6,15 @@ Notice that the frontend must know the backend endpoint URL `PUBLIC_API_URL`. Se
 
 ## Development
 
+Check that your `node` version aligns with the listed version in the fe workflows and the Dockerfile (used for testing).
+
 First install dependencies
 
 ```bash
 npm install
 ```
 
-and then start the dev server
+After that start the dev server
 
 ```bash
 npm run dev -- --open
