@@ -21,7 +21,7 @@
         Bot player uses a variation of the Minimax algorithm with alpha-beta pruning for its game
         playing strategy.
     </p>
-    <button on:click={toggleShowGameInfo} id="info-close">Close</button>
+    <button id="info-close" on:click={toggleShowGameInfo}>Close</button>
 </div>
 
 <style>

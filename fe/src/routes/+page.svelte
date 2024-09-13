@@ -89,7 +89,7 @@
         }
         if (!resp.ok) {
             console.error(
-                `Received an error response from ${url} with status code ${resp.status}.`
+                `Received an error response from ${url} with status code ${resp.status.toFixed()}.`
             );
             apiErrorOccurred = true;
             return;
@@ -104,17 +104,17 @@
 
 {#if currentGameType && isCellsToWinWithinLimits(currentGameType) && currentGameLevel && startGame && backendConnected}
     <Board
-        gameType={currentGameType}
-        gameLevel={currentGameLevel}
         currentPlayer={getRandomPlayer()}
         endGameFn={endGame}
+        gameLevel={currentGameLevel}
+        gameType={currentGameType}
         goHomeFn={resetGame}
     />
 {:else if currentGameType && isCellsToWinWithinLimits(currentGameType) && currentGameLevel && startGame}
     <!-- Wait backend connection -->
     <Spinner />
 {:else if showGameEndOptions}
-    <div class="open-page" id="game-end-view">
+    <div id="game-end-view" class="open-page">
         {#if currentWinner !== undefined}
             <h1>
                 Game over:{currentWinner === Player.Bot
@@ -129,38 +129,38 @@
         {#if currentWinner !== undefined && previousGameLevel?.levelName !== "Easy" && Math.random() > SHOW_PHRASES_LIMIT}
             <h2>{getPhrase(currentWinner)}</h2>
         {/if}
-        <button on:click={resetGame} id="game-end-reset">Play again</button>
-        <button on:click={backToStart} id="game-end-back">Back to start</button>
+        <button id="game-end-reset" on:click={resetGame}>Play again</button>
+        <button id="game-end-back" on:click={backToStart}>Back to start</button>
     </div>
 {:else}
-    <div class="open-page" id="new-game-view">
+    <div id="new-game-view" class="open-page">
         <h1>Let's play k-in-a-row!</h1>
         {#if showGameInfo}
             <Info {toggleShowGameInfo} />
         {:else}
             <Dropdowns
-                {setGameType}
-                {setGameLevel}
-                {toggleStartGame}
                 selectedGame={currentGameType}
                 selectedGameLevel={currentGameLevel}
+                {setGameLevel}
+                {setGameType}
+                {toggleStartGame}
             />
             <div
-                on:click={toggleShowGameInfo}
-                on:keydown
+                id="info-icon"
+                class="info-icon"
+                aria-label="Show game info"
                 role="button"
                 tabindex="0"
-                class="info-icon"
-                id="info-icon"
-                aria-label="Show game info"
+                on:click={toggleShowGameInfo}
+                on:keydown
             >
                 <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="50"
-                    height="50"
-                    fill="currentColor"
                     class="bi bi-info-circle"
+                    fill="currentColor"
+                    height="50"
                     viewBox="0 0 16 16"
+                    width="50"
+                    xmlns="http://www.w3.org/2000/svg"
                 >
                     <path
                         d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"

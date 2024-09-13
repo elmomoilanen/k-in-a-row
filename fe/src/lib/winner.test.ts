@@ -2,11 +2,11 @@ import { test, expect } from "vitest";
 import { Player } from "./players";
 import { hasWinner } from "./winner";
 
-type Board = {
+interface Board {
     cells: { value: number }[];
     cellsOffset: number;
     cellsToWin: number;
-};
+}
 
 function createBoard(cells: number[], cellsOffset: number, cellsToWin: number): Board {
     return {

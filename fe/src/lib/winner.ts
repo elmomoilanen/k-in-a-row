@@ -28,7 +28,7 @@ function checkWinner(
 ) {
     const match_indices = [];
     for (let i = startCell; i <= lastAllowedCell; i += stepSize) {
-        if (board.cells[i].value === player) {
+        if (board.cells[i].value === player.valueOf()) {
             match_indices.push(i);
         }
     }

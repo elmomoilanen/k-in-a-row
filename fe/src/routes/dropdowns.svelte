@@ -76,16 +76,16 @@
     let gameLevels = makeListOfGameLevels();
 </script>
 
-<div class="dropdown" id="game-board">
+<div id="game-board" class="dropdown">
     <input
-        on:click={toggleShowGameOptions}
-        type="text"
         id="game-board-input"
         class={selectedGame && !showGameOptions ? "selected" : "not-selected"}
-        placeholder={selectedGame ? `${selectedGame.boardSize}` : "Select board size"}
+        placeholder={selectedGame ? selectedGame.boardSize : "Select board size"}
         readonly
+        type="text"
+        on:click={toggleShowGameOptions}
     />
-    <div class={`options ${showGameOptions ? "show" : ""}`} id="game-boards">
+    <div id="game-boards" class={`options ${showGameOptions ? "show" : ""}`}>
         {#each games as { id, game }}
             <button {id} on:click={() => setGameTypeAndToggle(game, 0)}>{game.boardSize}</button>
         {/each}
@@ -93,42 +93,42 @@
 </div>
 
 {#if selectedGame && !showGameOptions}
-    <div class="dropdown" id="game-cells-to-win">
+    <div id="game-cells-to-win" class="dropdown">
         <input
-            on:click={toggleShowGameTypeOptions}
-            type="text"
             id="game-cells-to-win-input"
             class={selectedGame.cellsToWin && !showGameTypeOptions ? "selected" : "not-selected"}
             placeholder={selectedGame.cellsToWin
-                ? `${selectedGame.cellsToWin}-in-a-row`
+                ? `${selectedGame.cellsToWin.toFixed()}-in-a-row`
                 : "Select game type"}
             readonly
+            type="text"
+            on:click={toggleShowGameTypeOptions}
         />
-        <div class={`options ${showGameTypeOptions ? "show" : ""}`} id="game-types">
+        <div id="game-types" class={`options ${showGameTypeOptions ? "show" : ""}`}>
             {#each range(selectedGame.cellsToWinMin, selectedGame.cellsToWinMax + 1) as cellsToWin, i}
                 <!-- As of now, TS/Svelte language support thinks that `selectedGame` can be undefined here which is false -->
                 <!-- Type assertion isn't possible in the Svelte markup, thus use a helper function -->
                 <button
                     id={i.toString()}
                     on:click={() => setGameTypeAndToggleSafe(selectedGame, cellsToWin)}
-                    >{cellsToWin}-in-a-row</button
-                >
+                    >{cellsToWin}-in-a-row
+                </button>
             {/each}
         </div>
     </div>
 {/if}
 
-{#if selectedGame && selectedGame.cellsToWin && !showGameOptions && !showGameTypeOptions}
-    <div class="dropdown" id="game-level">
+{#if selectedGame?.cellsToWin && !showGameOptions && !showGameTypeOptions}
+    <div id="game-level" class="dropdown">
         <input
-            on:click={toggleShowGameLevelOptions}
-            type="text"
             id="game-level-input"
             class={selectedGameLevel && !showGameLevelOptions ? "selected" : "not-selected"}
-            placeholder={selectedGameLevel ? `${selectedGameLevel.levelName}` : "Select level"}
+            placeholder={selectedGameLevel ? selectedGameLevel.levelName : "Select level"}
             readonly
+            type="text"
+            on:click={toggleShowGameLevelOptions}
         />
-        <div class={`options ${showGameLevelOptions ? "show" : ""}`} id="game-levels">
+        <div id="game-levels" class={`options ${showGameLevelOptions ? "show" : ""}`}>
             {#each gameLevels as { id, level, description }}
                 <button {id} on:click={() => setGameLevelAndToggle(level)}>{description}</button>
             {/each}
@@ -136,8 +136,8 @@
     </div>
 {/if}
 
-{#if selectedGame && selectedGame.cellsToWin && !showGameOptions && !showGameTypeOptions && selectedGameLevel && !showGameLevelOptions}
-    <button class="start-game-btn" id="start-game" on:click={toggleStartGame}>Start game</button>
+{#if selectedGame?.cellsToWin && !showGameOptions && !showGameTypeOptions && selectedGameLevel && !showGameLevelOptions}
+    <button id="start-game" class="start-game-btn" on:click={toggleStartGame}>Start game</button>
 {/if}
 
 <style>

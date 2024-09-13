@@ -44,7 +44,7 @@
     function initCells(cellsCount: number) {
         const cells = [];
         for (let j = 0; j < cellsCount; ++j) {
-            cells.push({ id: `${j}`, value: Player.Empty, mark: EMPTY_MARK });
+            cells.push({ id: j.toString(), value: Player.Empty, mark: EMPTY_MARK });
         }
         return cells;
     }
@@ -54,7 +54,7 @@
     function highlightBotMove(botLastMoveCell: string) {
         botPlayerLastSelectedCell = undefined;
         const botLastMoveCellIdx = parseInt(botLastMoveCell);
-        const lastSelectedCell = document.querySelector(`[id='${botLastMoveCellIdx}']`);
+        const lastSelectedCell = document.querySelector(`[id='${botLastMoveCellIdx.toFixed()}']`);
         if (lastSelectedCell) {
             lastSelectedCell.classList.add("bot-last-move-cell");
             setTimeout(() => {
@@ -111,7 +111,7 @@
         for (let j = 1; j <= BE_REQUESTS_MAX_TRIES; ++j) {
             const responseRaw = await requestBotMove(url);
             if (responseRaw?.ok) {
-                responseParsed = await responseRaw.json();
+                responseParsed = (await responseRaw.json()) as BotMove;
                 break;
             }
             if (j >= BE_REQUESTS_MAX_TRIES) {
@@ -128,7 +128,7 @@
         if (responseParsed.next_is_valid) {
             const cell = responseParsed.next;
             botLastMoveCell = cell;
-            botPlayerLastSelectedCell = `${cell}`;
+            botPlayerLastSelectedCell = cell.toString();
             cells[cell] = { id: botPlayerLastSelectedCell, value: Player.Bot, mark: currentMarker };
         }
 
@@ -152,10 +152,10 @@
                     gameWinner
                 );
             if (result && result.hasWinner && result.winCells) {
-                for (let i = 0; i < result.winCells.length; ++i) {
-                    const boardCell = document.querySelector(`[id='${result.winCells[i]}']`);
+                for (const cellValue of result.winCells) {
+                    const boardCell = document.querySelector(`[id='${cellValue.toFixed()}']`);
                     if (boardCell) {
-                        boardCell.classList.add(`${gameWinner === Player.Bot ? "lost" : "win"}`);
+                        boardCell.classList.add(gameWinner === Player.Bot ? "lost" : "win");
                     }
                 }
             }
@@ -167,7 +167,7 @@
 </script>
 
 {#if showStart}
-    <Start bind:showStart showTime={SHOW_P1_START_NOTIFICATION_MS} />
+    <Start showTime={SHOW_P1_START_NOTIFICATION_MS} bind:showStart />
 {/if}
 
 {#if !gameOver}
@@ -180,16 +180,16 @@
     {/await}
 {/if}
 
-<div class="board {gameType.gameKey} {currentMarker}" id="board-{gameType.gameKey}">
+<div id="board-{gameType.gameKey}" class="board {gameType.gameKey} {currentMarker}">
     {#each cells as { id, value, mark }}
         {#if gameOver && value === Player.Empty && mark === EMPTY_MARK}
-            <button class="cell bot" {id} />
+            <button {id} class="cell bot" />
         {:else if currentPlayer === Player.P1 && value === Player.Empty && mark === EMPTY_MARK}
-            <button class="cell" {id} on:click={() => playP1Turn(id)} />
+            <button {id} class="cell" on:click={() => playP1Turn(id)} />
         {:else if currentPlayer === Player.Bot && value === Player.Empty && mark === EMPTY_MARK}
-            <button class="cell bot" {id} />
+            <button {id} class="cell bot" />
         {:else}
-            <button class="cell {mark}" {id} />
+            <button {id} class="cell {mark}" />
         {/if}
     {/each}
 </div>
