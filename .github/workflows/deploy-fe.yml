@@ -26,6 +26,7 @@ jobs:
         env:
           PUBLIC_API_URL: '${{ secrets.PUBLIC_API_URL }}'
         run: |
+          node --version
           npm ci
           npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
