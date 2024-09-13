@@ -1,26 +1,26 @@
 # Frontend
 
-Frontend service for the game. Communicates with the backend service to determine bot player's moves in the game board.
+This is the frontend service of the game, which communicates with the backend service to determine the bot player's moves on the game board.
 
-Notice that frontend must know the backend endpoint URL `PUBLIC_API_URL`. Either set it directly as an environment variable or make a copy of the `.env.example` file as follows `cp .env.example .env`.
+Notice that the frontend must know the backend endpoint URL `PUBLIC_API_URL`. Set it directly as an environment variable, or make a copy of the `.env.example` file by running the command `cp .env.example .env`.
 
 ## Development
 
-Install dependencies
+First install dependencies
 
 ```bash
 npm install
 ```
 
-and start the dev server
+and then start the dev server
 
 ```bash
 npm run dev -- --open
 ```
 
-If this results an immediate error, check that `PUBLIC_API_URL` has been set correctly.
+If this command results an immediate error, check that `PUBLIC_API_URL` has been set correctly.
 
-TypeScript support for reading environment variables requires that command `svelte-kit sync` has been run. To do this, run for example the command `npm run check` which includes this svelte-kit command.
+TypeScript support for reading environment variables requires that command `svelte-kit sync` has been run. Run for example the command `npm run check`, which includes that svelte-kit command.
 
 ## Production
 
