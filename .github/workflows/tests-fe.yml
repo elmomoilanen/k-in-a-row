@@ -34,6 +34,7 @@ jobs:
       - name: Lint and type checks
         run: |
           cp .env.example .env
+          ./node_modules/.bin/svelte-kit sync
           npm run lint
           npm run check -- --fail-on-warnings
       - name: Unit tests
