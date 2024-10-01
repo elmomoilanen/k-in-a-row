@@ -25,7 +25,7 @@ opt-level = 2
 actix-web = "4.9"
 actix-rt = "2.10"
 actix-cors = "0.7"
-actix-governor = "0.5.0"
+actix-governor = "0.6.0"
 serde = { version = "1.0.210", features = ["derive"] }
 rand = "0.8"
 
