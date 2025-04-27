@@ -20,7 +20,8 @@ The following example shows a valid request using the command line tool *curl* t
 
 ```bash
 curl "localhost:8080/api/bot/next?level=Normal" \
-    -H "content-type: application/json" \
+    -H "Content-Type: application/json" \
+    -H "Referer: http://localhost:5173" \
     -d '{"cells":[0, 0, 0, 0, 0, 0, 0, 0, 0],"cells_to_win":3,"p1_mark":1,"bot_mark":-1,"empty_mark":0}'
 ```
 
@@ -37,3 +38,8 @@ For more information on the payload requirements, please see the model definitio
 ## Production
 
 Document `gcp/README.md` gives instructions for deploying to Google Cloud Run.
+
+## Update guide
+
+- Check dependencies, e.g. with `cargo update --dry-run`
+- Check Rust and Distroless image versions in the Dockerfile

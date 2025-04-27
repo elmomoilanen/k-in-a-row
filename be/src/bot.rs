@@ -620,10 +620,10 @@ mod tests {
         assert_eq!(empties, 0);
     }
 
-    // It's probably better to test with smaller `cells_to_win` values because those games are harder
-    // But too small values allows winning for one of the players which is not the goal of these test
-    // Games with maximal allowed `cells_to_win` should complete fast to a draw
-    // Overall, following test games should end up in a draw (make sure `cells_to_win` enables that)
+    // It's probably better to test with smaller `cells_to_win` values because those games are harder.
+    // But too small values allows winning for one of the players which is not the goal of these test.
+    // Games with maximal allowed `cells_to_win` should complete fast to a draw.
+    // Overall, following test games should end up in a draw (make sure `cells_to_win` enables that).
 
     #[test]
     fn complete_game_play_3x3_3inarow_normal() {

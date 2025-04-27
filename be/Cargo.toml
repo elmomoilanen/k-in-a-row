@@ -19,14 +19,14 @@ opt-level = 2
 overflow-checks = false
 
 [profile.release]
-opt-level = 2
+opt-level = 3
 
 [dependencies]
 actix-web = "4.9"
 actix-rt = "2.10"
 actix-cors = "0.7"
-actix-governor = "0.6.0"
-serde = { version = "1.0.210", features = ["derive"] }
+actix-governor = "0.8"
+serde = { version = "1.0.216", features = ["derive"] }
 rand = "0.8"
 
 [dev-dependencies]

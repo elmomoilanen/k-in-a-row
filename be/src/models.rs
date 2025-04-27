@@ -59,7 +59,7 @@ pub enum Level {
     Normal,
 }
 
-#[allow(dead_code)] // Warning is a false positive?
+#[allow(dead_code)]
 #[derive(Deserialize, Clone, Debug)]
 pub struct LevelQuery {
     pub level: Level,
