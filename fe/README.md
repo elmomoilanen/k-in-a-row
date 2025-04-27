@@ -33,3 +33,8 @@ This directory has been connected to a Firebase project by running `firebase ini
 Prior to making deployment to Firebase, the built app needs to be adapted for this target. SvelteKit's static adapter is used to prerender this site as a collection of static files. This is configured in `svelte.config.js` and with the prerender option placed in the root layout file `+layout.ts`.
 
 GitHub workflow `deploy-fe.yml` uploads a new release to Firebase for every versioned push event to the main branch. For this pipeline, `PUBLIC_API_URL` (backend's production URL) and `FIREBASE_SERVICE_ACCOUNT_K_INAROW` (Firebase service account credentials) must have been stored as secrets in GitHub's Actions secrets. Deployment job of the workflow runs conditionally after successful lints, type checks and tests.
+
+## Update guide
+
+- Check dependencies, e.g. with `npm outdated`
+- Check Node and Nginx image versions in the Dockerfile
