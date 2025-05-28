@@ -30,7 +30,3 @@ Refer to the README files in the backend and frontend subdirectories for more in
 ## Production
 
 Google's Firebase is used to host the frontend code, and Cloud Run is used to run the backend service. For more details, read the README files in the subdirectories and review the deployment workflows.
-
-## Update guide
-
-Currently, this program is in maintenance mode, and there are no planned new features.
