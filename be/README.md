@@ -41,5 +41,6 @@ Document `gcp/README.md` gives instructions for deploying to Google Cloud Run.
 
 ## Update guide
 
-- Check dependencies, e.g. with `cargo update --dry-run`
-- Check Rust and Distroless image versions in the Dockerfile
+- Check and update Rust and Distroless image versions in the Dockerfile
+- Use locally the same Rust version as in the Dockerfile
+- Preview potential dependency updates, e.g. with `cargo update --dry-run`, and apply them if deemed ok
