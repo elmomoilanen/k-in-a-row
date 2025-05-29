@@ -32,8 +32,9 @@ jobs:
           node --version
           npm ci
       - name: Lint and type checks
+        env:
+          PUBLIC_API_URL: 'http://localhost'
         run: |
-          cp .env.example .env
           ./node_modules/.bin/svelte-kit sync
           npm run lint
           npm run check -- --fail-on-warnings
