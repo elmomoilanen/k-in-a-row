@@ -2,16 +2,22 @@
 
 This is the frontend service of the game, which communicates with the backend service to determine the bot player's moves on the game board.
 
-Notice that the frontend must know the backend endpoint URL `PUBLIC_API_URL`. Set it directly as an environment variable, or make a copy of the `.env.example` file by running the command `cp .env.example .env`.
-
 ## Development
 
-Check that your `node` version aligns with the listed version in the fe workflows and the Dockerfile (used for testing).
+Ensure your local `node` version matches the version specified in the frontend workflows and the Dockerfile (which is primarily for quick testing, provided `Docker` is available).
+
+Notice that the frontend must know the backend endpoint URL `PUBLIC_API_URL`. Set it directly as an environment variable, or make a copy of the `.env.example` file by running the command `cp .env.example .env`.
 
 First install dependencies
 
 ```bash
 npm install
+```
+
+For TS to correctly read environment variables, the `svelte-kit sync` command must be executed. To do that, run for example the following command
+
+```bash
+npm run check
 ```
 
 After that start the dev server
@@ -20,21 +26,18 @@ After that start the dev server
 npm run dev -- --open
 ```
 
-If this command results an immediate error, check that `PUBLIC_API_URL` has been set correctly.
-
-TypeScript support for reading environment variables requires that command `svelte-kit sync` has been run. Run for example the command `npm run check`, which includes that svelte-kit command.
-
 ## Production
 
 Firebase hosting is used in production.
 
-This directory has been connected to a Firebase project by running `firebase init` command. As a result, two public Firebase configuration files were added to this directory which are required when running the frontend deployment pipeline.
+This directory has been connected to a Firebase project by running `firebase init` command. As a result of running `firebase init`, two public Firebase configuration files were added to this directory. These files are required for the frontend deployment pipeline.
 
-Prior to making deployment to Firebase, the built app needs to be adapted for this target. SvelteKit's static adapter is used to prerender this site as a collection of static files. This is configured in `svelte.config.js` and with the prerender option placed in the root layout file `+layout.ts`.
+Before deploying to Firebase, the built application must be adapted for the hosting environment. SvelteKit's static adapter is used to prerender this site as a collection of static files. This is configured in `svelte.config.js` and with the prerender option placed in the root layout file `+layout.ts`.
 
-GitHub workflow `deploy-fe.yml` uploads a new release to Firebase for every versioned push event to the main branch. For this pipeline, `PUBLIC_API_URL` (backend's production URL) and `FIREBASE_SERVICE_ACCOUNT_K_INAROW` (Firebase service account credentials) must have been stored as secrets in GitHub's Actions secrets. Deployment job of the workflow runs conditionally after successful lints, type checks and tests.
+The `deploy-fe.yml` GitHub workflow automatically deploys a new release to Firebase whenever a versioned commit is pushed to the main branch. For this pipeline, `PUBLIC_API_URL` (backend's production URL) and `FIREBASE_SERVICE_ACCOUNT_K_INAROW` (Firebase service account credentials) must have been stored as secrets in GitHub's Actions secrets. The deployment job in the workflow runs only after the lints, type checks, and tests have passed successfully.
 
 ## Update guide
 
-- Check dependencies, e.g. with `npm outdated`
-- Check Node and Nginx image versions in the Dockerfile
+- Review and update the Node and Nginx image versions in the Dockerfile, if necessary
+- Use locally the same Node version as in the Dockerfile
+- Preview potential dependency updates, e.g. with `npm outdated`, and apply them with `npm update` if deemed ok
