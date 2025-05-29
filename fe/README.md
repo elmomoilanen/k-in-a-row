@@ -40,4 +40,4 @@ The `deploy-fe.yml` GitHub workflow automatically deploys a new release to Fireb
 
 - Review and update the Node and Nginx image versions in the Dockerfile, if necessary
 - Use locally the same Node version as in the Dockerfile
-- Preview potential dependency updates, e.g. with `npm outdated`, and apply them with `npm update` if deemed ok
+- Preview potential dependency updates, e.g. with `npm outdated`, and apply them by running first `npm update` and then `npm install` (ensures `package-lock.json` stays in sync with `package.json`)
