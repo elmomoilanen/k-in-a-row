@@ -19,7 +19,7 @@ mod handlers;
 mod models;
 
 use guards::RefererGuard;
-use handlers::{hello, next_move};
+use handlers::{hello, next_move, robots_txt};
 
 const ALLOWED_DEV_CLIENT_URL: &str = "http://localhost:5173";
 const ALLOWED_DEV_CLIENT_URL_2: &str = "http://127.0.0.1:5173";
@@ -80,6 +80,7 @@ async fn main() -> io::Result<()> {
                             .to(hello),
                     ),
             )
+            .route("/robots.txt", web::get().to(robots_txt))
     })
     .bind(address.clone())?
     .run()

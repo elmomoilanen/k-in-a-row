@@ -38,3 +38,9 @@ pub async fn next_move(
 
     HttpResponse::Ok().json(bot_next_move)
 }
+
+pub async fn robots_txt() -> impl Responder {
+    HttpResponse::Ok()
+        .content_type("text/plain")
+        .body("User-agent: *\nDisallow: /")
+}
