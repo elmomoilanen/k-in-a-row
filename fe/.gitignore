@@ -3,7 +3,6 @@ node_modules
 /.firebase
 /.svelte-kit
 .env*
-!.env.example
 *.log
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*

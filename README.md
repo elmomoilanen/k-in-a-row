@@ -17,10 +17,17 @@ docker compose up
 
 Once it's ready, open your web browser and navigate to `localhost:5173` to start playing.
 
-When you are finished with playing, press `ctrl+c` and remove the used containers
+When you are finished with playing, run the following command to stop and remove used containers and the network
 
 ```bash
 docker compose down
+```
+
+For more thorough clean up, running following might help
+
+```bash
+docker compose down --rmi local
+docker system prune
 ```
 
 ## Development

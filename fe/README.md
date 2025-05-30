@@ -6,15 +6,19 @@ This is the frontend service of the game, which communicates with the backend se
 
 Ensure your local `node` version matches the version specified in the frontend workflows and the Dockerfile (which is primarily for quick testing, provided `Docker` is available).
 
-Notice that the frontend must know the backend endpoint URL `PUBLIC_API_URL`. Set it directly as an environment variable, or make a copy of the `.env.example` file by running the command `cp .env.example .env`.
+Notice that the frontend must know the backend endpoint URL `PUBLIC_API_URL`. Set it directly as an environment variable as follows
 
-First install dependencies
+```bash
+export PUBLIC_API_URL="http://localhost:8080"
+```
+
+Then, install dependencies
 
 ```bash
 npm install
 ```
 
-For TS to correctly read environment variables, the `svelte-kit sync` command must be executed. To do that, run for example the following command
+For TS and Svelte to correctly handle (static) environment variables, the `svelte-kit sync` command must be executed. To do that, run for example the following command
 
 ```bash
 npm run check

@@ -1,6 +1,12 @@
 import adapter from "@sveltejs/adapter-static";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 
+let publicApiUrl = process.env.PUBLIC_API_URL;
+
+if (publicApiUrl && !publicApiUrl.endsWith("/")) {
+    publicApiUrl += "/";
+}
+
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
     preprocess: vitePreprocess(),
@@ -13,13 +19,15 @@ const config = {
             strict: true
         }),
         csp: {
-            mode: "auto",
+            mode: "hash", // For prerendered mode
             directives: {
-                "script-src": ["self"],
-                "style-src": ["self", "unsafe-inline"],
-                "object-src": ["none"],
+                "base-uri": ["none"],
+                "connect-src": publicApiUrl ? ["self", publicApiUrl] : ["self"],
+                "default-src": ["self"],
                 "frame-src": ["none"],
-                "base-uri": ["none"]
+                "object-src": ["none"],
+                "script-src": ["self"],
+                "style-src": ["self", "unsafe-inline"]
             }
         }
     }
