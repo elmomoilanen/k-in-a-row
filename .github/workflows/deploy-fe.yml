@@ -28,6 +28,7 @@ jobs:
         run: |
           node --version
           npm ci
+          ./node_modules/.bin/svelte-kit sync
           npm run build
       - name: Extract CSP hash and update firebase.json
         run: |

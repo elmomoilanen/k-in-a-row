@@ -50,6 +50,7 @@ jobs:
       TF_VAR_image_name: '${{ secrets.GOOGLE_IMAGE_NAME }}'
     steps:
       - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
       - name: Terraform info
         run: |
           terraform version
