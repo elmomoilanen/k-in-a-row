@@ -4,13 +4,14 @@
 
 After having created a project in Google Cloud and enabled billing for it, make sure that APIs IAM, Artifact Registry and Cloud Run are enabled. Create a new service account, e.g. with a name `terraform-deploy-account`, and give it the following roles:
 
+- Artifact Registry Reader
+- Artifact Registry Writer
 - Cloud Build Service Account
 - Cloud Run Admin
 - Project IAM Admin
 - Service Account Admin
 - Service Account User
 - Storage Object Admin
-- Artifact Registry Writer
 
 After the first deployment, excess permissions (suggested by Google) can be removed from this service account.
 
