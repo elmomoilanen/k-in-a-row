@@ -15,21 +15,32 @@ jobs:
     defaults:
       run:
         working-directory: ./fe
+    env:
+      PUBLIC_API_URL: '${{ secrets.PUBLIC_API_URL }}'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: ./fe/package-lock.json
       - name: Build
-        env:
-          PUBLIC_API_URL: '${{ secrets.PUBLIC_API_URL }}'
         run: |
           node --version
           npm ci
           npm run build
-      - uses: FirebaseExtended/action-hosting-deploy@v0
+      - name: Extract CSP hash and update firebase.json
+        run: |
+          HASH=$(grep -oP "script-src[^']*?'self'\s+'\Ksha256-[a-zA-Z0-9+/=]+" build/index.html | head -n 1)
+          if [ -z "$HASH" ]; then
+            echo "Error: Could not extract script hash from build/index.html"
+            exit 1
+          fi
+          sed -i "s|sha256-PLACEHOLDER|$HASH|g" firebase.json
+          sed -i "s|API_URL_PLACEHOLDER|$PUBLIC_API_URL|g" firebase.json
+          echo "Updated firebase.json with CSP hash and API URL"
+      - name: Deploy to Firebase
+        uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_K_INAROW }}'
