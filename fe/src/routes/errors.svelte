@@ -1,9 +1,13 @@
 <script lang="ts">
-    export let message: string;
+    interface Props {
+        message: string;
+    }
+
+    let { message }: Props = $props();
 </script>
 
 <div>
-    <p class="emoji">{"\u2639"}</p>
+    <p class="emoji">☹</p>
     <p class="message">Unexpected error occurred: {message}</p>
     <p class="message">Please reload the page and try again.</p>
 </div>

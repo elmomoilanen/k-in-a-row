@@ -1,6 +1,10 @@
 <script lang="ts">
-    export let showStart: boolean;
-    export let showTime: number;
+    interface Props {
+        showStart: boolean;
+        showTime: number;
+    }
+
+    let { showStart = $bindable(), showTime }: Props = $props();
 
     setTimeout(() => {
         showStart = false;

@@ -1,9 +1,19 @@
 <script lang="ts">
-    export let boardSize: string;
-    export let cellsToWin: number;
-    export let goHome: () => void;
+    interface Props {
+        boardSize: string;
+        cellsToWin: number;
+        goHome: () => void;
+    }
+
+    let { boardSize, cellsToWin, goHome }: Props = $props();
 
     let gameInfo = `${boardSize} ${cellsToWin.toFixed()}-in-a-row`;
+
+    function handleHomeIconKeyDown(event: KeyboardEvent) {
+        if (event.key === "Enter" || event.key === " ") {
+            goHome();
+        }
+    }
 </script>
 
 <div class="topbar">
@@ -11,10 +21,10 @@
         id="home-icon"
         class="home-icon"
         aria-label="Go to app home view"
+        onclick={goHome}
+        onkeydown={handleHomeIconKeyDown}
         role="button"
         tabindex="0"
-        on:click={goHome}
-        on:keydown
     >
         <svg
             class="bi bi-house"

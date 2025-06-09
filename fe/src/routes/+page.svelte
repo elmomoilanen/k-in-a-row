@@ -13,16 +13,16 @@
 
     const SHOW_PHRASES_LIMIT = 0.5;
 
-    let currentGameType: MaybeGame = undefined;
+    let currentGameType: MaybeGame = $state(undefined);
     let previousGameType: MaybeGame = undefined;
-    let currentGameLevel: MaybeGameLevel = undefined;
-    let previousGameLevel: MaybeGameLevel = undefined;
-    let currentWinner: MaybePlayer = undefined;
-    let startGame = false;
-    let backendConnected = false;
-    let showGameEndOptions = false;
-    let showGameInfo = false;
-    let apiErrorOccurred = false;
+    let currentGameLevel: MaybeGameLevel = $state(undefined);
+    let previousGameLevel: MaybeGameLevel = $state(undefined);
+    let currentWinner: MaybePlayer = $state(undefined);
+    let startGame = $state(false);
+    let backendConnected = $state(false);
+    let showGameEndOptions = $state(false);
+    let showGameInfo = $state(false);
+    let apiErrorOccurred = $state(false);
 
     function setGameType(newGame: Game): void {
         currentGameType = newGame;
@@ -69,6 +69,12 @@
         showGameInfo = !showGameInfo;
     }
 
+    function handleInfoIconKeydown(event: KeyboardEvent): void {
+        if (event.key === "Enter" || event.key === " ") {
+            toggleShowGameInfo();
+        }
+    }
+
     function isCellsToWinWithinLimits(gameType: MaybeGame): boolean {
         return (
             !!gameType &&
@@ -99,7 +105,7 @@
 </script>
 
 {#if apiErrorOccurred}
-    <Errors message={"Failed to make initial connection to the backend API."} />
+    <Errors message="Failed to make initial connection to the backend API." />
 {/if}
 
 {#if currentGameType && isCellsToWinWithinLimits(currentGameType) && currentGameLevel && startGame && backendConnected}
@@ -129,8 +135,8 @@
         {#if currentWinner !== undefined && previousGameLevel?.levelName !== "Easy" && Math.random() > SHOW_PHRASES_LIMIT}
             <h2>{getPhrase(currentWinner)}</h2>
         {/if}
-        <button id="game-end-reset" on:click={resetGame}>Play again</button>
-        <button id="game-end-back" on:click={backToStart}>Back to start</button>
+        <button id="game-end-reset" onclick={resetGame}>Play again</button>
+        <button id="game-end-back" onclick={backToStart}>Back to start</button>
     </div>
 {:else}
     <div id="new-game-view" class="open-page">
@@ -149,10 +155,10 @@
                 id="info-icon"
                 class="info-icon"
                 aria-label="Show game info"
+                onclick={toggleShowGameInfo}
+                onkeydown={handleInfoIconKeydown}
                 role="button"
                 tabindex="0"
-                on:click={toggleShowGameInfo}
-                on:keydown
             >
                 <svg
                     class="bi bi-info-circle"

@@ -3,15 +3,20 @@
     import { Games, GameLevels } from "$lib/games";
     import { range } from "$lib/utils";
 
-    export let setGameType: (game: Game) => void;
-    export let setGameLevel: (gameLevel: MaybeGameLevel) => void;
-    export let toggleStartGame: () => void;
-    export let selectedGame: MaybeGame;
-    export let selectedGameLevel: MaybeGameLevel;
+    interface Props {
+        setGameType: (game: Game) => void;
+        setGameLevel: (gameLevel: MaybeGameLevel) => void;
+        toggleStartGame: () => void;
+        selectedGame: MaybeGame;
+        selectedGameLevel: MaybeGameLevel;
+    }
 
-    let showGameOptions = false;
-    let showGameTypeOptions = false;
-    let showGameLevelOptions = false;
+    let { setGameType, setGameLevel, toggleStartGame, selectedGame, selectedGameLevel }: Props =
+        $props();
+
+    let showGameOptions = $state(false);
+    let showGameTypeOptions = $state(false);
+    let showGameLevelOptions = $state(false);
 
     function makeListOfGames() {
         let games = [];
@@ -80,14 +85,14 @@
     <input
         id="game-board-input"
         class={selectedGame && !showGameOptions ? "selected" : "not-selected"}
+        onclick={toggleShowGameOptions}
         placeholder={selectedGame ? selectedGame.boardSize : "Select board size"}
         readonly
         type="text"
-        on:click={toggleShowGameOptions}
     />
     <div id="game-boards" class={`options ${showGameOptions ? "show" : ""}`}>
-        {#each games as { id, game }}
-            <button {id} on:click={() => setGameTypeAndToggle(game, 0)}>{game.boardSize}</button>
+        {#each games as { id, game } (id)}
+            <button {id} onclick={() => setGameTypeAndToggle(game, 0)}>{game.boardSize}</button>
         {/each}
     </div>
 </div>
@@ -97,20 +102,18 @@
         <input
             id="game-cells-to-win-input"
             class={selectedGame.cellsToWin && !showGameTypeOptions ? "selected" : "not-selected"}
+            onclick={toggleShowGameTypeOptions}
             placeholder={selectedGame.cellsToWin
                 ? `${selectedGame.cellsToWin.toFixed()}-in-a-row`
                 : "Select game type"}
             readonly
             type="text"
-            on:click={toggleShowGameTypeOptions}
         />
         <div id="game-types" class={`options ${showGameTypeOptions ? "show" : ""}`}>
-            {#each range(selectedGame.cellsToWinMin, selectedGame.cellsToWinMax + 1) as cellsToWin, i}
-                <!-- As of now, TS/Svelte language support thinks that `selectedGame` can be undefined here which is false -->
-                <!-- Type assertion isn't possible in the Svelte markup, thus use a helper function -->
+            {#each range(selectedGame.cellsToWinMin, selectedGame.cellsToWinMax + 1) as cellsToWin, i (i)}
                 <button
                     id={i.toString()}
-                    on:click={() => setGameTypeAndToggleSafe(selectedGame, cellsToWin)}
+                    onclick={() => setGameTypeAndToggleSafe(selectedGame, cellsToWin)}
                     >{cellsToWin}-in-a-row
                 </button>
             {/each}
@@ -123,21 +126,21 @@
         <input
             id="game-level-input"
             class={selectedGameLevel && !showGameLevelOptions ? "selected" : "not-selected"}
+            onclick={toggleShowGameLevelOptions}
             placeholder={selectedGameLevel ? selectedGameLevel.levelName : "Select level"}
             readonly
             type="text"
-            on:click={toggleShowGameLevelOptions}
         />
         <div id="game-levels" class={`options ${showGameLevelOptions ? "show" : ""}`}>
-            {#each gameLevels as { id, level, description }}
-                <button {id} on:click={() => setGameLevelAndToggle(level)}>{description}</button>
+            {#each gameLevels as { id, level, description } (id)}
+                <button {id} onclick={() => setGameLevelAndToggle(level)}>{description}</button>
             {/each}
         </div>
     </div>
 {/if}
 
 {#if selectedGame?.cellsToWin && !showGameOptions && !showGameTypeOptions && selectedGameLevel && !showGameLevelOptions}
-    <button id="start-game" class="start-game-btn" on:click={toggleStartGame}>Start game</button>
+    <button id="start-game" class="start-game-btn" onclick={toggleStartGame}>Start game</button>
 {/if}
 
 <style>
@@ -153,6 +156,7 @@
         cursor: pointer;
         border: none;
         outline: none;
+        caret-color: transparent;
     }
     .dropdown#game-cells-to-win,
     .dropdown#game-level {

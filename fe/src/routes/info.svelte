@@ -1,5 +1,9 @@
 <script lang="ts">
-    export let toggleShowGameInfo: () => void;
+    interface Props {
+        toggleShowGameInfo: () => void;
+    }
+
+    let { toggleShowGameInfo }: Props = $props();
 </script>
 
 <div class="info-section">
@@ -21,7 +25,7 @@
         Bot player uses a variation of the Minimax algorithm with alpha-beta pruning for its game
         playing strategy.
     </p>
-    <button id="info-close" on:click={toggleShowGameInfo}>Close</button>
+    <button id="info-close" onclick={toggleShowGameInfo}>Close</button>
 </div>
 
 <style>

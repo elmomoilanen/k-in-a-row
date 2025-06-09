@@ -1,8 +1,8 @@
 <div class="container">
-    <div class="spinner" />
-    <div class="spinner inner-2" />
-    <div class="spinner outer-2" />
-    <div class="spinner outer-1" />
+    <div class="spinner"></div>
+    <div class="spinner inner-2"></div>
+    <div class="spinner outer-2"></div>
+    <div class="spinner outer-1"></div>
     <span class="spinner-text">Loading...</span>
 </div>
 

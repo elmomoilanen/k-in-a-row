@@ -1,4 +1,5 @@
 <script lang="ts">
+    /* eslint-disable svelte/valid-prop-names-in-kit-pages */
     import type { BotMove } from "$lib/botmove";
     import type { Game, GameLevel } from "$lib/games";
     import { Player } from "$lib/players";
@@ -9,19 +10,29 @@
     import Errors from "../errors.svelte";
     import { PUBLIC_API_URL } from "$env/static/public";
 
-    // Default value is only for prerendering, otherwise always pass the correct game type as props
-    export let gameType: Game = {
-        cellsTotal: 9,
-        cellsToWin: 3,
-        cellsToWinMin: 3,
-        cellsToWinMax: 3,
-        boardSize: "3x3",
-        gameKey: "x33"
-    };
-    export let gameLevel: GameLevel;
-    export let currentPlayer: Player;
-    export let endGameFn: (winner: Player) => void;
-    export let goHomeFn: () => void;
+    interface Props {
+        gameType?: Game;
+        gameLevel: GameLevel;
+        currentPlayer: Player;
+        endGameFn: (winner: Player) => void;
+        goHomeFn: () => void;
+    }
+
+    let {
+        // Default value is only for prerendering, otherwise always pass the correct game type as props
+        gameType = {
+            cellsTotal: 9,
+            cellsToWin: 3,
+            cellsToWinMin: 3,
+            cellsToWinMax: 3,
+            boardSize: "3x3",
+            gameKey: "x33"
+        },
+        gameLevel,
+        currentPlayer = $bindable(),
+        endGameFn,
+        goHomeFn
+    }: Props = $props();
 
     const X_MARK = "x-symbol";
     const O_MARK = "o-symbol";
@@ -33,12 +44,12 @@
     const BE_REQUESTS_MAX_TRIES = 5;
     const BE_REQUESTS_RETRY_DELAY_MS = 1000;
 
-    let currentMarker = Math.random() < 0.5 ? X_MARK : O_MARK;
-    let botPlayerLastSelectedCell: string | undefined = undefined;
+    let currentMarker = $state(Math.random() < 0.5 ? X_MARK : O_MARK);
+    let botPlayerLastSelectedCell: string | undefined = $state(undefined);
     let p1LastMoveCell = -1;
     let botLastMoveCell = -1;
-    let showStart = currentPlayer === Player.P1;
-    let gameOver = false;
+    let showStart = $state(currentPlayer === Player.P1);
+    let gameOver = $state(false);
     let gameWinner = Player.Empty;
 
     function initCells(cellsCount: number) {
@@ -49,10 +60,9 @@
         return cells;
     }
 
-    let cells = initCells(gameType.cellsTotal);
+    let cells = $state(initCells(gameType.cellsTotal));
 
     function highlightBotMove(botLastMoveCell: string) {
-        botPlayerLastSelectedCell = undefined;
         const botLastMoveCellIdx = parseInt(botLastMoveCell);
         const lastSelectedCell = document.querySelector(`[id='${botLastMoveCellIdx.toFixed()}']`);
         if (lastSelectedCell) {
@@ -181,15 +191,20 @@
 {/if}
 
 <div id="board-{gameType.gameKey}" class="board {gameType.gameKey} {currentMarker}">
-    {#each cells as { id, value, mark }}
+    {#each cells as { id, value, mark } (id)}
         {#if gameOver && value === Player.Empty && mark === EMPTY_MARK}
-            <button {id} class="cell bot" />
+            <button {id} class="cell bot" aria-label="Cell {id}: Empty, Game over"></button>
         {:else if currentPlayer === Player.P1 && value === Player.Empty && mark === EMPTY_MARK}
-            <button {id} class="cell" on:click={() => playP1Turn(id)} />
+            <button
+                {id}
+                class="cell"
+                aria-label="Cell {id}: Empty, You turn"
+                onclick={() => playP1Turn(id)}
+            ></button>
         {:else if currentPlayer === Player.Bot && value === Player.Empty && mark === EMPTY_MARK}
-            <button {id} class="cell bot" />
+            <button {id} class="cell bot" aria-label="Cell {id}: Empty, Bot's turn"></button>
         {:else}
-            <button {id} class="cell {mark}" />
+            <button {id} class="cell {mark}" aria-label="Cell {id}: Marked {mark}"></button>
         {/if}
     {/each}
 </div>
