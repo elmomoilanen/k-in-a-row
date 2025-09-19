@@ -161,7 +161,7 @@ impl Game {
                 index - 1,
                 index + 1,
             ]
-        } else if index % offset == 0 {
+        } else if index.is_multiple_of(offset) {
             // Leftmost column middle
             vec![
                 index - offset,
@@ -170,7 +170,7 @@ impl Game {
                 index + offset,
                 index + offset + 1,
             ]
-        } else if (index + 1) % offset == 0 {
+        } else if (index + 1).is_multiple_of(offset) {
             // Rightmost column middle
             vec![
                 index - (offset + 1),
@@ -292,11 +292,11 @@ impl Game {
         let start_search_indices: HashSet<usize> = if antidiag {
             let anti_offset = self.cells_to_win - 1;
             (0..max_row)
-                .flat_map(|row| (row * offset + anti_offset..row * offset + anti_offset + max_col))
+                .flat_map(|row| row * offset + anti_offset..row * offset + anti_offset + max_col)
                 .collect()
         } else {
             (0..max_row)
-                .flat_map(|row| (row * offset..row * offset + max_col))
+                .flat_map(|row| row * offset..row * offset + max_col)
                 .collect()
         };
 
